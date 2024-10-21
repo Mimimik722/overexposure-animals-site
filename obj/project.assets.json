@@ -5566,19 +5566,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\vovef\\.nuget\\packages\\": {}
+    "C:\\Users\\Владимир\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Учёба\\4 Курс\\Тех. Web-прог\\Project-site\\Project-site.csproj",
+      "projectUniqueName": "D:\\Programm files\\Microsoft Visual Studio Community\\Source\\Repos\\Mimimik722\\overexposure-animals-site\\Project-site.csproj",
       "projectName": "Project-site",
-      "projectPath": "D:\\Учёба\\4 Курс\\Тех. Web-прог\\Project-site\\Project-site.csproj",
-      "packagesPath": "C:\\Users\\vovef\\.nuget\\packages\\",
-      "outputPath": "D:\\Учёба\\4 Курс\\Тех. Web-прог\\Project-site\\obj\\",
+      "projectPath": "D:\\Programm files\\Microsoft Visual Studio Community\\Source\\Repos\\Mimimik722\\overexposure-animals-site\\Project-site.csproj",
+      "packagesPath": "C:\\Users\\Владимир\\.nuget\\packages\\",
+      "outputPath": "D:\\Programm files\\Microsoft Visual Studio Community\\Source\\Repos\\Mimimik722\\overexposure-animals-site\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\vovef\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Владимир\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -5633,7 +5633,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.204/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Вход";
+}
+<div class="text-center">
+    <form id="login" class="form-control">
+        <div class="form-label col-form-label">Вход</div>
+        <input class="col-12" type="text" name="email" placeholder="E-mail">
+        <input class="col-12" type="text" name="password" placeholder="Пароль">
+        <input type="checkbox" class="form-check-input" name="remember-me" id="remember"> Запомнить меня
+        <div class="links">
+            <a href="/">Забыл пароль!</a>
+            <a asp-asp-action="Registration">Регистрация</a>
+        </div>
+        <input type="checkbox" class="form-check-input" name="politacy" id="politacy"> Соглашение об обработке персональных данных
+        <a class="btn btn-success" asp-action="Login">Войти</a>
+        <br>
+    </form>
+</div>
