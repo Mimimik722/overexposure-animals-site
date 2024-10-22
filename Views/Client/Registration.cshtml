@@ -4,61 +4,106 @@
 
 <div class="text-center">
     <form id="registration" class="form-control">
-        <a class="col-12" href="#login">< Войти в профиль</a>
-        <div class="form-label col-form-label">Регистрация</div>
-        <div class="mb-3">
-            <label class="form-label">Имя</label>
-            <input type="type" name="name" value="" placeholder="Иван"/>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Фамилия</label>
-            <input type="type" name="surname" value="" placeholder="Иванов"/>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Город</label>
-            <input class="form-control" list="citylistOptions" id="cityList" placeholder="Введите название города">
-            <datalist id="citylistOptions">
-                <option value="San Francisco"></option>
-                <option value="New York"></option>
-                <option value="Seattle"></option>
-                <option value="Los Angeles"></option>
-                <option value="Chicago"></option>
-            </datalist>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Пол</label>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="radioM" id="radio1">
-                <label class="form-check-label" for="radio1">М</label>
-                <input class="form-check-input" type="radio" name="radioW" id="radio2">
-                <label class="form-check-label" for="radio2">W</label>
+        <div class="row align-items-right">
+            <div class="col-auto">
+                <a class="form-control" asp-action="Login">Войти в профиль</a>
             </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Дата рождения</label>
-            <select id="yearState" class="form-select">
-            </select>
-            <select id="monthState" class="form-select">
-            </select>
-            <select id="dayState" class="form-select">
-            </select>
+        <div class="form-label col-form-label">Регистрация</div>
+        <div class="row mb-3">
+            <div class="col-auto">
+                <label class="form-label col-2">Имя</label>
+            </div>
+            <div class="col-auto">
+                <input type="type" class="form-control col" name="name" value="" placeholder="Иван"/>
+            </div>
         </div>
-        <div>
-            <label class="form-label">Телефон</label>
-            <input class="form-control" name="telephone" type="tel" placeholder="89008007060">
+        <div class="row mb-3">
+            <div class="col-auto">
+                <label class="form-label col-2">Фамилия</label>
+            </div>
+            <div class="col-auto">
+                <input type="type" class="form-control col" name="surname" value="" placeholder="Иванов"/>
+            </div>
         </div>
-        <div>
-            <label class="form-label">E-mail</label>
-            <input class="form-control" name="email" type="email" placeholder="Ivan@mail.ru">
+        <div class="row mb-3">
+            <div class="col-auto">
+                <label class="form-label col-auto">Город</label>
+            </div>
+            <div class="col-5">
+                <input class="form-control" list="citylistOptions" id="cityList" placeholder="Введите название города">
+                <datalist id="citylistOptions">
+                    <option value="San Francisco"></option>
+                    <option value="New York"></option>
+                    <option value="Seattle"></option>
+                    <option value="Los Angeles"></option>
+                    <option value="Chicago"></option>
+                </datalist>            
+            </div>
         </div>
-        <div>
-            <label class="form-label">Пароль</label>
-            <input class="form-control" name="password" type="password" placeholder="Пароль">
+        <div class="row g-3 align-itemns-center mb-3">
+            <div class="col-auto">
+                <label class="form-label ">Пол</label>
+            </div>
+            <div class="form-check form-check-inline col-auto">
+                <input class="form-check-input" type="radio" name="radioM" id="radio1">
+                <label class="form-check-label" for="radio1">М</label>
+            </div> 
+            <div class="form-check form-check-inline col-auto">
+                <input class="form-check-input" type="radio" name="radioW" id="radio2">
+                <label class="form-check-label" for="radio2">Ж</label>
+            </div>
         </div>
-        <div>
-            <label class="form-label">Повтор пароля</label>
-            <input class="form-control" name="password_repeat" type="password" placeholder="Пароль">
+        <div class="row mb-3">
+            <div class="col-auto">
+                <label class="form-label">Дата рождения</label>
+            </div>
+            <div class="col-auto">
+                <select id="yearState" class="form-select">
+                </select>
+            </div>
+            <div class="col-auto">
+                <select id="monthState" class="form-select">
+                </select>
+            </div>
+            <div class="col-auto">
+                <select id="dayState" class="form-select">
+                </select>
+            </div>
         </div>
+        <div class="row">
+            <div class="col-auto">
+                <label class="form-label">Телефон</label>
+            </div>
+            <div class="col-auto">
+                <input class="form-control" name="telephone" type="tel" placeholder="89008007060">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <label class="form-label">E-mail</label>
+            </div>
+            <div class="col-auto">
+                <input class="form-control" name="email" type="email" placeholder="Ivan@mail.ru">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-auto">
+                <label class="form-label">Пароль</label>
+            </div>
+            <div class="col-auto">
+                <input class="form-control" name="password" type="password" placeholder="Пароль">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-auto">
+                <label class="form-label">Повтор пароля</label>
+            </div>
+            <div class="col-auto">
+                <input class="form-control" name="password_repeat" type="password" placeholder="Пароль">
+            </div>
+        </div>
+        
         <a class="btn btn-success" asp-action="Registration">Зарегистрироваться</a>
     </form>
 </div>
