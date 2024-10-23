@@ -6,32 +6,32 @@
     <form id="registration" class="form-control">
         <div class="row align-items-right">
             <div class="col-auto">
-                <a class="form-control" asp-action="Login">Войти в профиль</a>
+                <a class="btn btn-primary form-control" asp-action="Login">Войти в профиль</a>
             </div>
         </div>
         <div class="form-label col-form-label">Регистрация</div>
         <div class="row mb-3">
-            <div class="col-auto">
-                <label class="form-label col-2">Имя</label>
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Имя</label>
             </div>
             <div class="col-auto">
-                <input type="type" class="form-control col" name="name" value="" placeholder="Иван"/>
+                <input type="type" class="form-control" name="name" value="" placeholder="Иван"/>
             </div>
         </div>
         <div class="row mb-3">
-            <div class="col-auto">
-                <label class="form-label col-2">Фамилия</label>
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label col-auto m-0">Фамилия</label>
             </div>
             <div class="col-auto">
                 <input type="type" class="form-control col" name="surname" value="" placeholder="Иванов"/>
             </div>
         </div>
         <div class="row mb-3">
-            <div class="col-auto">
-                <label class="form-label col-auto">Город</label>
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Город</label>
             </div>
-            <div class="col-5">
-                <input class="form-control" list="citylistOptions" id="cityList" placeholder="Введите название города">
+            <div class="col-auto d-flex align-items-center">
+                <input class="form-control m-0" list="citylistOptions" id="cityList" placeholder="Введите название города">
                 <datalist id="citylistOptions">
                     <option value="San Francisco"></option>
                     <option value="New York"></option>
@@ -41,7 +41,7 @@
                 </datalist>            
             </div>
         </div>
-        <div class="row g-3 align-itemns-center mb-3">
+        <div class="row align-itemns-center mb-3">
             <div class="col-auto">
                 <label class="form-label ">Пол</label>
             </div>
@@ -55,8 +55,8 @@
             </div>
         </div>
         <div class="row mb-3">
-            <div class="col-auto">
-                <label class="form-label">Дата рождения</label>
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Дата рождения</label>
             </div>
             <div class="col-auto">
                 <select id="yearState" class="form-select">
@@ -71,33 +71,33 @@
                 </select>
             </div>
         </div>
-        <div class="row">
-            <div class="col-auto">
-                <label class="form-label">Телефон</label>
+        <div class="row mb-3">
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Телефон</label>
             </div>
-            <div class="col-auto">
-                <input class="form-control" name="telephone" type="tel" placeholder="89008007060">
+            <div class="col-auto d-flex align-items-center">
+                <input class="form-control m-0" name="telephone" type="tel" placeholder="89008007060">
             </div>
         </div>
-        <div class="row">
-            <div class="col-auto">
-                <label class="form-label">E-mail</label>
+        <div class="row mb-3">
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">E-mail</label>
             </div>
             <div class="col-auto">
                 <input class="form-control" name="email" type="email" placeholder="Ivan@mail.ru">
             </div>
         </div>
         <div class="row mb-3">
-            <div class="col-auto">
-                <label class="form-label">Пароль</label>
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Пароль</label>
             </div>
             <div class="col-auto">
                 <input class="form-control" name="password" type="password" placeholder="Пароль">
             </div>
         </div>
         <div class="row mb-3">
-            <div class="col-auto">
-                <label class="form-label">Повтор пароля</label>
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Повтор пароля</label>
             </div>
             <div class="col-auto">
                 <input class="form-control" name="password_repeat" type="password" placeholder="Пароль">
