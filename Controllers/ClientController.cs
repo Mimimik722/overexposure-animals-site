@@ -1,13 +1,25 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Project_site.Models;
+using System.Net.NetworkInformation;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Project_site.Controllers
 {
     public class ClientController : Controller
     {
+        private string GetHash(string input)
+        {
+            var md5 = MD5.Create();
+            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+            return Convert.ToBase64String(hash);
+        }
 
         // GET: UserController/Login
+        [HttpGet]
         public IActionResult Login()
         {
             return View();
@@ -22,6 +34,7 @@ namespace Project_site.Controllers
         }
 
         // GET: UserController/Registration
+        [HttpGet]
         public IActionResult Registration()
         {
             try
@@ -39,31 +52,61 @@ namespace Project_site.Controllers
         // POST: UserController/Registration
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Registration(IFormCollection collection)
+        public IActionResult Registration(ClientModel clientM)
         {
             try
             {
                 ApplicationContext db = new ApplicationContext();
-                Client client = new Client();
-                client.id = db.Clients.Count()+1;
-                client.town_id = int.Parse(collection["town_id"].ToString());
-                client.name = collection["name"].ToString();
-                client.password = collection["password"].ToString();
-                client.email = collection["email"].ToString();
-                client.phone = collection["phone"].ToString();
-                client.birthday = new DateOnly(int.Parse(collection["yearState"].ToString()), int.Parse(collection["monthState"].ToString()), int.Parse(collection["dayState"].ToString()));
-                /*using (ApplicationContext db = new ApplicationContext())
+                ViewData["towns"] = db.Towns.ToList();
+                if (!Request.Form["name"].ToString().All(char.IsLetter) ||
+                    !Request.Form["surname"].ToString().All(char.IsLetter))
                 {
-                    User user = new 
-                }*/
-                db.Clients.Add(client);
-                db.SaveChanges();
+                    ModelState.AddModelError("name", "Имя или Фамилия не должны содержать спец. символы или цифры");
+                    return View(clientM);
+                }
+                if (!db.Towns.Any(o => o.name == Request.Form["town"].ToString()))
+                {
+                    ModelState.AddModelError("town", "Такого города не существует");
+                    return View(clientM);
+                }
+                if (Request.Form["password"] != Request.Form["password_repeat"])
+                {
+                    ModelState.AddModelError("password_repeat", "Пароли не совпадают");
+                    return View(clientM);
+                }
+                try
+                {
+                    Client client = new Client();
+                    client.id = db.Clients.Count() + 1;
+                    client.town_id = db.Towns.Where(o => o.name == Request.Form["town"].ToString()).First().id;
+                    client.name = Request.Form["name"];
+                    client.surname = Request.Form["surname"];
+                    client.password = GetHash(Request.Form["password"].ToString());
+                    client.email = Request.Form["email"];
+                    if (Request.Form["radioM"] == "on")
+                    {
+                        client.sex = "м";
+                    }
+                    else
+                    {
+                        client.sex = "ж";
+                    }
+                    client.telephone = Request.Form["phone"];
+                    client.birthday = DateOnly.Parse(Request.Form["birthday"].ToString());
+                    db.Clients.Add(client);
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    return RedirectToAction("Error");
+                }
+               
             }
             catch (Exception ex)
             {
                 return RedirectToAction("Error", "Home");
             }
-            return View();
+            return RedirectToAction("Login");
         }
 
         // GET: UserController/Create

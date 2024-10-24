@@ -1,9 +1,10 @@
-﻿@{
+﻿@model Project_site.Models.ClientModel;
+@{
     ViewData["Title"] = "Регистрация";
 }
 
 <div class="text-center">
-    <form id="registration" class="form-control">
+    <form id="registration" class="form-control" method="post">
         <div class="row align-items-right">
             <div class="col-auto">
                 <a class="btn btn-primary form-control" asp-action="Login">Войти в профиль</a>
@@ -11,11 +12,12 @@
         </div>
         <div class="form-label col-form-label">Регистрация</div>
         <div class="row mb-3">
+            <span class="text-danger" asp-validation-for=name></span>
             <div class="col-auto d-flex align-items-center">
                 <label class="form-label m-0">Имя</label>
             </div>
             <div class="col-auto">
-                <input type="type" class="form-control" name="name" value="" placeholder="Иван"/>
+                <input type="type" class="form-control" asp-for=name value="" placeholder="Иван"/>
             </div>
         </div>
         <div class="row mb-3">
@@ -23,7 +25,7 @@
                 <label class="form-label col-auto m-0">Фамилия</label>
             </div>
             <div class="col-auto">
-                <input type="type" class="form-control col" name="surname" value="" placeholder="Иванов"/>
+                <input type="type" class="form-control col" asp-for=surname value="" placeholder="Иванов"/>
             </div>
         </div>
         <div class="row mb-3">
@@ -31,14 +33,14 @@
                 <label class="form-label m-0">Город</label>
             </div>
             <div class="col-auto d-flex align-items-center">
-                <input class="form-control m-0" list="citylistOptions" id="cityList" placeholder="Введите название города">
-                <datalist id="citylistOptions">
-                    <option value="San Francisco"></option>
-                    <option value="New York"></option>
-                    <option value="Seattle"></option>
-                    <option value="Los Angeles"></option>
-                    <option value="Chicago"></option>
-                </datalist>            
+                <input class="form-control m-0" list="townlistOptions" type="list" asp-for=town placeholder="Введите название города">
+                <datalist id="townlistOptions">
+                    @foreach (var city in @ViewBag.Towns)
+                    {
+                        <option value="@city.name"></option>
+                    }
+                </datalist>
+                <span asp-validation-for=town></span>
             </div>
         </div>
         <div class="row align-itemns-center mb-3">
@@ -46,7 +48,7 @@
                 <label class="form-label ">Пол</label>
             </div>
             <div class="form-check form-check-inline col-auto">
-                <input class="form-check-input" type="radio" name="radioM" id="radio1">
+                <input class="form-check-input" type="radio" name="radioM" id="radio1" checked>
                 <label class="form-check-label" for="radio1">М</label>
             </div> 
             <div class="form-check form-check-inline col-auto">
@@ -59,16 +61,7 @@
                 <label class="form-label m-0">Дата рождения</label>
             </div>
             <div class="col-auto">
-                <select id="yearState" class="form-select">
-                </select>
-            </div>
-            <div class="col-auto">
-                <select id="monthState" class="form-select">
-                </select>
-            </div>
-            <div class="col-auto">
-                <select id="dayState" class="form-select">
-                </select>
+                <input type="date" asp-for=birthday/>
             </div>
         </div>
         <div class="row mb-3">
@@ -76,7 +69,7 @@
                 <label class="form-label m-0">Телефон</label>
             </div>
             <div class="col-auto d-flex align-items-center">
-                <input class="form-control m-0" name="telephone" type="tel" placeholder="89008007060">
+                <input class="form-control m-0" asp-for=phone type="tel" placeholder="89008007060">
             </div>
         </div>
         <div class="row mb-3">
@@ -84,7 +77,7 @@
                 <label class="form-label m-0">E-mail</label>
             </div>
             <div class="col-auto">
-                <input class="form-control" name="email" type="email" placeholder="Ivan@mail.ru">
+                <input class="form-control" asp-for=email type="email" placeholder="Ivan@mail.ru">
             </div>
         </div>
         <div class="row mb-3">
@@ -92,7 +85,7 @@
                 <label class="form-label m-0">Пароль</label>
             </div>
             <div class="col-auto">
-                <input class="form-control" name="password" type="password" placeholder="Пароль">
+                <input class="form-control" asp-for=password type="password" placeholder="Пароль">
             </div>
         </div>
         <div class="row mb-3">
@@ -100,10 +93,10 @@
                 <label class="form-label m-0">Повтор пароля</label>
             </div>
             <div class="col-auto">
-                <input class="form-control" name="password_repeat" type="password" placeholder="Пароль">
+                <input class="form-control" asp-for=password_repeat type="password" placeholder="Пароль">
+                <span asp-validation-for=password_repeat></span>
             </div>
         </div>
-        
-        <a class="btn btn-success" asp-action="Registration">Зарегистрироваться</a>
+        <input class="btn btn-success" type="submit" value="Зарегистрироваться"/>
     </form>
 </div>
