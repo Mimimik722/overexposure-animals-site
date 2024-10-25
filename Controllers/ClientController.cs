@@ -6,6 +6,10 @@ using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Session;
+using Newtonsoft.Json;
 
 namespace Project_site.Controllers
 {
@@ -28,9 +32,25 @@ namespace Project_site.Controllers
         // POST: UserController/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(IFormCollection collection)
+        public IActionResult Login(ClientModel data)
         {
-            return View();
+            try
+            {
+                ApplicationContext db = new ApplicationContext();
+                if (!db.Clients.Any(o => o.telephone == Request.Form["phone"].ToString()) ||
+                    !db.Clients.Any(o => o.password == GetHash(Request.Form["password"]).ToString()))
+                {
+                    ModelState.AddModelError("phone", "Неверный телефон или пароль");
+                    return View(data);
+                }
+                Client client = db.Clients.Where(o => o.telephone == Request.Form["phone"].ToString()).First();
+                this.HttpContext.Session.Set("client", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client)));
+                return Redirect("/");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home");
+            }
         }
 
         // GET: UserController/Registration
@@ -58,61 +78,67 @@ namespace Project_site.Controllers
             {
                 ApplicationContext db = new ApplicationContext();
                 ViewData["towns"] = db.Towns.ToList();
+                
                 if (!Request.Form["name"].ToString().All(char.IsLetter) ||
                     !Request.Form["surname"].ToString().All(char.IsLetter))
                 {
                     ModelState.AddModelError("name", "Имя или Фамилия не должны содержать спец. символы или цифры");
                     return View(clientM);
                 }
+                
                 if (!db.Towns.Any(o => o.name == Request.Form["town"].ToString()))
                 {
                     ModelState.AddModelError("town", "Такого города не существует");
                     return View(clientM);
                 }
+                
+                if (db.Clients.Any(o => o.telephone == Request.Form["phone"].ToString()))
+                {
+                    ModelState.AddModelError("phone", "Пользователь с таким номером телефона уже зарергистрирован");
+                }
+                
                 if (Request.Form["password"] != Request.Form["password_repeat"])
                 {
                     ModelState.AddModelError("password_repeat", "Пароли не совпадают");
                     return View(clientM);
                 }
-                try
+
+                Client client = new Client();
+                
+                client.id = db.Clients.Count() + 1;
+                client.town_id = db.Towns.Where(o => o.name == Request.Form["town"].ToString()).First().id;
+                client.name = Request.Form["name"];
+                client.surname = Request.Form["surname"];
+                client.password = GetHash(Request.Form["password"].ToString());
+                client.email = Request.Form["email"];
+                
+                if (Request.Form["radioM"] == "on")
                 {
-                    Client client = new Client();
-                    client.id = db.Clients.Count() + 1;
-                    client.town_id = db.Towns.Where(o => o.name == Request.Form["town"].ToString()).First().id;
-                    client.name = Request.Form["name"];
-                    client.surname = Request.Form["surname"];
-                    client.password = GetHash(Request.Form["password"].ToString());
-                    client.email = Request.Form["email"];
-                    if (Request.Form["radioM"] == "on")
-                    {
-                        client.sex = "м";
-                    }
-                    else
-                    {
-                        client.sex = "ж";
-                    }
-                    client.telephone = Request.Form["phone"];
-                    client.birthday = DateOnly.Parse(Request.Form["birthday"].ToString());
-                    db.Clients.Add(client);
-                    db.SaveChanges();
+                    client.sex = "м";
                 }
-                catch (Exception ex)
+                else
                 {
-                    return RedirectToAction("Error");
+                    client.sex = "ж";
                 }
-               
+                
+                client.telephone = Request.Form["phone"];
+                client.birthday = DateOnly.Parse(Request.Form["birthday"].ToString());
+                db.Clients.Add(client);
+                db.SaveChanges();
+                
+                this.HttpContext.Session.Set("client", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client)));
             }
             catch (Exception ex)
             {
                 return RedirectToAction("Error", "Home");
             }
-            return RedirectToAction("Login");
+            return Redirect("/");
         }
 
-        // GET: UserController/Create
-        public ActionResult Create()
+        public IActionResult Logout()
         {
-            return View();
+            this.HttpContext.Session.Remove("client");
+            return Redirect("/");
         }
 
         // POST: UserController/Create
