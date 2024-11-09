@@ -22,15 +22,15 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Политика конфиденциальности</a>
                         </li>
                     </ul>
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav justify-contert-right">
                         @if (Context.Session.GetString("client") is not null)
                         {
+                            <a class="nav-link text-dark" asp-controller="Client" asp-action="Profile">
+                                Профиль
+                            </a>
                             Client c = JsonConvert.DeserializeObject<Client>(Context.Session.GetString("client"));
                             <li class="nav-item d-flex align-items-center me-3">
                                 Добро пожаловать,

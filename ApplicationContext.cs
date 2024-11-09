@@ -29,8 +29,6 @@ public class Client
     public string? telephone { get; set; }
     public string? email { get; set; }
     public string? password { get; set; }
-
-    public ICollection<Order>? orders { get; set; }
 }
 
 public class Sitter

@@ -26,8 +26,16 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = D:\Programm files\Microsoft Visual Studio Community\Source\Repos\Mimimik722\overexposure-animals-site
 build_property._RazorSourceGeneratorDebug = 
 
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Client/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Client/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XExvZ2luLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Client/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XFByb2ZpbGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Client/Registration.cshtml]
