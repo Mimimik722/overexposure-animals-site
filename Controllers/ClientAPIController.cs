@@ -4,6 +4,7 @@ using NuGet.Protocol;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
+using Project_site.Models;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
@@ -26,7 +27,7 @@ namespace Project_site.Controllers
             try
             {
                 ApplicationContext db = new ApplicationContext();
-                Client client = db.Clients.Find(id);
+                ClientModel client = db.Clients.Find(id);
                 return Results.Json(client);
             }
             catch (Exception ex)
@@ -63,7 +64,7 @@ namespace Project_site.Controllers
                     return;
                 }
 
-                Client client = new Client();
+                ClientModel client = new ClientModel();
 
                 client.id = db.Clients.Count() + 1;
                 client.town_id = int.Parse(request.town_id.ToString());

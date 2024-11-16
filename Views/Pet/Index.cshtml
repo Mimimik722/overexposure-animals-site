@@ -1,0 +1,48 @@
+﻿@model IEnumerable<PetModel>;
+@{
+    ViewData["Title"] = "Домашние животные";
+    var count = 0;
+    ApplicationContext db = new ApplicationContext();
+}
+<div class="text-left">
+    <div class="col-auto">
+        <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+    </div>
+    <div class="form-label col-form-label">Домашние животные</div>
+    <div class="col-auto">
+        <a class="btn btn-primary text-light" asp-action="Create">Добавить</a>
+    </div>
+</div>
+<table class="table table-bordered">
+    <tr>
+        <td>№</td>
+        <td>Имя</td>
+        <td>Порода</td>
+        <td>Пол</td>
+        <td>Возраст</td>
+        <td>Вес</td>
+        <td>Особенности</td>
+        <td>Действия</td>
+    </tr>
+    @if (Model != null)
+    {
+        foreach (var pet in Model)
+        {
+            count++;
+            <tr>
+                <td>@count</td>
+                <td>@pet.name</td>
+                <td>@pet.breed_.name</td>
+                <td>@pet.sex</td>
+                <td>@pet.age</td>
+                <td>@pet.weight</td>
+                <td>@pet.features</td>
+                <td>
+                    <a class="btn">@Html.ActionLink("Описание", "Details", new { id = pet.id })</a>
+                        <a class="btn btn-primary">@Html.ActionLink("Изменить", "Edit", new { id = pet.id })</a>
+                        <a class="btn btn-delete">@Html.ActionLink("Удалить", "Delete", pet)</a>
+                </td>
+            </tr>
+        }
+    }
+</table>

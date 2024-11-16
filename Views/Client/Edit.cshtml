@@ -29,14 +29,14 @@
                 <label class="form-label m-0">Город</label>
             </div>
             <div class="col-auto d-flex align-items-center">
-                <input class="form-control m-0" list="townlistOptions" type="list" asp-for=town placeholder="Введите название города" required>
+                <input class="form-control m-0" list="townlistOptions" type="list" placeholder="Введите название города" required>
                 <datalist id="townlistOptions">
                     @foreach (var city in @ViewBag.Towns)
                     {
                         <option value="@city.name"></option>
                     }
                 </datalist>
-                <span class="text-danger" asp-validation-for=town></span>
+                <span class="text-danger" asp-validation-for=town_id></span>
             </div>
         </div>
         <div class="row align-itemns-center mb-3">

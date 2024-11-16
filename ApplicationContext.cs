@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Project_site.Models;
 
 public class ApplicationContext : DbContext
 {
-    public DbSet<Client> Clients { get; set; }
+    public DbSet<ClientModel> Clients { get; set; } = null;
     public DbSet<Sitter> Sitters { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<Town> Towns { get; set; }
-
+    public DbSet<PetModel> Pets { get; set; } = null;
+    public DbSet<Breed> Breeds { get; set; }
     public ApplicationContext()
     {
         Database.EnsureCreated();
@@ -29,6 +31,7 @@ public class Client
     public string? telephone { get; set; }
     public string? email { get; set; }
     public string? password { get; set; }
+    public ICollection<PetModel>? Pets { get; set; }
 }
 
 public class Sitter
@@ -62,4 +65,11 @@ public class Town
     public int id { get; set; }
     public string? name { get; set; }
     public ICollection<Order>? sitters { get; set; }
+}
+
+public class Breed
+{
+    public int id { get; set; }
+    public string? name { get; set; }
+    public ICollection<PetModel>? pets { get; set; }
 }

@@ -1,17 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Newtonsoft.Json;
 using Project_site.Models;
-using System.Net.NetworkInformation;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Session;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
 
 namespace Project_site.Controllers
 {
@@ -45,12 +40,13 @@ namespace Project_site.Controllers
                     ModelState.AddModelError("telephone", "Неверный телефон или пароль");
                     return View(data);
                 }
-                Client client = db.Clients.Where(o => o.telephone == Request.Form["telephone"].ToString()).First();
-                this.HttpContext.Session.Set("client", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client)));
+                ClientModel client = db.Clients.Where(o => o.telephone == Request.Form["telephone"].ToString()).First();
+                HttpContext.Session.Set("client", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client)));
                 var claims = new[] { new Claim("client", Request.Form["telephone"].ToString()) };
                 var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
                 var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
                 this.HttpContext.SignInAsync(claimsPrincipal);
+                this.HttpContext.Session.CommitAsync();
                 return Redirect("/");
             }
             catch
@@ -92,7 +88,7 @@ namespace Project_site.Controllers
                     return View(clientM);
                 }
 
-                if (!db.Towns.Any(o => o.name == clientM.town.ToString()))
+                if (!db.Towns.Any(o => o.name == Request.Form["town"].ToString()))
                 {
                     ModelState.AddModelError("town", "Такого города не существует");
                     return View(clientM);
@@ -105,14 +101,14 @@ namespace Project_site.Controllers
 
                 if (Request.Form["password"] != Request.Form["password_repeat"])
                 {
-                    ModelState.AddModelError("password_repeat", "Пароли не совпадают");
+                    ModelState.AddModelError("password", "Пароли не совпадают");
                     return View(clientM);
                 }
 
-                Client client = new Client();
+                ClientModel client = new ClientModel();
 
                 client.id = db.Clients.Count() + 1;
-                client.town_id = db.Towns.Where(o => o.name == clientM.town.ToString()).First().id;
+                client.town_id = db.Towns.Where(o => o.name == Request.Form["town"].ToString()).First().id;
                 client.name = Request.Form["name"];
                 client.surname = Request.Form["surname"];
                 client.password = GetHash(Request.Form["password"].ToString());
@@ -170,13 +166,13 @@ namespace Project_site.Controllers
                 ApplicationContext db = new ApplicationContext();
                 ClientModel client = JsonConvert.DeserializeObject<ClientModel>(HttpContext.Session.GetString("client"));
                 ViewData["towns"] = db.Towns.ToList();
-                int? town = JsonConvert.DeserializeObject<Client>(HttpContext.Session.GetString("client")).town_id;
-                client.town = db.Towns.Where(o => o.id == town).First().name.ToString();
+/*                int? town = JsonConvert.DeserializeObject<Client>(HttpContext.Session.GetString("client")).town_id;
+                client.town = db.Towns.Where(o => o.id == town).First().name.ToString();*/
                 return View(client);
             }
             catch
             {
-                return RedirectToAction("Error", "Home");
+                return StatusCode(503);
             }
         }
 
@@ -188,11 +184,11 @@ namespace Project_site.Controllers
         {
             ApplicationContext db = new ApplicationContext();
             ClientModel client = JsonConvert.DeserializeObject<ClientModel>(HttpContext.Session.GetString("client"));
-            Client db_client = db.Clients.Where(o => o.telephone == client.telephone.ToString()).First();
-            int? town = JsonConvert.DeserializeObject<Client>(HttpContext.Session.GetString("client")).town_id;
+/*            Client db_client = db.Clients.Where(o => o.telephone == client.telephone.ToString()).First();
+            int? town = JsonConvert.DeserializeObject<Client>(HttpContext.Session.GetString("client")).town_id;*/
 
             ViewData["towns"] = db.Towns.ToList();
-            client.town = db.Towns.Where(o => o.id == town).First().name.ToString();
+            //client.town = db.Towns.Where(o => o.id == town).First().name.ToString();
 
             if (!new_client.name.ToString().All(char.IsLetter) ||
                 !new_client.surname.ToString().All(char.IsLetter))
@@ -202,7 +198,7 @@ namespace Project_site.Controllers
             }
             if (!db.Towns.Any(o => o.name == Request.Form["town"].ToString()))
             {
-                ModelState.AddModelError("town", "Такого города не существует");
+                ModelState.AddModelError("town_id", "Такого города не существует");
                 return View(new_client);
             }
             if (db.Clients.Any(o => o.telephone == new_client.telephone.ToString()) && new_client.telephone != client.telephone)
@@ -222,43 +218,43 @@ namespace Project_site.Controllers
             if (client.name != new_client.name)
             {
                 client.name = new_client.name;
-                db_client.name = new_client.name;
+                //db_client.name = new_client.name;
             }
             if (client.surname != new_client.surname)
             {
                 client.surname = new_client.surname;
-                db_client.surname = new_client.surname;
+                //db_client.surname = new_client.surname;
             }
-            if (client.town != new_client.town)
+            if (client.town_id != new_client.town_id)
             {
-                client.town = new_client.town;
-                db_client.town_id = db.Towns.Where(o => o.name == Request.Form["town"].ToString()).First().id;
+                client.town_id = new_client.town_id;
+                //db_client.town_id = db.Towns.Where(o => o.name == Request.Form["town"].ToString()).First().id;
             }
             if (client.sex != new_client.sex)
             {
                 client.sex = new_client.sex;
-                db_client.sex = new_client.sex;
+                //db_client.sex = new_client.sex;
             }
             if (client.birthday != new_client.birthday)
             {
-                client.birthday= new_client.birthday;
-                db_client.birthday = new_client.birthday;
+                client.birthday = new_client.birthday;
+                //db_client.birthday = new_client.birthday;
             }
             if (client.telephone != new_client.telephone)
             {
                 client.telephone = new_client.telephone;
-                db_client.telephone = new_client.telephone;
+                //db_client.telephone = new_client.telephone;
             }
             if (client.email != new_client.email)
             {
                 client.email = new_client.email;
-                db_client.email = new_client.email;
+                //db_client.email = new_client.email;
             }
 
-            db.Clients.Update(db_client);
+            db.Clients.Update(client);
             db.SaveChanges();
             this.HttpContext.Session.Remove("client");
-            this.HttpContext.Session.Set("client", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(db_client)));
+            this.HttpContext.Session.Set("client", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client)));
             return View(client);
         }
 
