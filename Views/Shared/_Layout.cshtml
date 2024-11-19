@@ -1,5 +1,5 @@
 ﻿@using Newtonsoft.Json
-@model Project_site.Models.ClientModel
+@using Project_site.Models;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,30 +26,57 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav justify-contert-right">
-                        @if (Context.Session.GetString("client") is not null)
+                        
+                        @if (Context.Session.GetString("user") is not null)
                         {
-                            <a class="nav-link text-dark" asp-controller="Pet">
-                                Животные
-                            </a>
-                            <a class="nav-link text-dark" asp-controller="Client" asp-action="Profile">
+                            @if (!Context.User.IsInRole("Admin"))
+                            {
+                                @if (Context.User.IsInRole("Sitter"))
+                                {
+                                    <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">
+                                        Текущие заказы
+                                    </a>
+                                    <a class="nav-link text-dark" asp-controller="Orders" asp-action="New">
+                                        Новые заказы
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="nav-link text-dark" asp-controller="User" asp-action="Application">
+                                        Подать заявку на ситтера
+                                    </a>
+                                }
+                                <a class="nav-link text-dark" asp-controller="Pets">
+                                    Животные
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="nav-link text-dark" asp-controller="Sitters" asp-action="Index">
+                                    Ситтеры
+                                </a>
+                                <a class="nav-link text-dark" asp-controller="Sitters" asp-action="applications">
+                                    Заявки
+                                </a>
+                            }
+                            <a class="nav-link text-dark" asp-controller="User" asp-action="Profile">
                                 Профиль
                             </a>
-                            Client c = JsonConvert.DeserializeObject<Client>(Context.Session.GetString("client"));
                             <li class="nav-item d-flex align-items-center me-3">
                                 Добро пожаловать,
-                                @c.name
+                                @Context.User.Identity.Name
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-danger text-light" asp-area="" asp-controller="Client" asp-action="Logout">Выход</a>
+                                <a class="btn btn-danger text-light" asp-area="" asp-controller="User" asp-action="Logout">Выход</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="btn btn-link" asp-area="" asp-controller="Client" asp-action="Registration">Регистрация</a>
+                                <a class="btn btn-link" asp-area="" asp-controller="User" asp-action="Registration">Регистрация</a>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-primary text-light" asp-area="" asp-controller="Client" asp-action="Login">Вход</a>
+                                <a class="btn btn-primary text-light" asp-area="" asp-controller="User" asp-action="Login">Вход</a>
                             </li>
                         }
                     </ul>

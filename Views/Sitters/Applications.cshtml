@@ -1,0 +1,50 @@
+﻿@model IEnumerable<SitterModel>;
+@{
+    ViewData["Title"] = "Заявки";
+    var count = 0;
+}
+<div class="text-left">
+    <div class="col-auto">
+        <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+    </div>
+    <div class="form-label col-form-label">Заявки</div>
+</div>
+<table class="table table-bordered">
+    <tr>
+        <td>№</td>
+        <td>Имя</td>
+        <td>Фамилия</td>
+        <td>Город</td>
+        <td>Телефон</td>
+        <td>Возраст</td>
+        <td>З/п</td>
+        <td>Опыт работы</td>
+        <td>Действия</td>
+    </tr>
+    @if (Model != null)
+    {
+        foreach (var sitter in Model)
+        {
+            count++;
+            <tr>
+                @{
+                    DateTime zeroTime = new DateTime(1, 1, 1);
+                    TimeSpan span = DateTime.Now - sitter.user_.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
+                    var years = (zeroTime + span).Year - 1;
+                }
+                <td>@count</td>
+                <td>@sitter.user_.name</td>
+                <td>@sitter.user_.surname</td>
+                <td>@sitter.user_.town_.name</td>
+                <td>@sitter.user_.telephone</td>
+                <td>@years</td>
+                <td>@sitter.payment</td>
+                <td>@sitter.experience</td>
+                <td>
+                    <a class="btn btn-primary" asp-action="Approve" asp-route-sitter_id="@sitter.id">Одобрить</a>
+                    <a class="btn btn-danger" asp-action="Remove" asp-route-sitter_id="@sitter.id">Отклонить</a>
+                </td>
+            </tr>
+        }
+    }
+</table>

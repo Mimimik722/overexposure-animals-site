@@ -1,10 +1,10 @@
-﻿@model Project_site.Models.ClientModel;
+﻿@model Project_site.Models.UserModel;
 @{
     ViewData["Title"] = "Регистрация";
 }
 
 <div class="text-center">
-    <form id="registration" class="form-control" method="patch">
+    <form id="registration" class="form-control" method="post">
         <div class="form-label col-form-label">Регистрация</div>
         <div class="row mb-3">
             <span class="text-danger" asp-validation-for=name></span>
@@ -35,7 +35,7 @@
                         <option value="@city.name"></option>
                     }
                 </datalist>
-                <span class="text-danger" asp-validation-for=town_id></span>
+                <span class="text-danger" asp-validation-for=town_></span>
             </div>
         </div>
         <div class="row align-itemns-center mb-3">

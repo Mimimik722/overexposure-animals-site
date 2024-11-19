@@ -11,17 +11,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Project_site.Controllers
 {
-    public class PetController : Controller
+    public class PetsController : Controller
     {
         [Authorize]
         public IActionResult Index()
         {
             try
             {
-                
                 ApplicationContext db = new ApplicationContext();
-                int client_id = JsonConvert.DeserializeObject<ClientModel>(HttpContext.Session.GetString("client")).id;
-                ICollection<PetModel> pets = db.Clients.Include(c => c.Pets).Where(o => o.id == client_id).First().Pets;//Не сохраняется инфомрация о животных
+                int client_id = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("client")).id;
+                ICollection<PetModel> pets = db.Users.Where(o => o.id == client_id).Include(c => c.Pets).First().Pets;
                 return View(pets);
             }
             catch
@@ -85,7 +84,7 @@ namespace Project_site.Controllers
                     pet.sex = "ж";
                 }
                 pet.breed_ = db.Breeds.Where(o => o.name == Request.Form["breed"].ToString()).First();
-                ClientModel client = db.Clients.Find(JsonConvert.DeserializeObject<ClientModel>(HttpContext.Session.GetString("client")).id);
+                UserModel client = db.Users.Find(JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("client")).id);
                 pet.client_ = client;
                 client.Pets.Add(pet);
 

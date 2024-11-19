@@ -3,12 +3,14 @@ using Project_site.Models;
 
 public class ApplicationContext : DbContext
 {
-    public DbSet<ClientModel> Clients { get; set; } = null;
-    public DbSet<Sitter> Sitters { get; set; }
+    public DbSet<UserModel> Users { get; set; } = null!;
+    public DbSet<SitterModel> Sitters { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<Town> Towns { get; set; }
-    public DbSet<PetModel> Pets { get; set; } = null;
+    public DbSet<PetModel> Pets { get; set; } = null!;
     public DbSet<Breed> Breeds { get; set; }
+    public DbSet<Admin> Admins { get; set; }
+
     public ApplicationContext()
     {
         Database.EnsureCreated();
@@ -18,35 +20,6 @@ public class ApplicationContext : DbContext
         optionsBuilder.UseMySql("server=192.168.0.104;user=root;password=root;database=pets_db;",
             new MySqlServerVersion(new Version(9, 0)));
     }
-}
-
-public class Client
-{
-    public int? id { get; set; }
-    public int? town_id { get; set; }
-    public string? name { get; set; }
-    public string? surname { get; set; }
-    public string? sex { get; set; }
-    public DateOnly? birthday { get; set; }
-    public string? telephone { get; set; }
-    public string? email { get; set; }
-    public string? password { get; set; }
-    public ICollection<PetModel>? Pets { get; set; }
-}
-
-public class Sitter
-{
-    public int? id { get; set; }
-    public int? town_id { get; set; }
-    public string? name { get; set; }
-    public string? surname { get; set; }
-    public string? sex { get; set; }
-    public float? payment { get; set; }
-    public int? expirience { get; set; }
-    public bool? is_verified { get; set; }
-    public string? password { get; set; }
-    
-    public ICollection<Order>? orders { get; set; }
 }
 
 public class Order
@@ -59,12 +32,23 @@ public class Order
     public DateOnly? date_start { get; set; }
     public DateOnly? is_verified { get;set; }
 }
+/*
+public class SitterModel
+{
+    public int? id { get; set; }
+    public UserModel user_ { get; set; } = null!;
+    public float? payment { get; set; }
+    public int? expirience { get; set; }
+    public int? is_verificated { get; set; }
+
+    public ICollection<Order>? orders { get; set; }
+}*/
 
 public class Town
 {
     public int id { get; set; }
     public string? name { get; set; }
-    public ICollection<Order>? sitters { get; set; }
+    public ICollection<Order>? users { get; set; }
 }
 
 public class Breed
@@ -72,4 +56,10 @@ public class Breed
     public int id { get; set; }
     public string? name { get; set; }
     public ICollection<PetModel>? pets { get; set; }
+}
+
+public class Admin
+{
+    public int id { get; set; }
+    public UserModel user_ { get; set; } = null!;
 }

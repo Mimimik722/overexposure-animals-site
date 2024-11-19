@@ -27,7 +27,7 @@ namespace Project_site.Controllers
             try
             {
                 ApplicationContext db = new ApplicationContext();
-                ClientModel client = db.Clients.Find(id);
+                UserModel client = db.Users.Find(id);
                 return Results.Json(client);
             }
             catch (Exception ex)
@@ -40,7 +40,7 @@ namespace Project_site.Controllers
         [HttpPost]
         public void Post([FromBody] JsonObject json)
         {
-            var request = JsonConvert.DeserializeObject<Client>(json.ToString());
+            var request = JsonConvert.DeserializeObject<UserModel>(json.ToString());
             try
             {
                 ApplicationContext db = new ApplicationContext();
@@ -52,22 +52,22 @@ namespace Project_site.Controllers
                     return;
                 }
 
-                if (!db.Towns.Any(o => o.id == int.Parse(request.town_id.ToString())))
+                if (!db.Towns.Any(o => o.id == int.Parse(request.town_.name.ToString())))
                 {
                     Response.WriteAsJsonAsync("Указанного города не существует");
                     return;
                 }
 
-                if (db.Clients.Any(o => o.telephone == request.telephone.ToString()))
+                if (db.Users.Any(o => o.telephone == request.telephone.ToString()))
                 {
                     Response.WriteAsJsonAsync("Пользователь с таким номером телефона уже зарергистрирован");
                     return;
                 }
 
-                ClientModel client = new ClientModel();
+                UserModel client = new UserModel();
 
-                client.id = db.Clients.Count() + 1;
-                client.town_id = int.Parse(request.town_id.ToString());
+                client.id = db.Users.Count() + 1;
+                client.town_ = db.Towns.Where(o => o.name == request.town_.name).First();
                 client.name = request.name.ToString();
                 client.surname = request.surname.ToString();
                 client.password = GetHash(request.password.ToString());
@@ -85,7 +85,7 @@ namespace Project_site.Controllers
 
                 client.telephone = request.telephone.ToString();
                 client.birthday = DateOnly.Parse(request.birthday.ToString());
-                db.Clients.Add(client);
+                db.Users.Add(client);
                 db.SaveChanges();
                 Response.WriteAsJsonAsync(json);
             }

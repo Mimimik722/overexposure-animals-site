@@ -1,8 +1,7 @@
 ﻿@using Newtonsoft.Json
-@model Project_site.Models.ClientModel;
+@model Project_site.Models.UserModel;
 @{
     ViewData["Title"] = "Профиль";
-    var client = JsonConvert.DeserializeObject<ClientModel>(Context.Session.GetString("client"));
 }
 <div class="text-center">
     <form id="edit" class="form-control" method="Post">
@@ -29,14 +28,14 @@
                 <label class="form-label m-0">Город</label>
             </div>
             <div class="col-auto d-flex align-items-center">
-                <input class="form-control m-0" list="townlistOptions" type="list" placeholder="Введите название города" required>
+                <input class="form-control m-0" list="townlistOptions" type="list" placeholder="Введите название города" value="@Model.town_.name" required>
                 <datalist id="townlistOptions">
                     @foreach (var city in @ViewBag.Towns)
                     {
                         <option value="@city.name"></option>
                     }
                 </datalist>
-                <span class="text-danger" asp-validation-for=town_id></span>
+                <span class="text-danger" asp-validation-for=town_></span>
             </div>
         </div>
         <div class="row align-itemns-center mb-3">
@@ -44,7 +43,7 @@
                 <label class="form-label ">Пол</label>
             </div>
             <div class="form-check form-check-inline col-auto">
-                @if (client.sex == "м")
+                @if (Model.sex == "м")
                 {
                     <input class="form-check-input" type="radio" name="radioM" id="radio1" checked>
                 }
@@ -55,7 +54,7 @@
                 <label class="form-check-label" for="radio1">М</label>
             </div> 
             <div class="form-check form-check-inline col-auto">
-                @if (client.sex == "ж")
+                @if (Model.sex == "ж")
                 {
                     <input class="form-check-input" type="radio" name="radioW" id="radio2" checked>
                 }

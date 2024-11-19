@@ -1,0 +1,46 @@
+﻿@model IEnumerable<SitterModel>;
+@{
+    ViewData["Title"] = "Ситтеры";
+    var count = 0;
+}
+<div class="text-left">
+    <div class="col-auto">
+        <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+    </div>
+    <div class="form-label col-form-label">Ситтеры</div>
+    <div class="col-auto">
+        <a class="btn btn-primary text-light" asp-action="Create">Добавить</a>
+    </div>
+</div>
+<table class="table table-bordered">
+    <tr>
+        <td>№</td>
+        <td>Имя</td>
+        <td>Фамилия</td>
+        <td>Город</td>
+        <td>Телефон</td>
+        <td>Возраст</td>
+        <td>З/п</td>
+        <td>Опыт работы</td>
+    </tr>
+    @if (Model != null)
+    {
+        foreach (var sitter in Model)
+        {
+            count++;
+            <tr>
+                <td>@count</td>
+                <td>@sitter.user_.name</td>
+                <td>@sitter.user_.surname</td>
+                <td>@sitter.user_.town_.name</td>
+                <td>@sitter.user_.telephone</td>
+                <td>@sitter.payment</td>
+                <td>@sitter.experience</td>
+                <td>
+                    <a class="btn btn-primary" asp-action="Profile" asp-route-sitter_id="@sitter.id">Подробнее</a>
+                    <a class="btn btn-danger" asp-action="Remove" asp-route-sitter_id="@sitter.id">Уволить</a>
+                </td>
+            </tr>
+        }
+    }
+</table>

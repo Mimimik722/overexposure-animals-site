@@ -6,7 +6,7 @@ namespace Project_site.Models
     {
         public int? id { get; set; }
         public string? name { get; set; }
-        public ClientModel? client_ { get; set; }
+        public UserModel? client_ { get; set; }
         public Breed? breed_ { get; set; }
         public string? sex { get; set; }
         public int? age { get; set; }

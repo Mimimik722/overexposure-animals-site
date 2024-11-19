@@ -6,7 +6,11 @@ using System;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddAuthentication("Cookies").AddCookie(options => options.LoginPath = "/Login");
+builder.Services.AddAuthentication("Cookies").AddCookie(options => {
+    options.LoginPath = "/User/Login";
+    options.LogoutPath = "/User/Logout";
+    options.AccessDeniedPath = "/";
+    });
 builder.Services.AddControllersWithViews();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();

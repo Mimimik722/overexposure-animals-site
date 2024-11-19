@@ -26,22 +26,6 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = D:\Programm files\Microsoft Visual Studio Community\Source\Repos\Mimimik722\overexposure-animals-site
 build_property._RazorSourceGeneratorDebug = 
 
-[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Client/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XEVkaXQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Client/Login.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XExvZ2luLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Client/Profile.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XFByb2ZpbGUuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Client/Registration.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XFJlZ2lzdHJhdGlvbi5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -50,20 +34,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Pet/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGV0XENyZWF0ZS5jc2h0bWw=
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Pets/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGV0c1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Pet/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGV0XERldGFpbHMuY3NodG1s
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Pets/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGV0c1xEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Pet/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGV0XEVkaXQuY3NodG1s
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Pets/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGV0c1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Pet/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGV0XEluZGV4LmNzaHRtbA==
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Pets/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGV0c1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Shared/Error.cshtml]
@@ -72,6 +56,38 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Sitters/Applications.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2l0dGVyc1xBcHBsaWNhdGlvbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Sitters/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2l0dGVyc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/Sitters/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2l0dGVyc1xQcm9maWxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/User/Application.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxBcHBsaWNhdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/User/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/User/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/User/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxQcm9maWxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/User/Registration.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxSZWdpc3RyYXRpb24uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Programm files/Microsoft Visual Studio Community/Source/Repos/Mimimik722/overexposure-animals-site/Views/_ViewImports.cshtml]

@@ -1,0 +1,28 @@
+﻿@model Project_site.Models.SitterModel;
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<div class="text-center">
+    <form id="registration" class="form-control" method="post">
+        <div class="form-label col-form-label">Подача заявки на ситтера</div>
+        <span class="text-danger" asp-validation-for=payment></span>
+        <div class="row mb-3">
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Заработная плата</label>
+            </div>
+            <div class="col-auto">
+                <input type="type" class="form-control" asp-for=payment/>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Опыт работы (лет)</label>
+            </div>
+            <div class="col-auto">
+                <input type="type" class="form-control" asp-for=experience/>
+            </div>
+        </div>
+        <input class="btn btn-success" type="submit" value="Подать заявку"/>
+    </form>
+</div>

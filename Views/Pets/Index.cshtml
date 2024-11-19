@@ -39,8 +39,8 @@
                 <td>@pet.features</td>
                 <td>
                     <a class="btn">@Html.ActionLink("Описание", "Details", new { id = pet.id })</a>
-                        <a class="btn btn-primary">@Html.ActionLink("Изменить", "Edit", new { id = pet.id })</a>
-                        <a class="btn btn-delete">@Html.ActionLink("Удалить", "Delete", pet)</a>
+                    <a class="btn btn-primary">@Html.ActionLink("Изменить", "Edit", new { id = pet.id })</a>
+                    <a class="btn btn-delete">@Html.ActionLink("Удалить", "Delete", pet)</a>
                 </td>
             </tr>
         }
