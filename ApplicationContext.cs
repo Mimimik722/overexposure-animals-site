@@ -5,7 +5,9 @@ public class ApplicationContext : DbContext
 {
     public DbSet<UserModel> Users { get; set; } = null!;
     public DbSet<SitterModel> Sitters { get; set; }
-    public DbSet<Order> Orders { get; set; }
+    public DbSet<Feedback> Feedbacks { get; set; }
+    public DbSet<OrderType> Order_types { get; set; }
+    public DbSet<OrderModel> Orders { get; set; }
     public DbSet<Town> Towns { get; set; }
     public DbSet<PetModel> Pets { get; set; } = null!;
     public DbSet<Breed> Breeds { get; set; }
@@ -32,23 +34,11 @@ public class Order
     public DateOnly? date_start { get; set; }
     public DateOnly? is_verified { get;set; }
 }
-/*
-public class SitterModel
-{
-    public int? id { get; set; }
-    public UserModel user_ { get; set; } = null!;
-    public float? payment { get; set; }
-    public int? expirience { get; set; }
-    public int? is_verificated { get; set; }
-
-    public ICollection<Order>? orders { get; set; }
-}*/
 
 public class Town
 {
     public int id { get; set; }
     public string? name { get; set; }
-    public ICollection<Order>? users { get; set; }
 }
 
 public class Breed
@@ -62,4 +52,17 @@ public class Admin
 {
     public int id { get; set; }
     public UserModel user_ { get; set; } = null!;
+}
+
+public class Feedback
+{
+    public int id { get; set; }
+    public decimal Rating { get; set; }
+    public string Comment { get; set; }
+}
+
+public class OrderType
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
 }
