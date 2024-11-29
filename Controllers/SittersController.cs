@@ -5,11 +5,12 @@ using Project_site.Models;
 
 namespace Project_site.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    
     public class SittersController : Controller
     {
-        ApplicationContext db = new ApplicationContext();
+        ApplicationContext db = new();
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             try
@@ -23,6 +24,7 @@ namespace Project_site.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Applications()
         {
             try
@@ -36,6 +38,7 @@ namespace Project_site.Controllers
             }
         }
 
+        [Authorize(Roles = "User, Admin")]
         public IActionResult Profile(int sitter_id)
         {
             try
@@ -49,6 +52,7 @@ namespace Project_site.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Approve(int sitter_id)
         {
             try
@@ -66,11 +70,13 @@ namespace Project_site.Controllers
         }
 
         //Админинстратор сможет сам добавлять ситтеров из числа зарегистрированных пользователей
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Remove(int sitter_id)
         {
             try

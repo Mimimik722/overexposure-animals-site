@@ -8,6 +8,6 @@
         public int? experience { get; set; }
         public int is_verificated { get; set; } = 0;
 
-        public ICollection<Order>? orders { get; set; }
+        public ICollection<OrderModel>? orders { get; set; }
     }
 }

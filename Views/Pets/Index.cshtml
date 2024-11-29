@@ -6,10 +6,10 @@
 }
 <div class="text-left">
     <div class="col-auto">
-        <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+        <a class="btn btn-primary text-light" asp-controller="Home" asp-action="Index">Назад</a>
     </div>
-    <div class="form-label col-form-label">Домашние животные</div>
-    <div class="col-auto">
+    <div class="form-label col-form-label col-center">Домашние животные</div>
+    <div class="col-auto mb-3">
         <a class="btn btn-primary text-light" asp-action="Create">Добавить</a>
     </div>
 </div>
@@ -38,9 +38,9 @@
                 <td>@pet.weight</td>
                 <td>@pet.features</td>
                 <td>
-                    <a class="btn">@Html.ActionLink("Описание", "Details", new { id = pet.id })</a>
-                    <a class="btn btn-primary">@Html.ActionLink("Изменить", "Edit", new { id = pet.id })</a>
-                    <a class="btn btn-delete">@Html.ActionLink("Удалить", "Delete", pet)</a>
+                    <a class="btn" asp-action="Details" asp-route-pet_id="@pet.id">Подробнее</a>
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-pet_id="@pet.id">Изменить</a>
+                    <a class="btn btn-danger" asp-action="Delete" asp-route-pet_id="@pet.id">Удалить</a>
                 </td>
             </tr>
         }

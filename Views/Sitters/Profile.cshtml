@@ -7,7 +7,14 @@
 <div class="text-center">
     <div class="row mb-3">
         <div class="col-auto">
-            <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+            @if (Context.User.IsInRole("User"))
+            {
+                <a class="btn btn-primary text-light" asp-controller="Orders" asp-action="Create">Назад</a>
+            }
+            else
+            {
+                <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+            }
         </div>
         <div class="form-label col-form-label">Данные ситтера: @Model.user_.name @Model.user_.surname</div>
     </div>
@@ -69,7 +76,7 @@
     </div>
     <div class="row mb-3">
         <div class="col-auto d-flex align-items-center">
-            <label class="form-label m-0">Заработная плата:</label>
+            <label class="form-label m-0">Стоимость заказа:</label>
         </div>
         <div class="col-auto">
             <span class="form-label col">@Model.payment</span>

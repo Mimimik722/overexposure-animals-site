@@ -24,17 +24,6 @@ public class ApplicationContext : DbContext
     }
 }
 
-public class Order
-{
-    public int? id { get; set; }
-    public int? sitter_id { get;set; }
-    public int? client_id { get; set; }
-    public int? feedback_id { get;set; }
-    public int? order_type_id { get; set;}
-    public DateOnly? date_start { get; set; }
-    public DateOnly? is_verified { get;set; }
-}
-
 public class Town
 {
     public int id { get; set; }

@@ -11,25 +11,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Project_site.Controllers
 {
-    public class PetsController : Controller
+	[Authorize]
+	public class PetsController : Controller
     {
-        [Authorize]
+
         public IActionResult Index()
         {
             try
             {
                 ApplicationContext db = new ApplicationContext();
-                int client_id = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("client")).id;
-                ICollection<PetModel> pets = db.Users.Where(o => o.id == client_id).Include(c => c.Pets).First().Pets;
+                int client_id = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user")).id;
+                ICollection<PetModel> pets = db.Pets.Where(o => o.client_.id == client_id && o.is_deleted != 1).Include(c => c.breed_).ToArray();
                 return View(pets);
             }
             catch
             {
-                return StatusCode(503);
+                return StatusCode(504);
             }
             
         }
-        [Authorize]
+
         public IActionResult Create()
         {
             try
@@ -39,11 +40,11 @@ namespace Project_site.Controllers
             }
             catch
             {
-                return StatusCode(503);
+                return StatusCode(504);
             }
             return View();
         }
-        [Authorize]
+
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public IActionResult Create(PetModel pet)
@@ -83,10 +84,10 @@ namespace Project_site.Controllers
                 {
                     pet.sex = "ж";
                 }
-                pet.breed_ = db.Breeds.Where(o => o.name == Request.Form["breed"].ToString()).First();
-                UserModel client = db.Users.Find(JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("client")).id);
-                pet.client_ = client;
-                client.Pets.Add(pet);
+                
+                pet.breed_ = db.Breeds.FirstOrDefault(o => o.name == Request.Form["breed"].ToString());
+                pet.client_ = db.Users.Find(JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user")).id); ;
+                pet.is_deleted = 0;
 
                 db.Pets.Add(pet);
                 db.SaveChanges();
@@ -95,25 +96,26 @@ namespace Project_site.Controllers
             }
             catch
             {
-                return StatusCode(503);
+                return StatusCode(504);
             }
         }
-        [Authorize]
-        public IActionResult Edit(int id)
+
+        public IActionResult Edit(int pet_id)
         {
             try
             {
                 ApplicationContext db = new ApplicationContext();
-                ViewBag["Breeds"] = db.Breeds.ToList();
-                PetModel pet = db.Pets.Find(id);
+                ViewData["Breeds"] = db.Breeds.ToList();
+                PetModel? pet = db.Pets.FirstOrDefault(o => o.id == pet_id);
+                TempData["pet"] = pet_id;
                 return View(pet);
             }
             catch
             {
-                return StatusCode(503);
+                return StatusCode(504);
             }
         }
-        [Authorize]
+
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public IActionResult Edit(PetModel pet)
@@ -121,51 +123,89 @@ namespace Project_site.Controllers
             try
             {
                 ApplicationContext db = new ApplicationContext();
+                
                 if (!pet.name.ToString().All(char.IsLetter) ||
                     !pet.name.ToString().All(char.IsLetter))
                 {
                     ModelState.AddModelError("name", "Имя животного не должно содержать спец. символы или цифры");
                     return View(pet);
                 }
+                
                 if (!db.Breeds.Any(o => o.name == Request.Form["breed"].ToString()))
                 {
                     ModelState.AddModelError("breed", "Такой породы не существует");
                     return View(pet);
                 }
+                
                 if (pet.age <= 0)
                 {
                     ModelState.AddModelError("age", "Возраст не может быть равен 0 или меньше");
                     return View(pet);
                 }
+                
                 if (pet.weight <= 0)
                 {
                     ModelState.AddModelError("weight", "Вес не может быть равен 0 или меньше");
                     return View(pet);
                 }
 
-                db.Pets.Update(pet);
+                PetModel old_pet = db.Pets.Where(o => o.id == (int) TempData["pet"]).Include(o => o.breed_).Include(o => o.client_).First();
+                old_pet.breed_ = db.Breeds.First(o => o.name == Request.Form["breed"].ToString());
+                old_pet.age = pet.age;
+                old_pet.weight = pet.weight;
+                old_pet.name = pet.name;
+                old_pet.features = pet.features;
+                if (Request.Form["radioM"] == "on")
+                {
+                    old_pet.sex = "м";
+                }
+                else
+                {
+                    old_pet.sex = "ж";
+                }
+
+                db.Pets.Update(old_pet);
                 db.SaveChanges();
-                return View(pet);
+                ViewData["Breeds"] = db.Breeds.ToList();
+                return View(old_pet);
             }
             catch
             {
-                return StatusCode(503);
+                return StatusCode(504);
             }
             
         }
-        [Authorize]
-        public IActionResult Delete(PetModel pet)
+
+        public IActionResult Delete(int pet_id)
         {
             try
             {
                 ApplicationContext db = new ApplicationContext();
-                db.Pets.Remove(pet);
+                PetModel pet = db.Pets.First(o => o.id == pet_id);
+                pet.is_deleted = 1;
+                db.Pets.Update(pet);
+                db.SaveChanges();
                 return RedirectToAction("Index");
             }
             catch 
             {
-                return StatusCode(503);
+                return StatusCode(504);
             }
         }
-    }
+
+		public IActionResult Details(int pet_id)
+		{
+			try
+			{
+				ApplicationContext db = new ApplicationContext();
+				ViewData["Breeds"] = db.Breeds.ToList();
+				PetModel? pet = db.Pets.FirstOrDefault(o => o.id == pet_id);
+				return View(pet);
+			}
+			catch
+			{
+				return StatusCode(504);
+			}
+		}
+	}
 }

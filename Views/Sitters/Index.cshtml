@@ -29,11 +29,17 @@
         {
             count++;
             <tr>
+                @{
+                    DateTime zeroTime = new DateTime(1, 1, 1);
+                    TimeSpan span = DateTime.Now - sitter.user_.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
+                    var years = (zeroTime + span).Year - 1;
+                }
                 <td>@count</td>
                 <td>@sitter.user_.name</td>
                 <td>@sitter.user_.surname</td>
                 <td>@sitter.user_.town_.name</td>
                 <td>@sitter.user_.telephone</td>
+                <td>@years</td>
                 <td>@sitter.payment</td>
                 <td>@sitter.experience</td>
                 <td>

@@ -5,6 +5,11 @@
 }
 <div class="text-center">
     <form id="edit" class="form-control" method="Post">
+        <div class="row mb-3">
+            <div class="col-auto">
+                <a class="btn btn-primary text-light" asp-action="Profile">Назад</a>
+            </div>
+        </div>
         <div class="form-label col-form-label">Редактирование профиля</div>
         <div class="row mb-3">
             <span class="text-danger" asp-validation-for=name></span>

@@ -29,40 +29,66 @@
                         
                         @if (Context.Session.GetString("user") is not null)
                         {
-                            @if (!Context.User.IsInRole("Admin"))
-                            {
-                                @if (Context.User.IsInRole("Sitter"))
+                            <li class="nav-item dropdown">
+                              <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarScrollingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Действия
+                              </a>
+                              <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
+                                @if (!Context.User.IsInRole("Admin"))
                                 {
-                                    <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">
-                                        Текущие заказы
-                                    </a>
-                                    <a class="nav-link text-dark" asp-controller="Orders" asp-action="New">
-                                        Новые заказы
-                                    </a>
+                                    @if (Context.User.IsInRole("Sitter"))
+                                    {
+                                        <li>
+                                            <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">
+                                                Текущие заказы
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="nav-link text-dark" asp-controller="Orders" asp-action="New">
+                                                Новые заказы
+                                            </a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a class="nav-link text-dark" asp-controller="Orders" asp-action="Create">
+                                                Новый заказ
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="nav-link text-dark" asp-controller="User" asp-action="Application">
+                                                Подать заявку на ситтера
+                                            </a>
+                                        </li>
+                                    }
+                                    <li>
+                                        <a class="nav-link text-dark" asp-controller="Pets" asp-action="Index">
+                                            Животные
+                                        </a>
+                                    </li>
                                 }
                                 else
                                 {
-                                    <a class="nav-link text-dark" asp-controller="User" asp-action="Application">
-                                        Подать заявку на ситтера
-                                    </a>
+                                    <li>
+                                        <a class="nav-link text-dark" asp-controller="Sitters" asp-action="Index">
+                                            Ситтеры
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link text-dark" asp-controller="Sitters" asp-action="applications">
+                                            Заявки
+                                        </a>
+                                    </li>
                                 }
-                                <a class="nav-link text-dark" asp-controller="Pets">
-                                    Животные
-                                </a>
-                            }
-                            else
-                            {
-                                <a class="nav-link text-dark" asp-controller="Sitters" asp-action="Index">
-                                    Ситтеры
-                                </a>
-                                <a class="nav-link text-dark" asp-controller="Sitters" asp-action="applications">
-                                    Заявки
-                                </a>
-                            }
-                            <a class="nav-link text-dark" asp-controller="User" asp-action="Profile">
-                                Профиль
-                            </a>
-                            <li class="nav-item d-flex align-items-center me-3">
+                                <li>
+                                    <a class="nav-link text-dark" asp-controller="User" asp-action="Profile">
+                                        Профиль
+                                    </a>
+                                </li>
+                              </ul>
+                            </li>
+                            <li class="nav-item d-flex align-items-center me-2 ms-3">
                                 Добро пожаловать,
                                 @Context.User.Identity.Name
                             </li>

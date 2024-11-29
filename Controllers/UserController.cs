@@ -62,13 +62,14 @@ namespace Project_site.Controllers
 
                 var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
                 var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                this.HttpContext.Session.Set("user", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client)));
                 this.HttpContext.SignInAsync(claimsPrincipal);
                 this.HttpContext.Session.CommitAsync();
                 return Redirect("/");
             }
             catch
             {
-                return RedirectToAction("Error", "Home");
+                return StatusCode(504);
             }
         }
 
@@ -114,6 +115,7 @@ namespace Project_site.Controllers
                 if (db.Users.Any(o => o.telephone == Request.Form["telephone"].ToString()))
                 {
                     ModelState.AddModelError("telephone", "Пользователь с таким номером телефона уже зарергистрирован");
+                    return View(clientM);
                 }
 
                 if (Request.Form["password"] != Request.Form["password_repeat"])
@@ -168,7 +170,7 @@ namespace Project_site.Controllers
 
         // GET: UserController/Profile
         [HttpGet]
-        [Authorize(Roles = "user, admin, sitter")]
+        [Authorize(Roles = "User, Admin, Sitter")]
         public IActionResult Profile()
         {
             UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
@@ -178,7 +180,7 @@ namespace Project_site.Controllers
 
         // GET: UserController/Edit
         [HttpGet]
-        [Authorize(Roles = "user, admin, sitter")]
+        [Authorize(Roles = "User, Admin, Sitter")]
         public IActionResult Edit()
         {
             try
@@ -196,7 +198,7 @@ namespace Project_site.Controllers
 
         // POST: UserController/Edit
         [HttpPost]
-        [Authorize(Roles = "user, admin, sitter")]
+        [Authorize(Roles = "User, Admin, Sitter")]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(UserModel? new_user)
         {

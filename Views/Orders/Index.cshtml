@@ -1,5 +1,40 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model ICollection<OrderModel>;
 @{
+    ViewData["Title"] = "Текущие заказы";
+    var count = 0;
 }
+<div class="text-left">
+    <div class="col-auto">
+        <a class="btn btn-primary text-light" asp-controller="Home">Назад</a>
+    </div>
+    <div class="form-label col-form-label">Текущие заказы</div>
+</div>
+<table class="table table-bordered">
+    <tr>
+        <td>№</td>
+        <td>Клиент</td>
+        <td>Животное</td>
+        <td>Тип заказа</td>
+        <td>Дата начала</td>
+        <td>Дата окончания</td>
+        <td>Действия</td>
+    </tr>
+    @if (Model != null)
+    {
+        foreach (var order in Model)
+        {
+            count++;
+            <tr>
+                <td>@count</td>
+                <td>@order.Client_.name @order.Client_.surname</td>
+                <td>@order.Pet_.name</td>
+                <td>@order.Order_Type_.Name</td>
+                <td>@order.Date_start</td>
+                <td>@order.Date_end</td>
+                <td>
+                    <a class="btn btn-success" asp-action="Done" asp-route-order_id="@order.Id">Выполнен</a>
+                </td>
+            </tr>
+        }
+    }
+</table>
