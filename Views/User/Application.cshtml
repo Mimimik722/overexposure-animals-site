@@ -18,12 +18,41 @@
                 <input type="type" class="form-control" asp-for=payment/>
             </div>
         </div>
+        <span class="text-danger" asp-validation-for=experience></span>
         <div class="row mb-3">
             <div class="col-auto d-flex align-items-center">
                 <label class="form-label m-0">Опыт работы (лет)</label>
             </div>
             <div class="col-auto">
                 <input type="type" class="form-control" asp-for=experience/>
+            </div>
+        </div>
+        <div class="form-label col-form-label">Требования к животному</div>
+        <span class="text-danger" asp-validation-for=is_verificated></span>
+        <div class="row mb-3">
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Возраст</label>
+            </div>
+        </div>
+        <div>
+            <div class="col-auto">
+                <input type="number" class="form-control" name="age_from"/>
+            </div>
+            <div class="col-auto">
+                <input type="number" class="form-control" name="age_to"/>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-auto d-flex align-items-center">
+                <label class="form-label m-0">Вес</label>
+            </div>
+        </div>
+        <div>
+            <div class="col-auto">
+                <input type="number" class="form-control" name="weight_from"/>
+            </div>
+            <div class="col-auto">
+                <input type="number" class="form-control" name="weight_to"/>
             </div>
         </div>
         <input class="btn btn-success" type="submit" value="Подать заявку"/>

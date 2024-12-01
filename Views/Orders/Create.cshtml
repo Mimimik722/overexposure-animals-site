@@ -5,46 +5,9 @@
 }
 <div class="text-left">
 	<div class="col-auto">
-		<a class="btn btn-primary text-light" asp-controller="Home" asp-action="Index">Назад</a>
+		<a class="btn btn-primary text-light mb-3" asp-controller="Home" asp-action="Index">Назад</a>
 	</div>
-	@if (Model.Sitter_ == null)
-	{
-		<div class="form-label col-form-label">Выберите ситтера:</div>
-		<table class="table table-bordered">
-			<tr>
-				<td>№</td>
-				<td>Имя</td>
-				<td>Фамилия</td>
-				<td>Возраст</td>
-				<td>З/п</td>
-				<td>Опыт работы</td>
-				<td>Действия</td>
-			</tr>
-		@foreach (var sitter in ViewBag.sitters)
-		{
-			count++;
-			<tr>
-			@{
-				DateTime zeroTime = new DateTime(1, 1, 1);
-				TimeSpan span = DateTime.Now - sitter.user_.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
-				var years = (zeroTime + span).Year - 1;
-			}
-				<td>@count</td>
-				<td>@sitter.user_.name</td>
-				<td>@sitter.user_.surname</td>
-				<td>@sitter.user_.telephone</td>
-				<td>@years</td>
-				<td>@sitter.payment</td>
-				<td>@sitter.experience</td>
-				<td>
-					<a class="btn btn-primary" asp-controller="Sitters" asp-action="Profile" asp-route-sitter_id="@sitter.id">Подробнее</a>
-					<a class="btn btn-success" asp-action="Create" asp-route-sitter_id="@sitter.id">Выбрать</a>
-				</td>
-			</tr>
-		}
-		</table>
-	}
-	else if (Model.Pet_ == null)
+	@if (Model.Pet_ == null)
 	{
 		<div class="form-label col-form-label">Выберите животное:</div>
 		<table class="table table-bordered">
@@ -70,7 +33,68 @@
 				<td>@pet.weight</td>
 				<td>@pet.features</td>
 				<td>
-					<a class="btn btn-primary" asp-action="Create" asp-route-pet_id="@pet.id" asp-route-sitter_id="@Model.Sitter_.id">Выбрать</a>
+					<a class="btn btn-primary" asp-action="Create" asp-route-pet_id="@pet.id">Выбрать</a>
+				</td>
+			</tr>
+		}
+		</table>
+	}
+	else if (Model.Sitter_ == null)
+	{
+		<div class="form-label col-form-label">Выберите ситтера:</div>
+		<form method="get" asp-route-pet_id="@Model.Pet_.id">
+			<div class="row mb-3">
+				<div class="col">
+					<div class="row mb-3">
+						Стоимость
+					</div>
+					<div class="row">
+						<div class="col">
+							<label class="form-label col-auto m-0">От:</label>
+							<input class="form-controller" name="payment_from"/>
+						</div>
+						<div class="col">
+							<label class="form-label col-auto m-0">До:</label>
+							<input class="form-cotroller" name="payment_to"/>
+						</div>
+						<input asp-route="pet_id" value="@Model.Pet_.id" name="pet_id" hidden/>
+					</div>
+				</div>
+				<div class="col-auto">
+					<input class="btn btn-success" asp-route-pet_id="@Model.Pet_.id" type="submit" value="Применить"/>
+				</div>
+			</div>
+		</form>
+		<table class="table table-bordered">
+			<tr>
+				<td>№</td>
+				<td>Имя</td>
+				<td>Фамилия</td>
+				<td>Телефон</td>
+				<td>Возраст</td>
+				<td>З/п</td>
+				<td>Опыт работы</td>
+				<td>Действия</td>
+			</tr>
+		@foreach (var sitter in ViewBag.sitters)
+		{
+			count++;
+			<tr>
+			@{
+				DateTime zeroTime = new DateTime(1, 1, 1);
+				TimeSpan span = DateTime.Now - sitter.user_.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
+				var years = (zeroTime + span).Year - 1;
+			}
+				<td>@count</td>
+				<td>@sitter.user_.name</td>
+				<td>@sitter.user_.surname</td>
+				<td>@sitter.user_.telephone</td>
+				<td>@years</td>
+				<td>@sitter.payment</td>
+				<td>@sitter.experience</td>
+				<td>
+					<a class="btn btn-primary" asp-controller="Sitters" asp-action="Profile" asp-route-sitter_id="@sitter.id">Подробнее</a>
+					<a class="btn btn-success" asp-action="Create" asp-route-sitter_id="@sitter.id" asp-route-pet_id="@Model.Pet_.id">Выбрать</a>
 				</td>
 			</tr>
 		}
@@ -85,16 +109,10 @@
 			    <div class="col-auto d-flex align-items-center">
 			        <label class="form-label m-0">Ситтер: @Model.Sitter_.user_.name @Model.Sitter_.user_.surname</label>
 			    </div>
-@* 				<div class="col-auto d-flex align-items-center">
-			        <input asp-for=Sitter_ value="@Model.Sitter_" readonly hidden/>
-			    </div> *@
 			<div class="row mb-3">
 			    <div class="col-auto d-flex align-items-center">
 			        <label class="form-label col-auto m-0">Животное: @Model.Pet_.name</label>
 			    </div>
-@* 				<div class="col-auto d-flex align-items-center">
-			        <input asp-for=Pet_ value="@Model.Pet_" readonly hidden/>
-			    </div> *@
 			</div>
 			<div class="row mb-3">
 			    <div class="col-auto d-flex align-items-center">
@@ -114,7 +132,7 @@
 			        <label class="form-label">Дата начала: </label>
 			    </div>
 			    <div class="col-auto d-flex align-items-center">
-			        <input type="date" asp-for=Date_start value="@DateTime.Now"/>
+			        <input class="form-control" type="date" asp-for=Date_start value="@DateTime.Now"/>
 			        <span class="text-danger" asp-validation-for=Date_start></span>
 			    </div>
 			</div>
@@ -123,7 +141,7 @@
 			        <label class="form-label">Дата окончания: </label>
 			    </div>
 			    <div class="col-auto d-flex align-items-center">
-			        <input type="date" asp-for=Date_end value="@DateTime.Now"/>
+			        <input class="form-control" type="date" asp-for=Date_end value="@DateTime.Now"/>
 			        <span class="text-danger" asp-validation-for=Date_end></span>
 			    </div>
 			</div>

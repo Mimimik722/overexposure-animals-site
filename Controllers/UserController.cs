@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using Project_site.Models;
 using System.Security.Claims;
@@ -170,17 +171,29 @@ namespace Project_site.Controllers
 
         // GET: UserController/Profile
         [HttpGet]
-        [Authorize(Roles = "User, Admin, Sitter")]
+        [Authorize]
         public IActionResult Profile()
         {
-            UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
-            ViewData["role"] = HttpContext.User.FindFirst(ClaimTypes.Role).Value;
-            return View(user); 
+            try
+            {
+                ApplicationContext db = new();
+                UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
+                ViewData["role"] = HttpContext.User.FindFirst(ClaimTypes.Role).Value;
+                if (db.Sitters.FirstOrDefault(o => o.user_ == user) != null)
+                {
+                    ViewData["status"] = db.Sitters.FirstOrDefault(o => o.user_ == user);
+                }
+                return View(user);
+            }
+            catch
+            {
+                return StatusCode(504);
+            }
         }
 
         // GET: UserController/Edit
         [HttpGet]
-        [Authorize(Roles = "User, Admin, Sitter")]
+        [Authorize]
         public IActionResult Edit()
         {
             try
@@ -188,6 +201,10 @@ namespace Project_site.Controllers
                 ApplicationContext db = new ApplicationContext();
                 UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
                 ViewData["towns"] = db.Towns.ToList();
+                if (db.Sitters.FirstOrDefault(o => o.user_ == user) != null)
+                {
+                    ViewData["status"] = db.Sitters.FirstOrDefault(o => o.user_ == user);
+                }
                 return View(user);
             }
             catch
@@ -198,13 +215,13 @@ namespace Project_site.Controllers
 
         // POST: UserController/Edit
         [HttpPost]
-        [Authorize(Roles = "User, Admin, Sitter")]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(UserModel? new_user)
         {
             ApplicationContext db = new ApplicationContext();
-            UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
-
+            UserModel user = db.Users.Include(o => o.town_).FirstOrDefault(o => o == JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user")));
+            SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_ == user);
             ViewData["towns"] = db.Towns.ToList();
 
             if (!new_user.name.ToString().All(char.IsLetter) ||
@@ -216,6 +233,7 @@ namespace Project_site.Controllers
             if (!db.Towns.Any(o => o.name == Request.Form["town"].ToString()))
             {
                 ModelState.AddModelError("town_", "Такого города не существует");
+                new_user.town_ = new Town { name = Request.Form["town"].ToString()};
                 return View(new_user);
             }
             if (db.Users.Any(o => o.telephone == new_user.telephone.ToString()) && new_user.telephone != user.telephone)
@@ -240,9 +258,9 @@ namespace Project_site.Controllers
             {
                 user.surname = new_user.surname;
             }
-            if (user.town_ != new_user.town_)
+            if (user.town_.name != Request.Form["town"])
             {
-                user.town_ = new_user.town_;
+                user.town_ = db.Towns.FirstOrDefault(o => o.name == Request.Form["town"].ToString());
             }
             if (user.sex != new_user.sex)
             {
@@ -260,12 +278,17 @@ namespace Project_site.Controllers
             {
                 user.email = new_user.email;
             }
+            if (sitter != null)
+            {
+                sitter.status = Request.Form["status"];
+                db.Sitters.Update(sitter);
+            }
 
             db.Users.Update(user);
             db.SaveChanges();
             this.HttpContext.Session.Remove("user");
             this.HttpContext.Session.Set("user", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(user)));
-            return View(user);
+            return RedirectToAction("Profile");
         }
 
         [HttpGet]
@@ -289,9 +312,34 @@ namespace Project_site.Controllers
                     ModelState.AddModelError("payment", "Заявка уже подана");
                     return View();
                 }
+                if (payment <= 0)
+                {
+                    ModelState.AddModelError("payment", "Плата за заказа не может быть равна 0 или меньше");
+                    return View();
+                }
+                if (experience < 0)
+                {
+                    ModelState.AddModelError("experience", "Опыт работы не может быть меньше 0");
+                    return View();
+                }
+                if (int.Parse(Request.Form["age_from"]) < 0 || int.Parse(Request.Form["age_to"]) < 0
+                    || float.Parse(Request.Form["weight_from"]) < 0 || float.Parse(Request.Form["weight_to"]) < 0)
+                {
+                    ModelState.AddModelError("is_verificated", "Параметры требований не должны быть отрицательными");
+                    return View();
+                }
+                if (int.Parse(Request.Form["age_from"]) > int.Parse(Request.Form["age_to"]) || float.Parse(Request.Form["weight_from"]) > float.Parse(Request.Form["weight_to"]))
+                {
+                    ModelState.AddModelError("is_verificated", "Начальное значение для ограничения не может быть больше конченого значения");
+                    return View();
+                }
 
                 SitterModel sitter = new SitterModel {id = db.Sitters.Count() + 1,  user_ = user, payment = payment, experience = experience };
                 db.Sitters.Add(sitter);
+                Requirement requirement = new Requirement { Sitter_ = sitter, 
+                    age_from = int.Parse(Request.Form["age_from"]), age_to = int.Parse(Request.Form["age_to"]), 
+                    weight_from = float.Parse(Request.Form["weight_from"]), weight_to = float.Parse(Request.Form["weight_to"])};
+                db.Requirements.Add(requirement);
                 db.SaveChanges();
                 
                 return RedirectToAction("Index", "Home");

@@ -12,6 +12,7 @@ public class ApplicationContext : DbContext
     public DbSet<PetModel> Pets { get; set; } = null!;
     public DbSet<Breed> Breeds { get; set; }
     public DbSet<Admin> Admins { get; set; }
+    public DbSet<Requirement> Requirements { get; set; }
 
     public ApplicationContext()
     {
@@ -46,12 +47,22 @@ public class Admin
 public class Feedback
 {
     public int id { get; set; }
-    public decimal Rating { get; set; }
-    public string Comment { get; set; }
+    public int Rating { get; set; }
+    public string Comment { get; set; } = null!;
 }
 
 public class OrderType
 {
     public int Id { get; set; }
     public string Name { get; set; }
+}
+
+public class Requirement
+{
+    public int id { get; set; }
+    public SitterModel Sitter_ { get; set; } = null!;
+    public int age_from { get; set; }
+    public int age_to { get; set; }
+    public float weight_from { get; set; }
+    public float weight_to { get; set; }
 }

@@ -33,7 +33,7 @@
                 <label class="form-label m-0">Город</label>
             </div>
             <div class="col-auto d-flex align-items-center">
-                <input class="form-control m-0" list="townlistOptions" type="list" placeholder="Введите название города" value="@Model.town_.name" required>
+                <input class="form-control m-0" list="townlistOptions" type="list" name="town" placeholder="Введите название города" value="@Model.town_.name" required>
                 <datalist id="townlistOptions">
                     @foreach (var city in @ViewBag.Towns)
                     {
@@ -75,7 +75,7 @@
                 <label class="form-label m-0">Дата рождения</label>
             </div>
             <div class="col-auto">
-                <input type="date" asp-for=birthday/>
+                <input class="form-control" type="date" asp-for=birthday/>
             </div>
         </div>
         <div class="row mb-3">
@@ -95,6 +95,21 @@
                 <input class="form-control" asp-for=email type="email" placeholder="Ivan@mail.ru">
             </div>
         </div>
+        @if (Context.User.IsInRole("Sitter"))
+        {
+            <div class="row mb-3">
+                <div class="col-auto">
+                    <label class="form-label m-0">Статус</label>
+                </div>
+                <div class="col-auto">
+                     <input class="form-control dropdown" type="text" list="statuses" name="status" value="@ViewBag.status"/>
+                     <datalist id="statuses">
+                         <option value="Свободен"/>
+                         <option value="Занят"/>
+                     </datalist>
+                </div>
+            </div>
+        }
         <input class="btn btn-success" type="submit" value="Сохранить"/>
     </form>
 </div>

@@ -9,7 +9,7 @@ namespace Project_site.Controllers
     public class OrdersController : Controller
     {
         [HttpGet]
-        [Authorize(Roles = "Sitter")]
+        [Authorize(Roles = "Sitter, User")]
         public IActionResult Index()
         {
 			try
@@ -17,7 +17,15 @@ namespace Project_site.Controllers
 				ApplicationContext db = new();
 				UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
 				SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_.id == user.id);
-				ICollection<OrderModel> orders = db.Orders.Where(o => o.Sitter_ == sitter && o.Status == "Выполняется").Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).ToArray();
+				ICollection<OrderModel> orders = [];
+                if (HttpContext.User.IsInRole("User"))
+				{
+					orders = db.Orders.Where(o => o.Client_.id == user.id).Include(o => o.Sitter_.user_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
+                }
+				else
+				{
+					orders = db.Orders.Where(o => o.Sitter_ == sitter && o.Status == "Выполняется").Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
+				}
 				return View(orders);
 			}
 			catch
@@ -28,7 +36,7 @@ namespace Project_site.Controllers
 
         [HttpGet]
         [Authorize(Roles = "User")]
-        public IActionResult Create(int? sitter_id = -1, int? pet_id = -1)
+        public IActionResult Create(int? sitter_id = -1, int? pet_id = -1, int? payment_from = 0, int? payment_to = 1000000)
         {
             try
             {
@@ -37,35 +45,64 @@ namespace Project_site.Controllers
 				user = db.Users.Where(o => o.id == user.id).Include(o => o.town_).First();
 				OrderModel order = new();
 
+				if (pet_id == -1)
+				{
+					ViewData["pets"] = db.Pets.Where(o => o.client_ == user).Include(o => o.breed_);
+					return View(order);
+				}
+				
+				order.Pet_ = db.Pets.Where(o => o.id == pet_id).Include(o => o.breed_).First();
+				TempData["Pet"] = order.Pet_.id;
+				
 				if (sitter_id == -1)
 				{
-					ViewData["sitters"] = db.Sitters.Where(o => o.user_.town_ == user.town_).Include(o => o.user_);
+					ICollection<Requirement> requirements = [];
+					if (TempData["sitters"] != null)
+					{
+						requirements = ((ICollection<Requirement>) TempData["sitters"]);
+						Console.WriteLine(requirements);
+					}
+					else
+					{
+						requirements = db.Requirements.Include(o => o.Sitter_).Where(o => o.Sitter_.user_.town_ == user.town_
+						& order.Pet_.weight >= o.weight_from & order.Pet_.weight <= o.weight_to
+						& order.Pet_.age >= o.age_from & order.Pet_.age <= o.age_to
+						& payment_from <= o.Sitter_.payment & payment_to >= o.Sitter_.payment
+						& o.Sitter_.status == "Свободен").Include(o => o.Sitter_.user_).ToList();
+					}
+					ICollection<SitterModel> sitters = [];
+					foreach (Requirement requirement in requirements) sitters.Add(requirement.Sitter_);
+					ViewData["sitters"] = sitters;
 					return View(order);
 				}
 
 				order.Sitter_ = db.Sitters.Where(o => o.id == sitter_id).Include(o => o.user_).First();
 				TempData["Sitter"] = order.Sitter_.id;
 
-				if (pet_id == -1)
-				{
-					ViewData["pets"] = db.Pets.Where(o => o.client_ == user).Include(o => o.breed_);
-					return View(order);
-				}
-
-				order.Pet_ = db.Pets.Where(o => o.id == pet_id).Include(o => o.breed_).First();
-				TempData["Pet"] = order.Pet_.id;
 				ViewData["order_types"] = db.Order_types.ToArray();
 				return View(order);
-/*				if (order.Id == null)
-				{
-				}*/
-	
 			}
 			catch
 			{
 				return StatusCode(504);
 			}
         }
+
+		[HttpPost]
+		public IActionResult Requirement(int pet_id)
+		{
+			try
+			{
+				ApplicationContext db = new();
+				TempData["sitters"] = db.Requirements.Include(o => o.Sitter_).Where(o => o.Sitter_.payment >= int.Parse(Request.Form["payment_from"])
+				& o.Sitter_.payment <= int.Parse(Request.Form["payment_to"])).Include(o => o.Sitter_.user_).ToList();
+				return RedirectToAction("Create");
+			}
+			catch
+			{
+				return StatusCode(504);
+			}
+		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
@@ -181,5 +218,35 @@ namespace Project_site.Controllers
 			}
 		}
 
+		[HttpGet]
+		[Authorize(Roles = "User")]
+		public IActionResult Feedback(int order_id)
+		{
+			TempData["order_id"] = order_id;
+			return View();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "User")]
+		public IActionResult Feedback(Feedback feedback)
+		{
+			try
+			{
+				ApplicationContext db = new();
+				OrderModel order = db.Orders.Include(o => o.Sitter_).Include(o => o.Pet_).Include(o => o.Client_).Include(o => o.Order_Type_).FirstOrDefault(o => o.Id == (int) TempData["order_id"]);
+				feedback.id = db.Feedbacks.Count() + 1;
+				feedback.Rating = int.Parse(Request.Form["ratings"]);
+				order.Feedback_ = feedback;
+				db.Feedbacks.Add(feedback);
+				db.Update(order);
+				db.SaveChanges();
+				return RedirectToAction("Index");
+			}
+			catch
+			{
+				return StatusCode(504);
+			}
+		}
 	}
 }

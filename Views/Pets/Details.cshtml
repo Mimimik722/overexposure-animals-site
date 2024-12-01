@@ -5,7 +5,14 @@
 <div class="text-left">
     <div class="row mb-3">
         <div class="col-auto">
-            <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+            @if (Context.User.IsInRole("Sitter"))
+            {
+                <a class="btn btn-primary text-light" asp-controller="Orders" asp-action="New">Назад</a>
+            }
+            else
+            {
+                <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+            }
         </div>
         <div class="form-label col-form-label">Описание для @Model.name</div>
     </div>
