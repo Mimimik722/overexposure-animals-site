@@ -18,14 +18,14 @@ namespace Project_site.Controllers
 				UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
 				SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_.id == user.id);
 				ICollection<OrderModel> orders = [];
-                if (HttpContext.User.IsInRole("User"))
-				{
-					orders = db.Orders.Where(o => o.Client_.id == user.id).Include(o => o.Sitter_.user_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
-                }
+/*                if (HttpContext.User.IsInRole("User"))
+				{*/
+					orders = db.Orders.Where(o => o.Client_.id == user.id || o.Sitter_ == sitter).Include(o => o.Sitter_.user_).Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
+/*                }
 				else
 				{
-					orders = db.Orders.Where(o => o.Sitter_ == sitter && o.Status == "Выполняется").Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
-				}
+					orders = db.Orders.Where(o => o.Sitter_ == sitter).Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
+				}*/
 				return View(orders);
 			}
 			catch
@@ -71,8 +71,14 @@ namespace Project_site.Controllers
 						& o.Sitter_.status == "Свободен").Include(o => o.Sitter_.user_).ToList();
 					}
 					ICollection<SitterModel> sitters = [];
-					foreach (Requirement requirement in requirements) sitters.Add(requirement.Sitter_);
+					ICollection<float> ratings = [];
+					foreach (Requirement requirement in requirements)
+					{
+						sitters.Add(requirement.Sitter_);
+						ratings.Add((float)db.Orders.Where(o => o.Sitter_ == requirement.Sitter_ && o.Feedback_ != null).Average(o => o.Feedback_.Rating));
+					}
 					ViewData["sitters"] = sitters;
+					ViewData["ratings"] = ratings;
 					return View(order);
 				}
 
@@ -210,7 +216,7 @@ namespace Project_site.Controllers
 				order.Status = "Выполнен";
 				db.Orders.Update(order);
 				db.SaveChanges();
-				return RedirectToAction("New");
+				return RedirectToAction("Index");
 			}
 			catch
 			{

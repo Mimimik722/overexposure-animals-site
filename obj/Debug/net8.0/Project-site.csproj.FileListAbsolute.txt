@@ -464,3 +464,12 @@ D:\Programm files\Microsoft Visual Studio Community\Source\Repos\Mimimik722\over
 D:\Programm files\Microsoft Visual Studio Community\Source\Repos\Mimimik722\overexposure-animals-site\obj\Debug\net8.0\Project-site.pdb
 D:\Programm files\Microsoft Visual Studio Community\Source\Repos\Mimimik722\overexposure-animals-site\obj\Debug\net8.0\Project-site.genruntimeconfig.cache
 D:\Programm files\Microsoft Visual Studio Community\Source\Repos\Mimimik722\overexposure-animals-site\obj\Debug\net8.0\ref\Project-site.dll
+D:\Учёба\4 Курс\Тех. Web-прог\Project-site\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+D:\Учёба\4 Курс\Тех. Web-прог\Project-site\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+D:\Учёба\4 Курс\Тех. Web-прог\Project-site\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+D:\Учёба\4 Курс\Тех. Web-прог\Project-site\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
+D:\Учёба\4 Курс\Тех. Web-прог\Project-site\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+D:\Учёба\4 Курс\Тех. Web-прог\Project-site\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+D:\Учёба\4 Курс\Тех. Web-прог\Project-site\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+D:\Учёба\4 Курс\Тех. Web-прог\Project-site\bin\Debug\net8.0\MySqlConnector.dll
+D:\Учёба\4 Курс\Тех. Web-прог\Project-site\bin\Debug\net8.0\Pomelo.EntityFrameworkCore.MySql.dll

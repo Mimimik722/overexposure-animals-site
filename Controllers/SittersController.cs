@@ -44,6 +44,7 @@ namespace Project_site.Controllers
             try
             {
                 SitterModel sitter = db.Sitters.Include(o => o.user_).Include(o => o.user_.town_).SingleOrDefault(o => o.id == sitter_id);
+                ViewData["rating"] = (float)db.Orders.Where(o => o.Sitter_ == sitter && o.Feedback_ != null).Average(o => o.Feedback_.Rating);
                 return View(sitter);
             }
             catch

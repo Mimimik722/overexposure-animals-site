@@ -12,14 +12,8 @@
 <table class="table table-bordered">
     <tr>
         <td>№</td>
-        @if (Context.User.IsInRole("User"))
-        {
-            <td>Ситтер</td>
-        }
-        else
-        {
-            <td>Клиент</td>
-        }
+        <td>Ситтер</td>
+        <td>Клиент</td>
         <td>Животное</td>
         <td>Тип заказа</td>
         <td>Дата начала</td>
@@ -35,11 +29,8 @@
             count++;
             <tr>
                 <td>@count</td>
-                @if (Context.User.IsInRole("User"))
-                {
-                    <td>@order.Sitter_.user_.name @order.Sitter_.user_.surname</td>
-                }
-                else
+                <td>@order.Sitter_.user_.name @order.Sitter_.user_.surname</td>
+                @if (Context.User.IsInRole("Sitter"))
                 {
                     <td>@order.Client_.name @order.Client_.surname</td>
                 }
@@ -63,7 +54,10 @@
                     }
                     else
                     {
-                        <a class="btn btn-success" asp-action="Done" asp-route-order_id="@order.Id">Выполнен</a>
+                        if (order.Status == "Выполняется")
+                        {
+                           <a class="btn btn-success" asp-action="Done" asp-route-order_id="@order.Id">Выполнен</a>
+                        }
                     }
                 </td>
             </tr>

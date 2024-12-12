@@ -68,6 +68,7 @@
 		<table class="table table-bordered">
 			<tr>
 				<td>№</td>
+				<td>Рейтинг</td>
 				<td>Имя</td>
 				<td>Фамилия</td>
 				<td>Телефон</td>
@@ -86,6 +87,7 @@
 				var years = (zeroTime + span).Year - 1;
 			}
 				<td>@count</td>
+				<td>@ViewBag.ratings[count - 1]</td>
 				<td>@sitter.user_.name</td>
 				<td>@sitter.user_.surname</td>
 				<td>@sitter.user_.telephone</td>
