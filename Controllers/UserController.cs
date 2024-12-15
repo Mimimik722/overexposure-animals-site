@@ -181,7 +181,9 @@ namespace Project_site.Controllers
                 ViewData["role"] = HttpContext.User.FindFirst(ClaimTypes.Role).Value;
                 if (db.Sitters.FirstOrDefault(o => o.user_ == user) != null)
                 {
-                    ViewData["status"] = db.Sitters.FirstOrDefault(o => o.user_ == user);
+                    SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_ == user);
+                    ViewData["status"] = sitter.status;
+                    ViewData["rating"] = (float) db.Orders.Where(o => o.Sitter_ == sitter && o.Feedback_ != null).Average(o => o.Feedback_.Rating);
                 }
                 return View(user);
             }

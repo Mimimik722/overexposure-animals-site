@@ -36,7 +36,7 @@ namespace Project_site.Controllers
 
         [HttpGet]
         [Authorize(Roles = "User")]
-        public IActionResult Create(int? sitter_id = -1, int? pet_id = -1, int? payment_from = 0, int? payment_to = 1000000)
+        public IActionResult Create(int? sitter_id = -1, int? pet_id = -1, int? payment_from = 0, int? payment_to = 1000000, float? rating_from = 0, float? rating_to = 10)
         {
             try
             {
@@ -74,8 +74,12 @@ namespace Project_site.Controllers
 					ICollection<float> ratings = [];
 					foreach (Requirement requirement in requirements)
 					{
-						sitters.Add(requirement.Sitter_);
-						ratings.Add((float)db.Orders.Where(o => o.Sitter_ == requirement.Sitter_ && o.Feedback_ != null).Average(o => o.Feedback_.Rating));
+						float rating = (float) db.Orders.Where(o => o.Sitter_ == requirement.Sitter_ && o.Feedback_ != null).Average(o => o.Feedback_.Rating);
+                        if (rating > rating_from && rating <= rating_to)
+						{
+                            sitters.Add(requirement.Sitter_);
+                            ratings.Add(rating);
+                        }
 					}
 					ViewData["sitters"] = sitters;
 					ViewData["ratings"] = ratings;

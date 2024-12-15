@@ -46,20 +46,33 @@
 			<div class="row mb-3">
 				<div class="col">
 					<div class="row mb-3">
-						Стоимость
+						<div class="col-auto">
+							Стоимость
+						</div>
+						<div class="col-auto">
+							<label class="form-label m-0">От:</label>
+							<input class="form-control" name="payment_from" />
+						</div>
+						<div class="col-auto">
+							<label class="form-label m-0">До:</label>
+							<input class="form-control" name="payment_to" />
+						</div>
 					</div>
-					<div class="row">
-						<div class="col">
-							<label class="form-label col-auto m-0">От:</label>
-							<input class="form-controller" name="payment_from"/>
+					<div class="row mb-3 me-1">
+						<div class="col-auto">
+							Рейтинг
 						</div>
-						<div class="col">
-							<label class="form-label col-auto m-0">До:</label>
-							<input class="form-cotroller" name="payment_to"/>
+						<div class="col-auto">
+							<label class="form-label m-0">От:</label>
+							<input class="form-control" name="rating_from" />
 						</div>
-						<input asp-route="pet_id" value="@Model.Pet_.id" name="pet_id" hidden/>
+						<div class="col-auto">
+							<label class="form-label m-0">До:</label>
+							<input class="form-control" name="rating_to" />
+						</div>
 					</div>
 				</div>
+				<input asp-route="pet_id" value="@Model.Pet_.id" name="pet_id" hidden />
 				<div class="col-auto">
 					<input class="btn btn-success" asp-route-pet_id="@Model.Pet_.id" type="submit" value="Применить"/>
 				</div>
@@ -106,7 +119,7 @@
 	{
 		<form class="form-control" method="post">
 			<div class="row mb-3">
-			<div class="form-label col-form-label">Заполнител дополнительные поля:</div>
+			<div class="form-label col-form-label">Заполните дополнительные поля:</div>
 			<div class="row mb-3">
 			    <div class="col-auto d-flex align-items-center">
 			        <label class="form-label m-0">Ситтер: @Model.Sitter_.user_.name @Model.Sitter_.user_.surname</label>
