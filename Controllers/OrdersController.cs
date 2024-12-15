@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Project_site.Models;
+using System.Linq;
 
 namespace Project_site.Controllers
 {
@@ -18,14 +19,7 @@ namespace Project_site.Controllers
 				UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
 				SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_.id == user.id);
 				ICollection<OrderModel> orders = [];
-/*                if (HttpContext.User.IsInRole("User"))
-				{*/
-					orders = db.Orders.Where(o => o.Client_.id == user.id || o.Sitter_ == sitter).Include(o => o.Sitter_.user_).Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
-/*                }
-				else
-				{
-					orders = db.Orders.Where(o => o.Sitter_ == sitter).Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
-				}*/
+				orders = db.Orders.Where(o => o.Client_.id == user.id || o.Sitter_ == sitter).Include(o => o.Sitter_.user_).Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
 				return View(orders);
 			}
 			catch
@@ -252,6 +246,23 @@ namespace Project_site.Controllers
 				db.Update(order);
 				db.SaveChanges();
 				return RedirectToAction("Index");
+			}
+			catch
+			{
+				return StatusCode(504);
+			}
+		}
+
+		[Authorize(Roles = "User, Sitter")]
+		public IActionResult Map(int order_id)
+		{
+			try
+			{
+				ApplicationContext db = new();
+				OrderModel order = db.Orders.Find(order_id);
+				Coordinate coordinate = db.Coordinates.Where(o => o.Order_ == order).OrderBy(o => o.timestamp).Last();
+				coordinate.Order_ = null;
+                return View(coordinate);
 			}
 			catch
 			{

@@ -13,6 +13,7 @@ public class ApplicationContext : DbContext
     public DbSet<Breed> Breeds { get; set; }
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Requirement> Requirements { get; set; }
+    public DbSet<Coordinate> Coordinates { get; set; }
 
     public ApplicationContext()
     {
@@ -65,4 +66,13 @@ public class Requirement
     public int age_to { get; set; }
     public float weight_from { get; set; }
     public float weight_to { get; set; }
+}
+
+public class Coordinate
+{
+    public int id { get; set; }
+    public OrderModel Order_ { get; set; }
+    public DateTime timestamp { get; set; }
+    public float latitude { get; set; }
+    public float longitude { get; set; }
 }

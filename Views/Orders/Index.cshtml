@@ -13,7 +13,10 @@
     <tr>
         <td>№</td>
         <td>Ситтер</td>
-        <td>Клиент</td>
+        @if (Context.User.IsInRole("Sitter"))
+        {
+            <td>Клиент</td>
+        }
         <td>Животное</td>
         <td>Тип заказа</td>
         <td>Дата начала</td>
@@ -50,6 +53,10 @@
                         if (order.Status == "Выполнен")
                         {
                             <a class="btn btn-primary" asp-action="Feedback" asp-route-order_id="@order.Id">Выставить оценку</a>
+                        }
+                        if (order.Status == "Выполняется" && order.Order_Type_.Name == "Прогулка")
+                        {
+                            <a class="btn btn-primary" asp-action="Map" asp-route-order_id="@order.Id">Посмотреть положение</a>
                         }
                     }
                     else
