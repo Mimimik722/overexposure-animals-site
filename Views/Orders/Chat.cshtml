@@ -1,0 +1,142 @@
+﻿@model UserChatModel
+@{
+    ViewData["Title"] = "Чат";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-8 position-relative min-vh-80">
+            <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+            <div class="chat-window" id="chat-window">
+                <div class="chat-header">
+                    <h4>Общение с <span id="chat-user">@Model.Receiver.name</span></h4>
+                </div>
+                <div class="chat-body">
+                    <ul class="chat-ui" data-userid="" id="chatlist">
+
+                    </ul>
+                </div>
+                <div class="chat-footer">
+                    <input type="text" class="form-control" id="textmessage" placeholder="Напишите сообщение...">
+                    <button class="btn btn-primary ml-1" onclick="SendMessage()">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="~/js/microsoft/signalr/dist/browser/signalr.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<div class="overlay" id="divloader" style="display:none">
+    <div class="a" style="--n: 5;position: absolute;top: 50%;left: 50%;">
+        <div class="dot" style="--i: 0;"></div>
+        <div class="dot" style="--i: 1;"></div>
+        <div class="dot" style="--i: 2;"></div>
+        <div class="dot" style="--i: 3;"></div>
+        <div class="dot" style="--i: 4;"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    function Loader(_value) {
+        if (_value) {
+            document.getElementById("divloader").style.display = "block";
+        }
+        else {
+            document.getElementById("divloader").style.display = "none";
+        }
+        setTimeout(function () { document.getElementById("divloader").style.display = "none"; }, 30000);
+    }
+</script>
+<script>
+/*
+    $(document).ready(function () {
+        $(".user").click(function () {
+            var userId = $(this).data("user-id");
+            var userName = $(this).text();
+            $("#chat-user").text(userName);
+            $("#chatlist").attr("data-userid", userId);
+            $("#chatlist").empty();
+        });
+    });
+*/
+
+    var senderChatId = "@Model.LoggedInUser.id";
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/ChatHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    async function start() {
+        try {
+            await connection.start();
+            console.log("SignalR Connected.");
+            await connection.invoke("SetUserChatGroup", senderChatId); 
+        }
+        catch (err) {
+            console.log(err);
+            setTimeout(start, 5000);
+        }
+        LoadUserChatList(@Model.Receiver.id);
+    };
+
+    /*
+    connection.on("ReceiveMessage", async (senderId, senderName, reciverId, message) => {
+        var messageBuilder = "<li class='left'><div class='text'><div class='user'>" + GetUserNameWithIcon(senderName) + "</div><small>" + message + "</small>" + "</li>"
+        $("#chatlist").append(messageBuilder);
+        //Showing notifcation to user if get any message
+        var notification = "You have received a message from user " + senderName;
+        toastr.success(notification);
+    });
+    */
+
+    connection.onclose(async () => {
+        await start();
+    });
+
+    start();
+
+    async function SendMessage() {
+        try {
+            var message = $("#textmessage").val();
+            if (message) {
+                var receiverId = @Model.Receiver.id;
+                var senderName = '@Model.LoggedInUser.name';
+                await connection.invoke("SendMessageToUserGroup", @Model.LoggedInUser.id, senderName, receiverId, message);
+                var messageBuilder = "<li class='right'><div class='text'><div class='user'>" + GetUserNameWithIcon(senderName) + "</div><small>" + message + "</small>" + "</li>"
+                $("#chatlist").append(messageBuilder);
+                $("#textmessage").val("");
+            }
+            else {
+                toastr.error("Пожалуйста, введите сообщение!");
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    //Function for getting username and icon when binding message to the chat list
+    function GetUserNameWithIcon(userName) {
+        return '<i class="fa fa-user-circle-o" aria-hidden="true"></i>' + userName;
+    }
+    
+    function LoadUserChatList(receiverId)
+    {
+        Loader(true)
+        $.ajax({
+            url: '/Orders/GetChatConversion?receiverId=' + receiverId,
+            type: 'GET',
+            success: function (result) {
+                $('#chatlist').html(result);
+                Loader(false)
+            },
+            error: function (xhr, status, error) {
+                console.log(xhr.responseText);
+                Loader(false)
+            }
+        });
+    }
+</script>

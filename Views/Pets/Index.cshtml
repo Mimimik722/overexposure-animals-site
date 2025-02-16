@@ -1,18 +1,18 @@
-﻿@model IEnumerable<PetModel>;
+﻿@model ICollection<PetModel>;
 @{
     ViewData["Title"] = "Домашние животные";
     var count = 0;
     ApplicationContext db = new ApplicationContext();
 }
-<div class="text-left">
+<div class="row justify-content-between mb-3">
     <div class="col-auto">
         <a class="btn btn-primary text-light" asp-controller="Home" asp-action="Index">Назад</a>
     </div>
-    <div class="form-label col-form-label col-center">Домашние животные</div>
-    <div class="col-auto mb-3">
+    <div class="col-auto">
         <a class="btn btn-primary text-light" asp-action="Create">Добавить</a>
     </div>
 </div>
+<div class="text-center h4 mb-3">Домашние животные</div>
 <table class="table table-bordered">
     <tr>
         <td>№</td>
@@ -29,7 +29,7 @@
         foreach (var pet in Model)
         {
             count++;
-            <tr>
+            <tr class="align-middle">
                 <td>@count</td>
                 <td>@pet.name</td>
                 <td>@pet.breed_.name</td>
@@ -38,7 +38,7 @@
                 <td>@pet.weight</td>
                 <td>@pet.features</td>
                 <td>
-                    <a class="btn" asp-action="Details" asp-route-pet_id="@pet.id">Подробнее</a>
+                    <a class="btn btn-info" asp-action="Details" asp-route-pet_id="@pet.id">Подробнее</a>
                     <a class="btn btn-primary" asp-action="Edit" asp-route-pet_id="@pet.id">Изменить</a>
                     <a class="btn btn-danger" asp-action="Delete" asp-route-pet_id="@pet.id">Удалить</a>
                 </td>

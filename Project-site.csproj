@@ -9,9 +9,17 @@
 
   <ItemGroup>
     <Compile Remove="Scripts\**" />
+    <Compile Remove="Новая папка1\**" />
+    <Compile Remove="Новая папка\**" />
     <Content Remove="Scripts\**" />
+    <Content Remove="Новая папка1\**" />
+    <Content Remove="Новая папка\**" />
     <EmbeddedResource Remove="Scripts\**" />
+    <EmbeddedResource Remove="Новая папка1\**" />
+    <EmbeddedResource Remove="Новая папка\**" />
     <None Remove="Scripts\**" />
+    <None Remove="Новая папка1\**" />
+    <None Remove="Новая папка\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,14 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.6" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Новая папка1\" />
-    <Folder Include="Новая папка\" />
   </ItemGroup>
 
 </Project>

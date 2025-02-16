@@ -2,11 +2,12 @@
 @{
     ViewData["Title"] = "Вход";
 }
-<div class="text-center">
-    <form id="login" class="form-control" method="post">
-        <div class="form-label col-form-label">Вход</div>
+<div class="row justify-content-center">
+    <div class="col-4">
+        <form id="login" class="form-control" method="post">
+        <div class="text-center h4">Вход</div>
         <span class="text-danger" asp-validation-for=telephone></span>
-        <div class="row mb-3">
+        <div class="row mb-3 mt-4">
             <div class="col-auto d-flex align-items-center">
                 <label class="form-label m-0">Телефон</label>
             </div>
@@ -24,7 +25,7 @@
         </div>
         <div class="row mb-3 m-0">
             <input type="checkbox" class="btn-check form-check-input" name="remember-me" id="remember">
-            <label class="btn btn-outline-primary col-3" for="remember">Запомнить меня</label>
+            <label class="btn btn-outline-primary col-auto" for="remember">Запомнить меня</label>
         </div>
         <div class="row mb-3">
             <div class="col-auto">
@@ -34,11 +35,10 @@
                 <a asp-action=Registration>Регистрация</a>
             </div>
         </div>
-        <div class="form-check d-flex align-items-left">
-            <input type="checkbox" class="form-check-input me-2" name="politacy" id="politacy">
-            <label class="form-check-label mb-3" for="politacy">Соглашение об обработке персональных данных</label>
+        <div class="text-center">
+            <input class="btn btn-success" type="submit" value="Войти" />
         </div>
-        <input class="btn btn-success" type="submit" value="Войти" />
-        <br>
-    </form>
+        </form>
+    </div>
 </div>
+

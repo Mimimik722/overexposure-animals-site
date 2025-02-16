@@ -3,12 +3,15 @@
     ViewData["Title"] = "Заказы";
     var count = 0;
 }
-<div class="text-left">
-    <div class="col-auto">
+<div class="row justify-content-between">
+    <div class="col-1">
         <a class="btn btn-primary text-light" asp-controller="Home">Назад</a>
     </div>
-    <div class="form-label col-form-label">Заказы</div>
+    <div class="col-2 text-end">
+        <a class="btn btn-primary text-light" asp-action="Create">Новый заказ</a>
+    </div>
 </div>
+<div class="h3 text-center mt-3 mb-3">Заказы</div>
 <table class="table table-bordered">
     <tr>
         <td>№</td>
@@ -30,7 +33,7 @@
         foreach (var order in Model)
         {
             count++;
-            <tr>
+            <tr class="align-middle">
                 <td>@count</td>
                 <td>@order.Sitter_.user_.name @order.Sitter_.user_.surname</td>
                 @if (Context.User.IsInRole("Sitter"))
@@ -44,7 +47,8 @@
                 <td>@order.Status</td>
                 <td>@if (order.Feedback_ != null)
                     {
-                    @order.Feedback_.Rating;
+                        <a>@order.Feedback_.Rating / 10</a>
+                        <image class="mb-1" src="/images/star.jpg" width="15rem" height="15rem"></image>
                     }
                 </td>
                 <td>
@@ -58,6 +62,7 @@
                         {
                             <a class="btn btn-primary" asp-action="Map" asp-route-order_id="@order.Id">Посмотреть положение</a>
                         }
+                        <a class="btn btn-primary" asp-action="Chat" asp-route-user_id="@order.Sitter_.user_.id">Чат</a>
                     }
                     else
                     {
@@ -65,9 +70,13 @@
                         {
                            <a class="btn btn-success" asp-action="Done" asp-route-order_id="@order.Id">Выполнен</a>
                         }
+                        <a class="btn btn-primary" asp-action="Chat" asp-route-user_id="@order.Client_.id">Чат</a>
                     }
                 </td>
             </tr>
         }
+    }
+    else{
+        <div class="text-center h4">У вас пока нет никаких заказов</div>
     }
 </table>

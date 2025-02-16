@@ -2,32 +2,32 @@
 @{
 	ViewData["Title"] = "Отзыв";
 }
-<div class="text-center">
+<div class="col-auto">
+	<a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+</div>
+<div class="text-center h4 mb-3">Отзыв о ситтере</div>
+<form method="post">
 	<div class="row mb-3">
 		<div class="col-auto">
-			<a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+			<label class="form-label mb-2">Оценка:</label>
+			@for (int i = 1; i <= 10; i++)
+			{
+				<div class="form-check form-check-inline">
+				  <input class="form-check-input" type="radio" name="ratings" id="rating1" value="@i">
+				  <label class="form-check-label" for="rating1">@i</label>
+				</div>
+			}
 		</div>
 	</div>
-	<div class="form-label col-form-label">Отзыв о ситтере</div>
-	<form method="post">
-		<div class="row mb-3">
-			<div class="col-auto">
-				<label class="form-label">Оценка:</label>
-				@for (int i = 1; i <= 10; i++)
-					{
-						<div class="form-check form-check-inline">
-						  <input class="form-check-input" type="radio" name="ratings" id="rating1" value="@i">
-						  <label class="form-check-label" for="rating1">@i</label>
-						</div>
-					}
-			</div>
+	<div class="row align-items-center mb-3">
+		<div class="col-auto">
+			<label class="form-label">Комментарий:</label>
 		</div>
-		<div class="row mb-3">
-			<div class="col-auto">
-				<label class="form-label">Комментарий:</label>
-				<textarea class="form-control" type="comment" asp-for=Comment></textarea>
-			</div>
+		<div class="col-3">
+			<textarea class="form-control" type="comment" asp-for=Comment></textarea>
 		</div>
+	</div>
+	<div class="text-center">
 		<input class="btn btn-success" type="submit" value="Отправить"/>
-	</form>
-</div>
+	</div>
+</form>

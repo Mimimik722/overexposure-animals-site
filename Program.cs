@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Project_site.SignalRHub;
+using System.Diagnostics;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using System;
 
@@ -14,6 +17,9 @@ builder.Services.AddAuthentication("Cookies").AddCookie(options => {
 builder.Services.AddControllersWithViews();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<ChatHub>();
+builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
@@ -34,11 +40,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();
+app.UseWebSockets();
 
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
-System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+app.UseCors(builder => builder
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .SetIsOriginAllowed((host) =>  true)
+    .AllowCredentials()
+);
+app.MapHub<ChatHub>("ChatHub");
+
+//System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
 
 app.Run();

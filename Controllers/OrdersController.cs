@@ -4,22 +4,36 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Project_site.Models;
 using System.Linq;
+using System.Security.Claims;
 
 namespace Project_site.Controllers
 {
     public class OrdersController : Controller
     {
-        [HttpGet]
+		public ApplicationContext db;
+		string telephone;
+		public OrdersController()
+		{
+			try
+			{
+				db = new();
+			}
+			catch 
+			{
+				StatusCode(504);
+			}
+		}
+
+		//Список текущих заказов
+		[HttpGet]
         [Authorize(Roles = "Sitter, User")]
         public IActionResult Index()
         {
 			try
 			{
-				ApplicationContext db = new();
-				UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
-				SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_.id == user.id);
+				SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
 				ICollection<OrderModel> orders = [];
-				orders = db.Orders.Where(o => o.Client_.id == user.id || o.Sitter_ == sitter).Include(o => o.Sitter_.user_).Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
+				orders = db.Orders.Where(o => o.Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone) || o.Sitter_ == sitter).Include(o => o.Sitter_.user_).Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
 				return View(orders);
 			}
 			catch
@@ -28,20 +42,18 @@ namespace Project_site.Controllers
 			}
         }
 
+		//Вывод страницы с новым заказом
         [HttpGet]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User, Sitter")]
         public IActionResult Create(int? sitter_id = -1, int? pet_id = -1, int? payment_from = 0, int? payment_to = 1000000, float? rating_from = 0, float? rating_to = 10)
         {
             try
             {
-				ApplicationContext db = new();
-				UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
-				user = db.Users.Where(o => o.id == user.id).Include(o => o.town_).First();
 				OrderModel order = new();
 
 				if (pet_id == -1)
 				{
-					ViewData["pets"] = db.Pets.Where(o => o.client_ == user).Include(o => o.breed_);
+					ViewData["pets"] = db.Pets.Where(o => o.client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Include(o => o.breed_);
 					return View(order);
 				}
 				
@@ -53,12 +65,12 @@ namespace Project_site.Controllers
 					ICollection<Requirement> requirements = [];
 					if (TempData["sitters"] != null)
 					{
-						requirements = ((ICollection<Requirement>) TempData["sitters"]);
+						requirements = (ICollection<Requirement>) TempData["sitters"];
 						Console.WriteLine(requirements);
 					}
 					else
 					{
-						requirements = db.Requirements.Include(o => o.Sitter_).Where(o => o.Sitter_.user_.town_ == user.town_
+						requirements = db.Requirements.Include(o => o.Sitter_).Where(o => o.Sitter_.user_.town_.name == User.FindFirstValue("Town")
 						& order.Pet_.weight >= o.weight_from & order.Pet_.weight <= o.weight_to
 						& order.Pet_.age >= o.age_from & order.Pet_.age <= o.age_to
 						& payment_from <= o.Sitter_.payment & payment_to >= o.Sitter_.payment
@@ -97,7 +109,6 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				ApplicationContext db = new();
 				TempData["sitters"] = db.Requirements.Include(o => o.Sitter_).Where(o => o.Sitter_.payment >= int.Parse(Request.Form["payment_from"])
 				& o.Sitter_.payment <= int.Parse(Request.Form["payment_to"])).Include(o => o.Sitter_.user_).ToList();
 				return RedirectToAction("Create");
@@ -108,17 +119,14 @@ namespace Project_site.Controllers
 			}
 		}
 
+		//Создание заказа
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		[Authorize(Roles = "User")]
+		[Authorize(Roles = "User, Sitter")]
 		public IActionResult Create(OrderModel order)
 		{
 			try
 			{
-				ApplicationContext db = new();
-				UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
-				user = db.Users.Where(o => o.id == user.id).Include(o => o.town_).First();
-
 				if (order.Date_start.ToDateTime(TimeOnly.Parse("10:00 PM")) < DateTime.Now)
 				{
 					ModelState.AddModelError("Date_start", "Дата начала заказ не может быть раньше сегодняшнего дня");
@@ -131,9 +139,9 @@ namespace Project_site.Controllers
 					return View(order);
 				}
 
-				order.Sitter_ = db.Sitters.FirstOrDefault(s => s.id == (int) TempData["Sitter"]);
-				order.Pet_ = db.Pets.FirstOrDefault(p => p.id == (int) TempData["Pet"]);
-				order.Client_ = user;
+				order.Sitter_ = db.Sitters.FirstOrDefault(s => s.id == (int)TempData["Sitter"]);
+				order.Pet_ = db.Pets.FirstOrDefault(p => p.id == (int)TempData["Pet"]);
+				order.Client_ = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
 				order.Id = db.Orders.Count() + 1;
 				order.Order_Type_ = db.Order_types.FirstOrDefault(o => o.Name == Request.Form["Order_type_name"].ToString());
 				order.Status = "В ожидании принятия";
@@ -147,15 +155,14 @@ namespace Project_site.Controllers
 			}
 		}
 
+		//Просмотр новых заказов
         [HttpGet]
         [Authorize(Roles = "Sitter")]
         public IActionResult New()
         {
 			try
 			{
-				ApplicationContext db = new();
-				UserModel user = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user"));
-				SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_.id == user.id);
+				SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
 				ICollection<OrderModel> orders = db.Orders.Where(o => o.Sitter_ == sitter && o.Status == "В ожидании принятия").Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).ToArray();
 				return View(orders);
 			}
@@ -165,14 +172,14 @@ namespace Project_site.Controllers
 			}
         }
 
+		//Отклонение заказа
 		[HttpGet]
 		[Authorize(Roles = "Sitter")]
 		public IActionResult Reject(int order_id)
 		{
 			try
 			{
-				ApplicationContext db = new();
-				OrderModel order = db.Orders.FirstOrDefault(o => o.Id == order_id);
+				OrderModel? order = db.Orders.FirstOrDefault(o => o.Id == order_id);
 				order.Status = "Отменён";
 				db.Orders.Update(order);
 				db.SaveChanges();
@@ -184,14 +191,14 @@ namespace Project_site.Controllers
 			}
 		}
 
+		//Принятие заказа
 		[HttpGet]
 		[Authorize(Roles = "Sitter")]
 		public IActionResult Accept(int order_id)
 		{
 			try
 			{
-				ApplicationContext db = new();
-				OrderModel order = db.Orders.FirstOrDefault(o => o.Id == order_id);
+				OrderModel? order = db.Orders.FirstOrDefault(o => o.Id == order_id);
 				order.Status = "Выполняется";
 				db.Orders.Update(order);
 				db.SaveChanges();
@@ -203,14 +210,14 @@ namespace Project_site.Controllers
 			}
 		}
 
+		//Подтверждения выполнения заказа
 		[HttpGet]
 		[Authorize(Roles = "Sitter")]
 		public IActionResult Done(int order_id)
 		{
 			try
 			{
-				ApplicationContext db = new();
-				OrderModel order = db.Orders.FirstOrDefault(o => o.Id == order_id);
+				OrderModel? order = db.Orders.FirstOrDefault(o => o.Id == order_id);
 				order.Status = "Выполнен";
 				db.Orders.Update(order);
 				db.SaveChanges();
@@ -222,6 +229,7 @@ namespace Project_site.Controllers
 			}
 		}
 
+		//Вывод страницы с отзывом о заказе
 		[HttpGet]
 		[Authorize(Roles = "User")]
 		public IActionResult Feedback(int order_id)
@@ -230,6 +238,7 @@ namespace Project_site.Controllers
 			return View();
 		}
 
+		//Отправка отзыва о заказе
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		[Authorize(Roles = "User")]
@@ -237,8 +246,7 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				ApplicationContext db = new();
-				OrderModel order = db.Orders.Include(o => o.Sitter_).Include(o => o.Pet_).Include(o => o.Client_).Include(o => o.Order_Type_).FirstOrDefault(o => o.Id == (int) TempData["order_id"]);
+				OrderModel? order = db.Orders.Include(o => o.Sitter_).Include(o => o.Pet_).Include(o => o.Client_).Include(o => o.Order_Type_).FirstOrDefault(o => o.Id == (int)TempData["order_id"]);
 				feedback.id = db.Feedbacks.Count() + 1;
 				feedback.Rating = int.Parse(Request.Form["ratings"]);
 				order.Feedback_ = feedback;
@@ -253,13 +261,13 @@ namespace Project_site.Controllers
 			}
 		}
 
+		//Отображение положения питомца на карте
 		[Authorize(Roles = "User, Sitter")]
 		public IActionResult Map(int order_id)
 		{
 			try
 			{
-				ApplicationContext db = new();
-				OrderModel order = db.Orders.Find(order_id);
+				OrderModel? order = db.Orders.Find(order_id);
 				Coordinate coordinate = db.Coordinates.Where(o => o.Order_ == order).OrderBy(o => o.timestamp).Last();
 				coordinate.Order_ = null;
                 return View(coordinate);
@@ -269,5 +277,30 @@ namespace Project_site.Controllers
 				return StatusCode(504);
 			}
 		}
-	}
+
+        public IActionResult Chat(int user_id)
+        {
+            UserChatModel userChat = new UserChatModel();
+
+			int senderId = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).id;
+            string? name = User.Identity.Name;
+
+            userChat.LoggedInUser = new UserModel { id = senderId, name = name };
+
+			userChat.Receiver = db.Users.FirstOrDefault(o => o.id == user_id);
+            return View(userChat);
+        }
+        
+		public ActionResult GetChatConversion(int receiverId)
+        {
+			UserModel user;
+			user = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+			int loginUserId = user.id;
+            var chatHistories = db.UserChatHistory.Include("sender_")
+                                .Include("receiver_").Where(a => (a.receiver_ == user && a.sender_.id == receiverId)
+                               || (a.receiver_.id == receiverId && a.sender_ == user)).OrderByDescending(a => a.created_at).ToList();
+            ViewData["loginUserId"] = loginUserId;
+            return PartialView("_ChatConversion", chatHistories);
+        }
+    }
 }

@@ -2,97 +2,104 @@
 @{
     ViewData["Title"] = "Регистрация";
 }
-
-<div class="text-center">
-    <form id="registration" class="form-control" method="post">
-        <div class="form-label col-form-label">Регистрация</div>
-        <div class="row mb-3">
-            <span class="text-danger" asp-validation-for=name></span>
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Имя</label>
+<div class="row justify-content-center">
+    <div class="col-4">
+        <form id="registration" class="form-control" method="post">
+            <div class="text-center h4">Регистрация</div>
+            <div class="row mb-3 mt-4">
+                <span class="text-danger" asp-validation-for=name></span>
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label m-0">Имя</label>
+                </div>
+                <div class="col-auto">
+                    <input type="type" class="form-control" asp-for=name value="" placeholder="Иван"/>
+                </div>
             </div>
-            <div class="col-auto">
-                <input type="type" class="form-control" asp-for=name value="" placeholder="Иван"/>
+            <div class="row mb-3">
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label col-auto m-0">Фамилия</label>
+                </div>
+                <div class="col-auto">
+                    <input type="type" class="form-control col" asp-for=surname value="" placeholder="Иванов"/>
+                </div>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label col-auto m-0">Фамилия</label>
+            <div class="row mb-3">
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label m-0">Город</label>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <input class="form-control m-0" list="townlistOptions" type="list" name="town" placeholder="Введите название города" required>
+                    <datalist id="townlistOptions">
+                                @foreach (var city in @ViewBag.Towns)
+                                {
+                                <option value="@city.name"></option>
+                                }
+                    </datalist>
+                    <span class="text-danger" asp-validation-for=town_></span>
+                </div>
             </div>
-            <div class="col-auto">
-                <input type="type" class="form-control col" asp-for=surname value="" placeholder="Иванов"/>
+            <div class="row align-itemns-center mb-3">
+                <div class="col-4">
+                    <label class="form-label m-0">Пол</label>
+                </div>
+                <div class="form-check form-check-inline col-auto ps-4 ms-3 m-0">
+                    <input class="form-check-input" type="radio" name="radioM" id="radio1" checked>
+                    <label class="form-check-label" for="radio1">М</label>
+                </div> 
+                <div class="form-check form-check-inline col-auto m-0">
+                    <input class="form-check-input" type="radio" name="radioW" id="radio2">
+                    <label class="form-check-label" for="radio2">Ж</label>
+                </div>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Город</label>
+            <div class="row mb-3">
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label m-0">Дата рождения</label>
+                </div>
+                <div class="col-auto">
+                    <input class="form-control" type="date" asp-for=birthday/>
+                </div>
             </div>
-            <div class="col-auto d-flex align-items-center">
-                <input class="form-control m-0" list="townlistOptions" type="list" name="town" placeholder="Введите название города" required>
-                <datalist id="townlistOptions">
-                    @foreach (var city in @ViewBag.Towns)
-                    {
-                        <option value="@city.name"></option>
-                    }
-                </datalist>
-                <span class="text-danger" asp-validation-for=town_></span>
+            <div class="row mb-3">
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label m-0">Телефон</label>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <input class="form-control m-0" asp-for=telephone type="tel" placeholder="89008007060">
+                    <span class="text-danger" asp-validation-for=telephone></span>
+                </div>
             </div>
-        </div>
-        <div class="row align-itemns-center mb-3">
-            <div class="col-auto">
-                <label class="form-label ">Пол</label>
+            <div class="row mb-3">
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label m-0">E-mail</label>
+                </div>
+                <div class="col-auto">
+                    <input class="form-control" asp-for=email type="email" placeholder="Ivan@mail.ru">
+                </div>
             </div>
-            <div class="form-check form-check-inline col-auto">
-                <input class="form-check-input" type="radio" name="radioM" id="radio1" checked>
-                <label class="form-check-label" for="radio1">М</label>
-            </div> 
-            <div class="form-check form-check-inline col-auto">
-                <input class="form-check-input" type="radio" name="radioW" id="radio2">
-                <label class="form-check-label" for="radio2">Ж</label>
+            <div class="row mb-3">
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label m-0">Пароль</label>
+                </div>
+                <div class="col-auto">
+                    <input class="form-control" asp-for=password type="password" placeholder="Пароль">
+                </div>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Дата рождения</label>
+            <div class="row mb-3">
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label m-0">Повтор пароля</label>
+                </div>
+                <div class="col-auto">
+                    <input class="form-control" name="password_repeat" type="password" placeholder="Пароль">
+                    <span asp-validation-for=password></span>
+                </div>
             </div>
-            <div class="col-auto">
-                <input class="form-control" type="date" asp-for=birthday/>
+            <div class="form-check d-flex align-items-left">
+                <input type="checkbox" class="form-check-input me-2" name="policy" id="policy" required>
+                <label class="form-check-label mb-3" for="policy">Соглашение об обработке персональных данных</label>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Телефон</label>
+            <div class="text-center">
+                <input class="btn btn-success" type="submit" value="Зарегистрироваться"/>
             </div>
-            <div class="col-auto d-flex align-items-center">
-                <input class="form-control m-0" asp-for=telephone type="tel" placeholder="89008007060">
-                <span class="text-danger" asp-validation-for=telephone></span>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">E-mail</label>
-            </div>
-            <div class="col-auto">
-                <input class="form-control" asp-for=email type="email" placeholder="Ivan@mail.ru">
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Пароль</label>
-            </div>
-            <div class="col-auto">
-                <input class="form-control" asp-for=password type="password" placeholder="Пароль">
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Повтор пароля</label>
-            </div>
-            <div class="col-auto">
-                <input class="form-control" name="password_repeat" type="password" placeholder="Пароль">
-                <span asp-validation-for=password></span>
-            </div>
-        </div>
-        <input class="btn btn-success" type="submit" value="Зарегистрироваться"/>
-    </form>
+        </form>
+    </div>
 </div>

@@ -1,0 +1,33 @@
+﻿@model IEnumerable<UserChatHistory>
+@{
+    string loginUserId = ViewData["loginUserId"].ToString();
+}
+@if (Model.Any())
+{
+    foreach (var chat in Model)
+    {
+        if (chat.sender_.id.ToString() == loginUserId)
+        {
+            //sender is loggged in user then show message to right side
+            <li class="right">
+                <div class="text">
+                    <div class="user">
+                        <i class="fa fa-user-circle-o" aria-hidden="true"></i> @chat.sender_.name
+                    </div>
+                </div>
+                <small>@chat.message</small>
+            </li>
+        }
+        else
+        {
+            <li class="left">
+                <div class="text">
+                    <div class="user">
+                        <i class="fa fa-user-circle-o" aria-hidden="true"></i> @chat.sender_.name
+                    </div>
+                </div>
+                <small>@chat.message</small>
+            </li>
+        }
+    }
+}

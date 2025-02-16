@@ -1,34 +1,35 @@
-﻿@model IEnumerable<SitterModel>;
+﻿@model ICollection<SitterModel>;
 @{
     ViewData["Title"] = "Ситтеры";
     var count = 0;
 }
-<div class="text-left">
-    <div class="col-auto">
-        <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+<div class="row justify-content-between">
+    <div class="col-1">
+        <a class="btn btn-primary text-light" asp-controller="Home">Назад</a>
     </div>
-    <div class="form-label col-form-label">Ситтеры</div>
-    <div class="col-auto">
-        <a class="btn btn-primary text-light" asp-action="Create">Добавить</a>
+    <div class="col-1">
+        <a class="btn btn-primary text-light" hidden asp-action="Create">Добавить</a>
     </div>
 </div>
+<div class="text-center h4 mb-3">Ситтеры</div>
 <table class="table table-bordered">
-    <tr>
-        <td>№</td>
-        <td>Имя</td>
-        <td>Фамилия</td>
-        <td>Город</td>
-        <td>Телефон</td>
-        <td>Возраст</td>
-        <td>З/п</td>
-        <td>Опыт работы</td>
-    </tr>
-    @if (Model != null)
+    @if (Model.Count != 0)
     {
+        <tr>
+            <td>№</td>
+            <td>Имя</td>
+            <td>Фамилия</td>
+            <td>Город</td>
+            <td>Телефон</td>
+            <td>Возраст</td>
+            <td>З/п</td>
+            <td>Опыт работы</td>
+            <td>Действия</td>
+        </tr>
         foreach (var sitter in Model)
         {
             count++;
-            <tr>
+            <tr class="align-middle">
                 @{
                     DateTime zeroTime = new DateTime(1, 1, 1);
                     TimeSpan span = DateTime.Now - sitter.user_.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
@@ -48,5 +49,9 @@
                 </td>
             </tr>
         }
+    }
+    else
+    {
+        <div class="text-center text-muted">На данный момент нет ни одного ситтера</div>
     }
 </table>

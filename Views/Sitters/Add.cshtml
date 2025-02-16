@@ -1,0 +1,106 @@
+﻿@model ICollection<UserModel>
+@{
+    ViewData["Title"] = "Добавление ситтера";
+    var count = 0;
+}
+<div class="col-auto">
+    <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+</div>
+<div class="text-center h4 mb-3">Добавление ситтера</div>
+@if (ViewBag.Id == null)
+{
+    <table class="table table-bordered">
+        @if (Model.Count != 0)
+        {
+            <tr>
+                <td>№</td>
+                <td>Имя</td>
+                <td>Фамилия</td>
+                <td>Город</td>
+                <td>Телефон</td>
+                <td>Возраст</td>
+                <td>Действия</td>
+            </tr>
+            foreach (var user in Model)
+            {
+                count++;
+                <tr class="align-middle">
+                    @{
+                        DateTime zeroTime = new DateTime(1, 1, 1);
+                        TimeSpan span = DateTime.Now - user.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
+                        var years = (zeroTime + span).Year - 1;
+                    }
+                    <td>@count</td>
+                    <td>@user.name</td>
+                    <td>@user.surname</td>
+                    <td>@user.town_.name</td>
+                    <td>@user.telephone</td>
+                    <td>@years</td>
+                    <td>
+                        <a class="btn btn-primary" asp-action="Add" asp-route-user_id="@user.id">Добавить</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <div class="text-center h3 text-muted">На данный момент пользователей, которые могли бы бить ситтерами, нет</div>
+        }
+    </table>
+}
+else
+{
+    <div class="mb-3">Введите опыт работы и з/п ситтера</div>
+    <form id="registration" class="form-control" method="post">
+        <div class="row mb-3 mt-4">
+            <div class="col-4 d-flex align-items-center">
+                <label class="form-label m-0">Заработная плата</label>
+            </div>
+            <div class="col-auto">
+                <input type="type" class="form-control" required name="payment"/>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-4 d-flex align-items-center">
+                <label class="form-label m-0">Опыт работы (лет)</label>
+            </div>
+            <div class="col-auto">
+                <input type="type" class="form-control" required name="experience"/>
+            </div>
+        </div>
+        <div class="form-label col-form-label">Требования к животному:</div>
+        <div class="row">
+            <div class="col-3 d-flex align-items-center">
+                <label class="form-label m-0">Возраст</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <label>от</label>
+                <input type="number" class="form-control" required name="age_from"/>
+            </div>
+            <div class="col-auto">
+                <label>до</label>
+                <input type="number" class="form-control" required name="age_to"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 d-flex align-items-center">
+                <label class="form-label m-0">Вес</label>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-auto">
+                <label>от</label>
+                <input type="number" class="form-control" name="weight_from"/>
+            </div>
+            <div class="col-auto">
+                <label>до</label>
+                <input type="number" class="form-control" name="weight_to"/>
+            </div>
+        </div>
+        <div class="text-center">
+            <input class="btn btn-success" type="submit" asp-route-user_id="@ViewBag.Id" value="Сохранить"/>
+        </div>
+    </form>
+}

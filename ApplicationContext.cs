@@ -11,9 +11,10 @@ public class ApplicationContext : DbContext
     public DbSet<Town> Towns { get; set; }
     public DbSet<PetModel> Pets { get; set; } = null!;
     public DbSet<Breed> Breeds { get; set; }
-    public DbSet<Admin> Admins { get; set; }
+    public DbSet<Role> Roles { get; set; }
     public DbSet<Requirement> Requirements { get; set; }
     public DbSet<Coordinate> Coordinates { get; set; }
+    public DbSet<UserChatHistory> UserChatHistory { get; set; }
 
     public ApplicationContext()
     {
@@ -39,10 +40,10 @@ public class Breed
     public ICollection<PetModel>? pets { get; set; }
 }
 
-public class Admin
+public class Role
 {
     public int id { get; set; }
-    public UserModel user_ { get; set; } = null!;
+    public string name { get; set; } = null!;
 }
 
 public class Feedback
@@ -75,4 +76,13 @@ public class Coordinate
     public DateTime timestamp { get; set; }
     public float latitude { get; set; }
     public float longitude { get; set; }
+}
+
+public class UserChatHistory
+{
+    public int id { get; set; }
+    public UserModel sender_ { get; set; } = null!;
+    public UserModel receiver_ { get; set; } = null!;
+    public string message { get; set; } = null!;
+    public DateTime created_at { get; set; }
 }

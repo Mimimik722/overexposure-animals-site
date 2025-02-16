@@ -3,13 +3,13 @@
 	ViewData["Title"] = "Новый заказ";
 	int count = 0;
 }
-<div class="text-left">
-	<div class="col-auto">
-		<a class="btn btn-primary text-light mb-3" asp-controller="Home" asp-action="Index">Назад</a>
-	</div>
+<div class="col-auto">
+	<a class="btn btn-primary text-light mb-3" asp-controller="Home" asp-action="Index">Назад</a>
+</div>
+<div class="h3 text-center mt-3 mb-3">Новый заказ</div>
 	@if (Model.Pet_ == null)
 	{
-		<div class="form-label col-form-label">Выберите животное:</div>
+		<div class="form-label col-form-label h4">Выберите животное:</div>
 		<table class="table table-bordered">
 			<tr>
 				<td>№</td>
@@ -24,7 +24,7 @@
 		@foreach (var pet in ViewBag.pets)
 		{
 			count++;
-			<tr>
+			<tr class="align-middle">
 				<td>@count</td>
 				<td>@pet.name</td>
 				<td>@pet.breed_.name</td>
@@ -41,32 +41,28 @@
 	}
 	else if (Model.Sitter_ == null)
 	{
-		<div class="form-label col-form-label">Выберите ситтера:</div>
+		<div class="form-label col-form-label h4">Выберите ситтера:</div>
 		<form method="get" asp-route-pet_id="@Model.Pet_.id">
-			<div class="row mb-3">
-				<div class="col">
-					<div class="row mb-3">
-						<div class="col-auto">
-							Стоимость
-						</div>
-						<div class="col-auto">
+			<div class="row align-items-center mb-3">
+				<div class="col-auto">
+					<div class="row align-items-center mb-3">
+						<div class="col-2">Стоимость</div>
+						<div class="col-5">
 							<label class="form-label m-0">От:</label>
 							<input class="form-control" name="payment_from" />
 						</div>
-						<div class="col-auto">
+						<div class="col-5">
 							<label class="form-label m-0">До:</label>
 							<input class="form-control" name="payment_to" />
 						</div>
 					</div>
-					<div class="row mb-3 me-1">
-						<div class="col-auto">
-							Рейтинг
-						</div>
-						<div class="col-auto">
+					<div class="row align-items-center mb-3">
+						<div class="col-2 pe-1">Рейтинг</div>
+						<div class="col-5">
 							<label class="form-label m-0">От:</label>
 							<input class="form-control" name="rating_from" />
 						</div>
-						<div class="col-auto">
+						<div class="col-5">
 							<label class="form-label m-0">До:</label>
 							<input class="form-control" name="rating_to" />
 						</div>
@@ -93,7 +89,7 @@
 		@foreach (var sitter in ViewBag.sitters)
 		{
 			count++;
-			<tr>
+			<tr class="align-middle">
 			@{
 				DateTime zeroTime = new DateTime(1, 1, 1);
 				TimeSpan span = DateTime.Now - sitter.user_.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
@@ -163,4 +159,3 @@
 			<input class="btn btn-success" type="submit" value="Создать заказ"/>
 		</form>
 	}
-</div>

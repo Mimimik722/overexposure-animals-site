@@ -11,15 +11,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Project_site.Controllers
 {
-	[Authorize]
-	public class PetsController : Controller
+    [Authorize]
+    public class PetsController : Controller
     {
+        public ApplicationContext db;
+        public PetsController()
+        {
+            try
+            {
+                db = new();
+            }
+            catch
+            {
+                StatusCode(504);
+            }
+        }
 
+        //Получение информации о своих питомцах
+        [HttpGet]
         public IActionResult Index()
         {
             try
             {
-                ApplicationContext db = new ApplicationContext();
                 int client_id = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user")).id;
                 ICollection<PetModel> pets = db.Pets.Where(o => o.client_.id == client_id && o.is_deleted != 1).Include(c => c.breed_).ToArray();
                 return View(pets);
@@ -28,14 +41,15 @@ namespace Project_site.Controllers
             {
                 return StatusCode(504);
             }
-            
+
         }
 
+        //Переход на страницу для добавления нового животного
+        [HttpGet]
         public IActionResult Create()
         {
             try
             {
-                ApplicationContext db = new ApplicationContext();
                 @ViewBag.Breeds = db.Breeds.ToList();
             }
             catch
@@ -45,14 +59,13 @@ namespace Project_site.Controllers
             return View();
         }
 
+        //Добавление нового животного
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public IActionResult Create(PetModel pet)
         {
             try
             {
-                ApplicationContext db = new ApplicationContext();
-                
                 if (!pet.name.ToString().All(char.IsLetter) ||
                     !pet.name.ToString().All(char.IsLetter))
                 {
@@ -100,11 +113,12 @@ namespace Project_site.Controllers
             }
         }
 
+        //Переход на страницу для изменения данных о животном
+        [HttpGet]
         public IActionResult Edit(int pet_id)
         {
             try
             {
-                ApplicationContext db = new ApplicationContext();
                 ViewData["Breeds"] = db.Breeds.ToList();
                 PetModel? pet = db.Pets.FirstOrDefault(o => o.id == pet_id);
                 TempData["pet"] = pet_id;
@@ -116,14 +130,13 @@ namespace Project_site.Controllers
             }
         }
 
+        //Изменение данных о животном
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public IActionResult Edit(PetModel pet)
         {
             try
             {
-                ApplicationContext db = new ApplicationContext();
-                
                 if (!pet.name.ToString().All(char.IsLetter) ||
                     !pet.name.ToString().All(char.IsLetter))
                 {
@@ -176,11 +189,11 @@ namespace Project_site.Controllers
             
         }
 
+        //Удаление животного
         public IActionResult Delete(int pet_id)
         {
             try
             {
-                ApplicationContext db = new ApplicationContext();
                 PetModel pet = db.Pets.First(o => o.id == pet_id);
                 pet.is_deleted = 1;
                 db.Pets.Update(pet);
@@ -193,11 +206,12 @@ namespace Project_site.Controllers
             }
         }
 
+        //Получение информации о животном
+        [HttpGet]
 		public IActionResult Details(int pet_id)
 		{
 			try
 			{
-				ApplicationContext db = new ApplicationContext();
 				ViewData["Breeds"] = db.Breeds.ToList();
 				PetModel? pet = db.Pets.FirstOrDefault(o => o.id == pet_id);
 				return View(pet);

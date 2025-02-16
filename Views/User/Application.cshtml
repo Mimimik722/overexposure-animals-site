@@ -1,60 +1,67 @@
 ﻿@model Project_site.Models.SitterModel;
 @{
-    ViewData["Title"] = "Регистрация";
+    ViewData["Title"] = "Подача заявки";
 }
-
-<div class="text-center">
-    <form id="registration" class="form-control" method="post">
-        <div class="col-auto">
-            <a class="btn btn-primary text-light" asp-controller="Home" asp-action="Index">Назад</a>
-        </div>
-        <div class="form-label col-form-label">Подача заявки на ситтера</div>
-        <span class="text-danger" asp-validation-for=payment></span>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Заработная плата</label>
+<div class="col-auto">
+    <a class="btn btn-primary text-light" asp-controller="Home" asp-action="Index">Назад</a>
+</div>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <form id="registration" class="form-control" method="post">
+            <div class="text-center h4">Подача заявки на ситтера</div>
+            <span class="text-danger" asp-validation-for=payment></span>
+            <div class="row mb-3 mt-4">
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label m-0">Заработная плата</label>
+                </div>
+                <div class="col-auto">
+                    <input type="type" class="form-control" asp-for=payment/>
+                </div>
             </div>
-            <div class="col-auto">
-                <input type="type" class="form-control" asp-for=payment/>
+            <span class="text-danger" asp-validation-for=experience></span>
+            <div class="row mb-3">
+                <div class="col-4 d-flex align-items-center">
+                    <label class="form-label m-0">Опыт работы (лет)</label>
+                </div>
+                <div class="col-auto">
+                    <input type="type" class="form-control" asp-for=experience/>
+                </div>
             </div>
-        </div>
-        <span class="text-danger" asp-validation-for=experience></span>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Опыт работы (лет)</label>
+            <div class="form-label col-form-label">Требования к животному:</div>
+            <span class="text-danger" asp-validation-for=is_verificated></span>
+            <div class="row">
+                <div class="col-3 d-flex align-items-center">
+                    <label class="form-label m-0">Возраст</label>
+                </div>
             </div>
-            <div class="col-auto">
-                <input type="type" class="form-control" asp-for=experience/>
+            <div class="row">
+                <div class="col-auto">
+                    <label>от</label>
+                    <input type="number" class="form-control" name="age_from"/>
+                </div>
+                <div class="col-auto">
+                    <label>до</label>
+                    <input type="number" class="form-control" name="age_to"/>
+                </div>
             </div>
-        </div>
-        <div class="form-label col-form-label">Требования к животному</div>
-        <span class="text-danger" asp-validation-for=is_verificated></span>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Возраст</label>
+            <div class="row">
+                <div class="col-3 d-flex align-items-center">
+                    <label class="form-label m-0">Вес</label>
+                </div>
             </div>
-        </div>
-        <div>
-            <div class="col-auto">
-                <input type="number" class="form-control" name="age_from"/>
+            <div class="row mb-3">
+                <div class="col-auto">
+                    <label>от</label>
+                    <input type="number" class="form-control" name="weight_from"/>
+                </div>
+                <div class="col-auto">
+                    <label>до</label>
+                    <input type="number" class="form-control" name="weight_to"/>
+                </div>
             </div>
-            <div class="col-auto">
-                <input type="number" class="form-control" name="age_to"/>
+            <div class="text-center">
+                <input class="btn btn-success" type="submit" value="Подать заявку"/>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-auto d-flex align-items-center">
-                <label class="form-label m-0">Вес</label>
-            </div>
-        </div>
-        <div>
-            <div class="col-auto">
-                <input type="number" class="form-control" name="weight_from"/>
-            </div>
-            <div class="col-auto">
-                <input type="number" class="form-control" name="weight_to"/>
-            </div>
-        </div>
-        <input class="btn btn-success" type="submit" value="Подать заявку"/>
-    </form>
+        </form>
+    </div>
 </div>
