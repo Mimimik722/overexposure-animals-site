@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using Project_site.Models;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -181,6 +183,70 @@ namespace Project_site.Controllers
                 return RedirectToAction("Error", "Home");
             }
             return Redirect("/");
+        }
+
+        //Восстановление пароля
+        public IActionResult Password_reset(string? key){
+            UserModel? user = new();
+            if (!string.IsNullOrEmpty(key))
+            {
+                user = db.Users.FirstOrDefault(x => x.password == key);
+                if (user == null)
+                {
+                    user = new();
+                    user.password = "0";
+                }
+            }
+            return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult Password_reset(UserModel user)
+        {
+            if (Request.Form.ContainsKey("password"))
+            {
+                if (Request.Form["password"] == Request.Form["password_repeat"])
+                {
+                    try
+                    {
+                        user = db.Users.FirstOrDefault(o => o.password == user.password);
+                        user.password = GetHash(Request.Form["password"]);
+                        db.Users.Update(user);
+                        db.SaveChanges();
+                        return RedirectToAction("Login");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error: " + ex.Message);
+                        return View(user);
+                    }
+                }
+                ModelState.AddModelError("password", "Пароли не совпадают");
+                return View(user);
+            }
+            else
+            {
+                string? password = db.Users.Where(o => o.email == user.email).First().password;
+                MailMessage message = new("vov.efimov2015@yandex.ru", user.email); 
+                message.Subject = "Няня Гуляня: Восстановление пароля";
+                message.Body = "Ссылка для восстановления пароля: localhost:5043/User/Password_reset?id=" + password + "\nДанное сообщение отправлено автоматически, посьба на него не отвечать.";
+
+                SmtpClient smtpClient = new("smtp.yandex.ru", 465);
+                smtpClient.EnableSsl = true;
+                smtpClient.Timeout = 10000;
+                smtpClient.Credentials = new NetworkCredential("vov.efimov2015@yandex.ru", "yzieyshcplrghusx", "smtp.yandex.ru");
+                //smtpClient.Credentials = new NetworkCredential("dm92LmVmaW1vdjIwMTVAeWFuZGV4LnJ1", "eXppZXlzaGNwbHJnaHVzeA==");
+                try
+                {
+                    smtpClient.Send(message);
+                    Console.WriteLine("Email Sent Successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex.Message);
+                }
+                return View(user);
+            }
         }
 
         //Выход из профиля
