@@ -30,9 +30,9 @@
                 <td>@order.Date_start</td>
                 <td>@order.Date_end</td>
                 <td>
-                    <a class="btn btn-primary" asp-action="Details" asp-controller="Pets" asp-route-pet_id="@order.Pet_.id">О животном</a>
-                    <a class="btn btn-success" asp-action="Accept" asp-route-order_id="@order.Id">Принять</a>
-                    <a class="btn btn-danger" asp-action="Reject" asp-route-order_id="@order.Id">Отказаться</a>
+                    <a class="btn btn-primary" asp-action="Details" asp-controller="Pets" asp-route-pet="@order.Pet_.id">О животном</a>
+                    <a class="btn btn-success" asp-action="Accept" asp-route-order="@order.Id">Принять</a>
+                    <a class="btn btn-danger" asp-action="Reject" asp-route-order="@order.Id">Отказаться</a>
                 </td>
             </tr>
         }

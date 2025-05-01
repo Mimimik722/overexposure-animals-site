@@ -50,7 +50,7 @@ namespace Project_site.Controllers
         {
             try
             {
-                @ViewBag.Breeds = db.Breeds.ToList();
+                ViewBag.Breeds = db.Breeds.ToList();
             }
             catch
             {
@@ -115,18 +115,25 @@ namespace Project_site.Controllers
 
         //Переход на страницу для изменения данных о животном
         [HttpGet]
-        public IActionResult Edit(int pet_id)
+        public IActionResult Edit(int pet)
         {
-            try
+            if (db.Pets.FirstOrDefault(o => o.id == pet).client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
             {
-                ViewData["Breeds"] = db.Breeds.ToList();
-                PetModel? pet = db.Pets.FirstOrDefault(o => o.id == pet_id);
-                TempData["pet"] = pet_id;
-                return View(pet);
+                try
+                {
+                    ViewData["Breeds"] = db.Breeds.ToList();
+                    PetModel? petM = db.Pets.FirstOrDefault(o => o.id == pet);
+                    TempData["pet"] = pet;
+                    return View(petM);
+                }
+                catch
+                {
+                    return StatusCode(504);
+                }
             }
-            catch
+            else
             {
-                return StatusCode(504);
+                return RedirectToAction("Index");
             }
         }
 
@@ -190,36 +197,50 @@ namespace Project_site.Controllers
         }
 
         //Удаление животного
-        public IActionResult Delete(int pet_id)
+        public IActionResult Delete(int pet)
         {
-            try
+            if (db.Pets.FirstOrDefault(o => o.id == pet).client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
             {
-                PetModel pet = db.Pets.First(o => o.id == pet_id);
-                pet.is_deleted = 1;
-                db.Pets.Update(pet);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                try
+                {
+                    PetModel petM = db.Pets.First(o => o.id == pet);
+                    petM.is_deleted = 1;
+                    db.Pets.Update(petM);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                    return StatusCode(504);
+                }
             }
-            catch 
+            else
             {
-                return StatusCode(504);
+                return RedirectToAction("Index");
             }
         }
 
         //Получение информации о животном
         [HttpGet]
-		public IActionResult Details(int pet_id)
+		public IActionResult Details(int pet)
 		{
-			try
-			{
-				ViewData["Breeds"] = db.Breeds.ToList();
-				PetModel? pet = db.Pets.FirstOrDefault(o => o.id == pet_id);
-				return View(pet);
-			}
-			catch
-			{
-				return StatusCode(504);
-			}
+            if (db.Pets.FirstOrDefault(o => o.id == pet).client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
+            {
+                try
+                {
+                    ViewData["Breeds"] = db.Breeds.ToList();
+                    PetModel? petM = db.Pets.FirstOrDefault(o => o.id == pet);
+                    return View(pet);
+                }
+                catch
+                {
+                    return StatusCode(504);
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
 		}
 	}
 }

@@ -53,13 +53,13 @@ namespace Project_site.Controllers
 
         //Просмотр инофмации о ситтере
         [Authorize(Roles = "User, Admin")]
-        public IActionResult Profile(int sitter_id)
+        public IActionResult Profile(int sitter)
         {
             try
             {
-                SitterModel sitter = db.Sitters.Include(o => o.user_).Include(o => o.user_.town_).SingleOrDefault(o => o.id == sitter_id);
-                ViewData["rating"] = (float)db.Orders.Where(o => o.Sitter_ == sitter && o.Feedback_ != null).Average(o => o.Feedback_.Rating);
-                return View(sitter);
+                SitterModel sitterM = db.Sitters.Include(o => o.user_).Include(o => o.user_.town_).SingleOrDefault(o => o.id == sitter);
+                ViewData["rating"] = (float)db.Orders.Where(o => o.Sitter_ == sitterM && o.Feedback_ != null).Average(o => o.Feedback_.Rating);
+                return View(sitterM);
             }
             catch
             {
@@ -69,14 +69,14 @@ namespace Project_site.Controllers
 
         //Подтверждение заявки
         [Authorize(Roles = "Admin")]
-        public IActionResult Approve(int sitter_id)
+        public IActionResult Approve(int sitter)
         {
             try
             {
-                SitterModel sitter = db.Sitters.Where(o => o.id == sitter_id).Include(o => o.user_.role_).First();
-                sitter.is_verificated = 1;
-                sitter.user_.role_ = db.Roles.FirstOrDefault(o => o.name == "sitter");
-                db.Sitters.Update(sitter);
+                SitterModel sitterM = db.Sitters.Where(o => o.id == sitter).Include(o => o.user_.role_).First();
+                sitterM.is_verificated = 1;
+                sitterM.user_.role_ = db.Roles.FirstOrDefault(o => o.name == "sitter");
+                db.Sitters.Update(sitterM);
                 db.SaveChanges();
                 return RedirectToAction("Applications");
             }
@@ -90,22 +90,22 @@ namespace Project_site.Controllers
         //WIP
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public IActionResult Add(int? user_id)
+        public IActionResult Add(int? user)
         {
-            if (user_id == null)
+            if (user == null)
             {
                 ICollection<UserModel> users = db.Users.Where(o => o.role_.name == "client").Include(o => o.town_).ToList();
                 return View(users);
             }
-            ViewData["Id"] = user_id;
+            ViewData["Id"] = user;
             return View();
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public IActionResult Add(int user_id)
+        public IActionResult Add(int user)
         {
-            ViewData["Id"] = user_id;
+            ViewData["Id"] = user;
             if (Request.Form["age_from"] == "" || Request.Form["age_to"] == "" ||
                 Request.Form["weight_from"] == "" || Request.Form["weight_to"] == "" ||
                 Request.Form["experience"] == "" || Request.Form["payment"] == "")
@@ -122,15 +122,15 @@ namespace Project_site.Controllers
                     float.Parse(Request.Form["weight_from"]) > float.Parse(Request.Form["weight_to"])
                     )
                 {
-                    return View(user_id);
+                    return View(user);
                 }
 
-                UserModel user = db.Users.FirstOrDefault(o => o.id == user_id);
-                user.role_ = db.Roles.FirstOrDefault(o => o.name == "sitter");
+                UserModel userM = db.Users.FirstOrDefault(o => o.id == user);
+                userM.role_ = db.Roles.FirstOrDefault(o => o.name == "sitter");
 
                 SitterModel sitter = new SitterModel {
                     id = db.Sitters.Count() + 1,
-                    user_ = user,
+                    user_ = userM,
                     payment = int.Parse(Request.Form["payment"]),
                     experience = int.Parse(Request.Form["experience"]),
                     status = "Занят",
@@ -159,15 +159,15 @@ namespace Project_site.Controllers
 
         //Удаление пользователя из списка ситтеров
         [Authorize(Roles = "Admin")]
-        public IActionResult Remove(int sitter_id)
+        public IActionResult Remove(int sitter)
         {
             try
             {
-                SitterModel sitter = db.Sitters.Include(o => o.user_).SingleOrDefault(o => o.id == sitter_id);
-                Requirement requirement = db.Requirements.FirstOrDefault(o => o.Sitter_ == sitter);
+                SitterModel sitterM = db.Sitters.Include(o => o.user_).SingleOrDefault(o => o.id == sitter);
+                Requirement requirement = db.Requirements.FirstOrDefault(o => o.Sitter_ == sitterM);
 
                 db.Requirements.Remove(requirement);
-                db.Sitters.Remove(sitter);
+                db.Sitters.Remove(sitterM);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }

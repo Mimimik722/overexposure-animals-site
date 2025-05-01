@@ -5,4 +5,42 @@
 <div class="text-center">
     <h1 class="display-4">Няня-гуляня</h1>
     <p>Гуляем с вашим питомцем пока вы заняты</p>
+    @if (Context.Session.GetString("user") != null)
+	{
+        int count = 1;
+        <div class="h3 text-center mt-3 mb-3">Новый заказ</div>
+        <div class="form-label col-form-label h4">Выберите животное:</div>
+        <table class="table table-bordered">
+            <tr>
+                <td>№</td>
+                <td>Имя</td>
+                <td>Порода</td>
+                <td>Пол</td>
+                <td>Возраст</td>
+                <td>Вес</td>
+                <td>Особенности</td>
+                <td>Действия</td>
+            </tr>
+            @foreach (var pet in ViewBag.pets)
+	    	{
+	    		count++;
+                <tr class="align-middle">
+                    <td>@count</td>
+                    <td>@pet.name</td>
+                    <td>@pet.breed_.name</td>
+                    <td>@pet.sex</td>
+                    <td>@pet.age</td>
+                    <td>@pet.weight</td>
+                    <td>@pet.features</td>
+                    <td>
+                        <a class="btn btn-primary" asp-controller="Orders" asp-action="Create" asp-route-pet="@pet.id">Выбрать</a>
+                    </td>
+                </tr>
+	    	}
+        </table>
+    }
+    else
+    {
+        <div class="h3 text-center mt-3 mb-3">К сожалению, доступных животных нет. Зарегистрируйтесь или войдите, чтобы сделать заказ.</div>
+    }
 </div>

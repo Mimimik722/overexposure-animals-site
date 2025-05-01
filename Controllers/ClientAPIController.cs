@@ -52,7 +52,7 @@ namespace Project_site.Controllers
                     return;
                 }
 
-                if (!db.Towns.Any(o => o.id == int.Parse(request.town_.name.ToString())))
+                if (!db.Towns.Any(o => o.name == request.town_.name.ToString()))
                 {
                     Response.WriteAsJsonAsync("Указанного города не существует");
                     return;

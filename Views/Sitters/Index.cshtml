@@ -44,8 +44,9 @@
                 <td>@sitter.payment</td>
                 <td>@sitter.experience</td>
                 <td>
-                    <a class="btn btn-primary" asp-action="Profile" asp-route-sitter_id="@sitter.id">Подробнее</a>
-                    <a class="btn btn-danger" asp-action="Remove" asp-route-sitter_id="@sitter.id">Уволить</a>
+                    <a class="btn btn-primary" asp-controller="Home" asp-action="Chat" asp-route-user=int.Parse(@sitter.user_.telephone)>Чат</a>
+                    <a class="btn btn-primary" asp-action="Profile" asp-route-sitter="@sitter.id">Подробнее</a>
+                    <a class="btn btn-danger" asp-action="Remove" asp-route-sitter="@sitter.id">Уволить</a>
                 </td>
             </tr>
         }

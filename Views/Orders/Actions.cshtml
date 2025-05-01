@@ -1,0 +1,25 @@
+﻿@model ICollection<OrdersHistory>;
+@{
+	ViewData["Title"] = "История действий";
+	var count = 0;
+}
+<div class="col-auto">
+	<a class="btn btn-primary text-light mb-3" asp-action="Index">Назад</a>
+</div>
+<div class="h3 text-center mt-3 mb-3">Список действий</div>
+<table class="table table-bordered">
+	<tr>
+		<td>№</td>
+		<td>Время</td>
+		<td>Действие</td>
+	</tr>
+	@foreach (OrdersHistory history in Model)
+	{
+		count++;
+		<tr class="align-middle">
+			<td>@count</td>
+			<td>@history.timestamp</td>
+			<td>@history.action</td>
+		</tr>
+	}	
+</table>

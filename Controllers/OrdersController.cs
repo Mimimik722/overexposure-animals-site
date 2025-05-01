@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Newtonsoft.Json;
 using Project_site.Models;
 using System.Linq;
@@ -33,7 +34,20 @@ namespace Project_site.Controllers
 			{
 				SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
 				ICollection<OrderModel> orders = [];
-				orders = db.Orders.Where(o => o.Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone) || o.Sitter_ == sitter).Include(o => o.Sitter_.user_).Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).Include(o => o.Feedback_).ToArray();
+				ICollection<string> statuses = [];
+				orders = db.Orders.Where(o => o.Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone) || o.Sitter_ == sitter)
+					//&& db.OrdersHistory.FirstOrDefault(p => p.order_.Id == o.Id).action != "В ожидании принятия")
+					.Include(o => o.Sitter_.user_)
+					.Include(o => o.Client_)
+					.Include(o => o.Pet_)
+					.Include(o => o.Order_Type_)
+					.Include(o => o.Feedback_)
+					.ToArray();
+				foreach (var order in orders)
+				{
+					statuses.Add(db.OrdersHistory.Where(o => o.order_.Id == order.Id).OrderByDescending(o => o.timestamp).FirstOrDefault().action);
+				}
+				ViewData["Statuses"] = statuses;
 				return View(orders);
 			}
 			catch
@@ -45,25 +59,25 @@ namespace Project_site.Controllers
 		//Вывод страницы с новым заказом
         [HttpGet]
         [Authorize(Roles = "User, Sitter")]
-        public IActionResult Create(int? sitter_id = -1, int? pet_id = -1, int? payment_from = 0, int? payment_to = 1000000, float? rating_from = 0, float? rating_to = 10)
+        public IActionResult Create(int? sitter = -1, int? pet = -1, int? payment_from = 0, int? payment_to = 1000000, float? rating_from = 0, float? rating_to = 10)
         {
             try
             {
 				OrderModel order = new();
 
-				if (pet_id == -1)
+				if (pet == -1 || db.Pets.FirstOrDefault(o => o.id == pet).client_.telephone != User.FindFirstValue(ClaimTypes.MobilePhone))
 				{
 					ViewData["pets"] = db.Pets.Where(o => o.client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Include(o => o.breed_);
 					return View(order);
 				}
 				
-				order.Pet_ = db.Pets.Where(o => o.id == pet_id).Include(o => o.breed_).First();
+				order.Pet_ = db.Pets.Where(o => o.id == pet).Include(o => o.breed_).First();
 				TempData["Pet"] = order.Pet_.id;
 				
-				if (sitter_id == -1)
+				if (sitter == -1 || db.Sitters.FirstOrDefault(o => o.id == sitter).user_.town_.name != User.FindFirstValue("Town"))
 				{
 					ICollection<Requirement> requirements = [];
-					if (TempData["sitters"] != null)
+					if (TempData["filter"] != null)
 					{
 						requirements = (ICollection<Requirement>) TempData["sitters"];
 						Console.WriteLine(requirements);
@@ -74,7 +88,8 @@ namespace Project_site.Controllers
 						& order.Pet_.weight >= o.weight_from & order.Pet_.weight <= o.weight_to
 						& order.Pet_.age >= o.age_from & order.Pet_.age <= o.age_to
 						& payment_from <= o.Sitter_.payment & payment_to >= o.Sitter_.payment
-						& o.Sitter_.status == "Свободен").Include(o => o.Sitter_.user_).ToList();
+						& o.Sitter_.status == "Свободен"
+						& o.Sitter_.is_verificated == 1).Include(o => o.Sitter_.user_).ToList();
 					}
 					ICollection<SitterModel> sitters = [];
 					ICollection<float> ratings = [];
@@ -92,7 +107,7 @@ namespace Project_site.Controllers
 					return View(order);
 				}
 
-				order.Sitter_ = db.Sitters.Where(o => o.id == sitter_id).Include(o => o.user_).First();
+				order.Sitter_ = db.Sitters.Where(o => o.id == sitter).Include(o => o.user_).First();
 				TempData["Sitter"] = order.Sitter_.id;
 
 				ViewData["order_types"] = db.Order_types.ToArray();
@@ -103,21 +118,6 @@ namespace Project_site.Controllers
 				return StatusCode(504);
 			}
         }
-
-		[HttpPost]
-		public IActionResult Requirement(int pet_id)
-		{
-			try
-			{
-				TempData["sitters"] = db.Requirements.Include(o => o.Sitter_).Where(o => o.Sitter_.payment >= int.Parse(Request.Form["payment_from"])
-				& o.Sitter_.payment <= int.Parse(Request.Form["payment_to"])).Include(o => o.Sitter_.user_).ToList();
-				return RedirectToAction("Create");
-			}
-			catch
-			{
-				return StatusCode(504);
-			}
-		}
 
 		//Создание заказа
 		[HttpPost]
@@ -144,8 +144,12 @@ namespace Project_site.Controllers
 				order.Client_ = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
 				order.Id = db.Orders.Count() + 1;
 				order.Order_Type_ = db.Order_types.FirstOrDefault(o => o.Name == Request.Form["Order_type_name"].ToString());
-				order.Status = "В ожидании принятия";
+				OrdersHistory ordersHistory = new();
+				ordersHistory.order_ = order;
+				ordersHistory.timestamp = DateTime.Now;
+				ordersHistory.action = "В ожидании принятия";
 				db.Orders.Add(order);
+				db.OrdersHistory.Add(ordersHistory);
 				db.SaveChanges();
 				return RedirectToAction("Index", "Home");
 			}
@@ -163,7 +167,19 @@ namespace Project_site.Controllers
 			try
 			{
 				SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
-				ICollection<OrderModel> orders = db.Orders.Where(o => o.Sitter_ == sitter && o.Status == "В ожидании принятия").Include(o => o.Client_).Include(o => o.Pet_).Include(o => o.Order_Type_).ToArray();
+				//db.OrdersHistory.GroupBy(o => o.order_).Select(g => new { order = g.Key, count = g.Count() }).Where(o => o.order.Sitter_ == sitter && o.count == 1);
+				ICollection<OrderModel> orders = db.Orders.Where(o => o.Sitter_ == sitter)
+					.Include(o => o.Pet_)
+					.Include(o => o.Order_Type_)
+					.Include(o => o.Client_)
+					.Join(
+						db.OrdersHistory.GroupBy(o => o.order_).Select(g => new { order = g.Key, count = g.Count() }), 
+						orders => orders.Id, 
+						ordersHistory => ordersHistory.order.Id, 
+						(orders, ordersHistory) => new {Orders = orders, OrdersHistory = ordersHistory})
+					.Where(o => o.OrdersHistory.count == 1)
+					.Select(o => o.Orders)
+					.ToArray();
 				return View(orders);
 			}
 			catch
@@ -175,15 +191,25 @@ namespace Project_site.Controllers
 		//Отклонение заказа
 		[HttpGet]
 		[Authorize(Roles = "Sitter")]
-		public IActionResult Reject(int order_id)
+		public IActionResult Reject(int order)
 		{
 			try
 			{
-				OrderModel? order = db.Orders.FirstOrDefault(o => o.Id == order_id);
-				order.Status = "Отменён";
-				db.Orders.Update(order);
-				db.SaveChanges();
-				return RedirectToAction("New");
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					&& db.OrdersHistory.Where(o => o.order_.Id == order).Count() == 1)
+				{
+					OrdersHistory ordersHistory = new();
+					ordersHistory.order_ = db.Orders.FirstOrDefault(o => o.Id == order);
+					ordersHistory.timestamp = DateTime.Now;
+					ordersHistory.action = "Отменён";
+					db.OrdersHistory.Add(ordersHistory);
+					db.SaveChanges();
+					return RedirectToAction("New");
+				}
+				else
+				{
+					return RedirectToAction("Index");
+				}
 			}
 			catch
 			{
@@ -194,15 +220,26 @@ namespace Project_site.Controllers
 		//Принятие заказа
 		[HttpGet]
 		[Authorize(Roles = "Sitter")]
-		public IActionResult Accept(int order_id)
+		public IActionResult Accept(int order)
 		{
 			try
 			{
-				OrderModel? order = db.Orders.FirstOrDefault(o => o.Id == order_id);
-				order.Status = "Выполняется";
-				db.Orders.Update(order);
-				db.SaveChanges();
-				return RedirectToAction("New");
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					&& db.OrdersHistory.Where(o => o.order_.Id == order).Count() == 1)
+				{
+					OrdersHistory ordersHistory = new();
+					ordersHistory.order_ = db.Orders.FirstOrDefault(o => o.Id == order);
+					ordersHistory.timestamp = DateTime.Now;
+					ordersHistory.action = "Выполняется";
+					db.OrdersHistory.Add(ordersHistory);
+					db.SaveChanges();
+					return RedirectToAction("New");
+				}
+
+				else
+				{
+					return RedirectToAction("Index");
+				}
 			}
 			catch
 			{
@@ -213,15 +250,96 @@ namespace Project_site.Controllers
 		//Подтверждения выполнения заказа
 		[HttpGet]
 		[Authorize(Roles = "Sitter")]
-		public IActionResult Done(int order_id)
+		public IActionResult Done(int order)
 		{
 			try
 			{
-				OrderModel? order = db.Orders.FirstOrDefault(o => o.Id == order_id);
-				order.Status = "Выполнен";
-				db.Orders.Update(order);
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					&& db.OrdersHistory.Where(o => o.order_.Id == order).Any(o => o.action != "Выполнено"))
+				{
+					OrdersHistory ordersHistory = new();
+					ordersHistory.order_ = db.Orders.FirstOrDefault(o => o.Id == order);
+					ordersHistory.timestamp = DateTime.Now;
+					ordersHistory.action = "Выполнен";
+					db.OrdersHistory.Add(ordersHistory);
+					db.SaveChanges();
+					return RedirectToAction("Index");
+				}
+				else
+				{
+					return RedirectToAction("Index");
+				}
+			}
+			catch
+			{
+				return StatusCode(504);
+			}
+		}
+		//Вывод окна с вводом текущего действия с питомцем
+		[HttpGet]
+		[Authorize(Roles = "Sitter")]
+		public IActionResult NewAction(int order)
+		{
+			try
+			{
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					&& db.OrdersHistory.Where(o => o.order_.Id == order).Count() > 1
+					&& db.OrdersHistory.Where(o => o.order_.Id == order).Any(o => o.action == "Отменён"))
+				{
+					TempData["order_id"] = order;
+					OrdersHistory orderHistory = new();
+					return View(orderHistory);
+				}
+				else
+				{
+					return RedirectToAction("Index");
+				}
+			}
+			catch
+			{
+				return StatusCode(504);
+			}
+		}
+		//Добавление нового действия с питомцем
+        [HttpPost]
+        [Authorize(Roles = "Sitter")]
+        public IActionResult NewAction(OrdersHistory ordersHistory)
+        {
+			if (ordersHistory.action == "")
+			{
+				ModelState.AddModelError("action", "Поле не может быть пустым");
+				return View(ordersHistory);
+			}
+			try
+			{
+				ordersHistory.order_ = db.Orders.FirstOrDefault(o => o.Id == int.Parse(TempData["order_id"].ToString()));
+				ordersHistory.timestamp = DateTime.Now;
+				db.OrdersHistory.Add(ordersHistory);
 				db.SaveChanges();
-				return RedirectToAction("Index");
+			}
+			catch
+			{
+				return StatusCode(504);
+			}
+            return RedirectToAction("Index", "Orders");
+        }
+
+		[HttpGet]
+		[Authorize]
+		public IActionResult Actions(int order)
+		{
+			try
+			{
+				if (db.Orders.Include(o => o.Sitter_.user_).FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone).ToString()
+					|| db.Orders.Include(o => o.Client_).FirstOrDefault(o => o.Id == order).Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone).ToString())
+				{
+					ICollection <OrdersHistory> orderHistory = db.OrdersHistory.Where(o => o.order_.Id == order).OrderBy(o => o.timestamp).ToArray();
+					return View(orderHistory);
+				}
+				else
+				{
+					return RedirectToAction("Index");
+				}
 			}
 			catch
 			{
@@ -229,13 +347,27 @@ namespace Project_site.Controllers
 			}
 		}
 
-		//Вывод страницы с отзывом о заказе
-		[HttpGet]
+        //Вывод страницы с отзывом о заказе
+        [HttpGet]
 		[Authorize(Roles = "User")]
-		public IActionResult Feedback(int order_id)
+		public IActionResult Feedback(int order)
 		{
-			TempData["order_id"] = order_id;
-			return View();
+			try
+			{
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
+				{
+					TempData["order_id"] = order;
+					return View();
+				}
+				else
+				{
+					return RedirectToAction("Index");
+				}
+			}
+			catch
+			{
+				return StatusCode(504);
+			}
 		}
 
 		//Отправка отзыва о заказе
@@ -247,7 +379,6 @@ namespace Project_site.Controllers
 			try
 			{
 				OrderModel? order = db.Orders.Include(o => o.Sitter_).Include(o => o.Pet_).Include(o => o.Client_).Include(o => o.Order_Type_).FirstOrDefault(o => o.Id == (int)TempData["order_id"]);
-				feedback.id = db.Feedbacks.Count() + 1;
 				feedback.Rating = int.Parse(Request.Form["ratings"]);
 				order.Feedback_ = feedback;
 				db.Feedbacks.Add(feedback);
@@ -262,45 +393,35 @@ namespace Project_site.Controllers
 		}
 
 		//Отображение положения питомца на карте
-		[Authorize(Roles = "User, Sitter")]
-		public IActionResult Map(int order_id)
+		[Authorize]
+		public IActionResult Map(int order)
 		{
 			try
 			{
-				OrderModel? order = db.Orders.Find(order_id);
-				Coordinate coordinate = db.Coordinates.Where(o => o.Order_ == order).OrderBy(o => o.timestamp).Last();
-				coordinate.Order_ = null;
-                return View(coordinate);
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					|| db.Orders.FirstOrDefault(o => o.Id == order).Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
+				{
+					try
+					{
+						OrderModel? orderM = db.Orders.Find(order);
+						Coordinate coordinate = db.Coordinates.Where(o => o.Order_ == orderM).OrderBy(o => o.timestamp).Last();
+						coordinate.Order_ = null;
+						return View(coordinate);
+					}
+					catch
+					{
+						return StatusCode(504);
+					}
+				}
+				else
+				{
+					return RedirectToAction("Index");
+				}
 			}
 			catch
 			{
 				return StatusCode(504);
 			}
 		}
-
-        public IActionResult Chat(int user_id)
-        {
-            UserChatModel userChat = new UserChatModel();
-
-			int senderId = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).id;
-            string? name = User.Identity.Name;
-
-            userChat.LoggedInUser = new UserModel { id = senderId, name = name };
-
-			userChat.Receiver = db.Users.FirstOrDefault(o => o.id == user_id);
-            return View(userChat);
-        }
-        
-		public ActionResult GetChatConversion(int receiverId)
-        {
-			UserModel user;
-			user = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
-			int loginUserId = user.id;
-            var chatHistories = db.UserChatHistory.Include("sender_")
-                                .Include("receiver_").Where(a => (a.receiver_ == user && a.sender_.id == receiverId)
-                               || (a.receiver_.id == receiverId && a.sender_ == user)).OrderByDescending(a => a.created_at).ToList();
-            ViewData["loginUserId"] = loginUserId;
-            return PartialView("_ChatConversion", chatHistories);
-        }
     }
 }

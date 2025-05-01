@@ -1,7 +1,7 @@
 ﻿@using Newtonsoft.Json;
 @model Project_site.Models.SitterModel;
 @{
-    ViewData["Title"] = "Детали ситтера";
+    ViewData["Title"] = "Инфомрация о ситтере";
 }
 
 <div class="text-center">
@@ -16,7 +16,7 @@
                 <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
             }
         </div>
-        <div class="h4 mb-3">Данные ситтера: @Model.user_.name @Model.user_.surname</div>
+        <div class="h4 mb-3">Данные пользователя: @Model.user_.name @Model.user_.surname</div>
     </div>
     <div class="row mb-3">
         <div class="col-2 d-flex align-items-center">

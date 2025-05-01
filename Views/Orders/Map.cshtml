@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="~/Project_site.styles.css" asp-append-version="true" />
     <script src="https://api-maps.yandex.ru/v3/?apikey=72a16dc2-0746-4e9e-9c1b-48811b8b6164&lang=ru_RU"></script>
     <script>var coordinates = '@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model))'</script>
+    <meta http-equiv="refresh" content="10" />
     <script asp-src-include="~/js/map.js"></script>
 </head>
 <body>

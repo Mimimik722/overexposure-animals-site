@@ -4,7 +4,7 @@
     var count = 0;
 }
 <div class="col-auto">
-    <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+    <a class="btn btn-primary text-light" asp-controller="Home">Назад</a>
 </div>
 <div class="text-center h4 mb-3">Добавление ситтера</div>
 @if (ViewBag.Id == null)
@@ -37,7 +37,8 @@
                     <td>@user.telephone</td>
                     <td>@years</td>
                     <td>
-                        <a class="btn btn-primary" asp-action="Add" asp-route-user_id="@user.id">Добавить</a>
+                        <a class="btn btn-primary" asp-controller="User" asp-action="Profile" asp-route-user="@user.id">Подробнее</a>
+                        <a class="btn btn-success" asp-action="Add" asp-route-user="@user.id">Добавить</a>
                     </td>
                 </tr>
             }
@@ -100,7 +101,7 @@ else
             </div>
         </div>
         <div class="text-center">
-            <input class="btn btn-success" type="submit" asp-route-user_id="@ViewBag.Id" value="Сохранить"/>
+            <input class="btn btn-success" type="submit" asp-route-user="@ViewBag.Id" value="Сохранить"/>
         </div>
     </form>
 }

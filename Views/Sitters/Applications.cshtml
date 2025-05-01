@@ -7,9 +7,9 @@
     <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
 </div>
 <div class="text-center h4 mb-3">Заявки</div>
-<table class="table table-bordered">
-    @if (Model.Count != 0)
-    {
+@if (Model.Count != 0)
+{
+    <table class="table table-bordered">
         <tr>
             <td>№</td>
             <td>Имя</td>
@@ -21,7 +21,7 @@
             <td>Опыт работы</td>
             <td>Действия</td>
         </tr>
-        foreach (var sitter in Model)
+        @foreach (var sitter in Model)
         {
             count++;
             <tr class="align-middle">
@@ -39,14 +39,14 @@
                 <td>@sitter.payment</td>
                 <td>@sitter.experience</td>
                 <td>
-                    <a class="btn btn-primary" asp-action="Approve" asp-route-sitter_id="@sitter.id">Одобрить</a>
-                    <a class="btn btn-danger" asp-action="Remove" asp-route-sitter_id="@sitter.id">Отклонить</a>
+                    <a class="btn btn-primary" asp-action="Approve" asp-route-sitter="@sitter.id">Одобрить</a>
+                    <a class="btn btn-danger" asp-action="Remove" asp-route-sitter="@sitter.id">Отклонить</a>
                 </td>
             </tr>
         }
-    }
-    else
-    {
-        <div class="text-center h3 text-muted">На данный момент заявок нет</div>
-    }
-</table>
+    </table>
+}
+else
+{
+    <div class="text-center h3 text-muted">На данный момент заявок нет</div>
+}

@@ -49,7 +49,6 @@ namespace Project_site.SignalRHub
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationContext>();
             var db = new ApplicationContext();
             UserChatHistory chatHistory = new UserChatHistory();
-            chatHistory.id = db.UserChatHistory.Count() + 1;
             chatHistory.message = message;
             chatHistory.created_at = DateTime.UtcNow;
             chatHistory.sender_ = db.Users.FirstOrDefault(o => o.id == senderId);

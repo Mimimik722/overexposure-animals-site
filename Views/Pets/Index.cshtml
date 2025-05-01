@@ -38,9 +38,9 @@
                 <td>@pet.weight</td>
                 <td>@pet.features</td>
                 <td>
-                    <a class="btn btn-info" asp-action="Details" asp-route-pet_id="@pet.id">Подробнее</a>
-                    <a class="btn btn-primary" asp-action="Edit" asp-route-pet_id="@pet.id">Изменить</a>
-                    <a class="btn btn-danger" asp-action="Delete" asp-route-pet_id="@pet.id">Удалить</a>
+                    <a class="btn btn-info" asp-action="Details" asp-route-pet="@pet.id">Подробнее</a>
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-pet="@pet.id">Изменить</a>
+                    <a class="btn btn-danger" asp-action="Delete" asp-route-pet="@pet.id">Удалить</a>
                 </td>
             </tr>
         }

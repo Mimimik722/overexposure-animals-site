@@ -33,47 +33,62 @@
         foreach (var order in Model)
         {
             count++;
-            <tr class="align-middle">
-                <td>@count</td>
-                <td>@order.Sitter_.user_.name @order.Sitter_.user_.surname</td>
-                @if (Context.User.IsInRole("Sitter"))
-                {
-                    <td>@order.Client_.name @order.Client_.surname</td>
-                }
-                <td>@order.Pet_.name</td>
-                <td>@order.Order_Type_.Name</td>
-                <td>@order.Date_start</td>
-                <td>@order.Date_end</td>
-                <td>@order.Status</td>
-                <td>@if (order.Feedback_ != null)
+            if (!(ViewBag.Statuses[count - 1] == "В ожидании принятия" && User.IsInRole("Sitter")))
+            {   
+                <tr class="align-middle">
+                    <td>@count</td>
+                    <td>@order.Sitter_.user_.name @order.Sitter_.user_.surname</td>
+                    @if (Context.User.IsInRole("Sitter"))
                     {
-                        <a>@order.Feedback_.Rating / 10</a>
-                        <image class="mb-1" src="/images/star.jpg" width="15rem" height="15rem"></image>
+                        <td>@order.Client_.name @order.Client_.surname</td>
                     }
-                </td>
-                <td>
-                    @if (Context.User.IsInRole("User"))
-                    {
-                        if (order.Status == "Выполнен")
+                    <td>@order.Pet_.name</td>
+                    <td>@order.Order_Type_.Name</td>
+                    <td>@order.Date_start</td>
+                    <td>@order.Date_end</td>
+                    <td>@ViewBag.Statuses[count-1]</td>
+                    <td>@if (order.Feedback_ != null)
                         {
-                            <a class="btn btn-primary" asp-action="Feedback" asp-route-order_id="@order.Id">Выставить оценку</a>
+                            <a>@order.Feedback_.Rating / 10</a>
+                            <image class="mb-1" src="/images/star.jpg" width="15rem" height="15rem"></image>
                         }
-                        if (order.Status == "Выполняется" && order.Order_Type_.Name == "Прогулка")
+                    </td>
+                    <td>
+                        @if (ViewBag.Statuses[count - 1] != "Отменён")
                         {
-                            <a class="btn btn-primary" asp-action="Map" asp-route-order_id="@order.Id">Посмотреть положение</a>
+                            @if (Context.User.IsInRole("User"))
+                            {
+                                if (ViewBag.Statuses[count - 1] == "Выполнен")
+                                {
+                                    <a class="btn btn-primary" asp-action="Feedback" asp-route-order="@order.Id">Выставить оценку</a>
+                                }
+                                if (ViewBag.Statuses[count - 1] == "Выполняется" && order.Order_Type_.Name == "Прогулка")
+                                {
+                                    <a class="btn btn-primary" asp-action="Map" asp-route-order="@order.Id">Посмотреть положение</a>
+                                }
+                                <a class="btn btn-primary" asp-controller="Home" asp-action="Chat" asp-route-user=@int.Parse(order.Sitter_.user_.telephone)>Чат</a>
+                            }
+                            else
+                            {
+                                if (ViewBag.Statuses[count - 1] == "Выполняется")
+                                {
+                                    <a class="btn btn-success" asp-action="Done" asp-route-order="@order.Id">Выполнен</a>
+                                    if(order.Order_Type_.Name == "Прогулка")
+                                    {
+                                        <a class="btn btn-primary" asp-action="Map" asp-route-order="@order.Id">Посмотреть положение</a>
+                                    }
+                                }
+                                if (ViewBag.Statuses[count - 1] != "Выполнен")
+                                {
+                                    <a class="btn btn-primary" asp-action="NewAction" asp-route-order="@order.Id">Новое действие</a>
+                                }
+                                <a class="btn btn-primary" asp-controller="Home" asp-action="Chat" asp-route-user=@int.Parse(order.Client_.telephone)>Чат</a>
+                            }
                         }
-                        <a class="btn btn-primary" asp-action="Chat" asp-route-user_id="@order.Sitter_.user_.id">Чат</a>
-                    }
-                    else
-                    {
-                        if (order.Status == "Выполняется")
-                        {
-                           <a class="btn btn-success" asp-action="Done" asp-route-order_id="@order.Id">Выполнен</a>
-                        }
-                        <a class="btn btn-primary" asp-action="Chat" asp-route-user_id="@order.Client_.id">Чат</a>
-                    }
-                </td>
-            </tr>
+                        <a class="btn btn-primary" asp-action="Actions" asp-route-order="@order.Id">История заказа</a>
+                    </td>
+                </tr>
+            }
         }
     }
     else{

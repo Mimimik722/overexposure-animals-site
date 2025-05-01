@@ -15,6 +15,7 @@ public class ApplicationContext : DbContext
     public DbSet<Requirement> Requirements { get; set; }
     public DbSet<Coordinate> Coordinates { get; set; }
     public DbSet<UserChatHistory> UserChatHistory { get; set; }
+    public DbSet<OrdersHistory> OrdersHistory { get; set; }
 
     public ApplicationContext()
     {
@@ -22,7 +23,7 @@ public class ApplicationContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseMySql("server=192.168.0.104;user=root;password=root;database=pets_db;",
+        optionsBuilder.UseMySql("server=localhost;user=root;password=root;database=pets_db;",
             new MySqlServerVersion(new Version(9, 0)));
     }
 }
@@ -55,7 +56,7 @@ public class Feedback
 
 public class OrderType
 {
-    public int Id { get; set; }
+    public int id { get; set; }
     public string Name { get; set; }
 }
 
@@ -72,7 +73,7 @@ public class Requirement
 public class Coordinate
 {
     public int id { get; set; }
-    public OrderModel Order_ { get; set; }
+    public OrderModel Order_ { get; set; } = null!;
     public DateTime timestamp { get; set; }
     public float latitude { get; set; }
     public float longitude { get; set; }
@@ -85,4 +86,12 @@ public class UserChatHistory
     public UserModel receiver_ { get; set; } = null!;
     public string message { get; set; } = null!;
     public DateTime created_at { get; set; }
+}
+
+public class OrdersHistory
+{
+    public int id { get; set; }
+    public OrderModel order_ { get; set; } = null!;
+    public DateTime timestamp { get; set; }
+    public string action { get; set; } = "";
 }

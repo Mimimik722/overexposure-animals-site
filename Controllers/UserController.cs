@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using Project_site.Models;
 using System.Net;
@@ -11,24 +10,17 @@ using System.Net.Mail;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Project_site;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Project_site.Controllers
 {
     public class UserController : Controller
     {
         ApplicationContext db;
-        UserModel? user;
         public UserController()
         {
-
-            try
-            {
-                db = new();
-            }
-            catch
-            {
-                StatusCode(504);
-            }
+            db = new();
         }
         //Получение хэша для пароля
         private string GetHash(string input)
@@ -36,6 +28,40 @@ namespace Project_site.Controllers
             var md5 = MD5.Create();
             var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
             return Convert.ToBase64String(hash);
+        }
+
+        //Перевод изображения в байты
+        public byte[] ImageToByteString(IFormFile image)
+        {
+            var memoryStream = new MemoryStream();
+            image.CopyTo(memoryStream);
+            return memoryStream.ToArray();
+        }
+
+        [Authorize]
+        public IActionResult ProfileImage()
+        {
+            byte[] bytes = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).image;
+            return File(bytes, "image/jpg");
+        }
+
+        public IActionResult Index()
+        {
+            try
+            {
+                ViewData["role"] = User.FindFirstValue(ClaimTypes.Role);
+                if (db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)) != null)
+                {
+                    SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+                    ViewData["status"] = sitter.status;
+                    ViewData["rating"] = (float)db.Orders.Where(o => o.Sitter_ == sitter && o.Feedback_ != null).Average(o => o.Feedback_.Rating);
+                }
+                return View(User);
+            }
+            catch
+            {
+                return StatusCode(504);
+            }
         }
 
         //Открытие страницы с формой для входа
@@ -50,46 +76,67 @@ namespace Project_site.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Login(UserModel data)
         {
+            Encryption enc = new();
             try
-            {  
+            {
+                string old_password = GetHash(Request.Form["password"]),
+                    new_password = enc.GetHash(Request.Form["password"].ToString(), double.Parse(Request.Form["telephone"]));
                 if (!db.Users.Any(o => o.telephone == Request.Form["telephone"].ToString()) ||
-                    !db.Users.Any(o => o.password == GetHash(Request.Form["password"].ToString()).ToString()))
+                    !db.Users.Any(o => o.password == old_password
+                                || o.password == new_password)
+                    )
                 {
                     ModelState.AddModelError("telephone", "Неверный телефон или пароль");
                     return View(data);
                 }
 
-                UserModel client = db.Users.Where(o => o.telephone == Request.Form["telephone"].ToString()).Include(o => o.town_).Include(o => o.role_).First();
-                HttpContext.Session.Set("user", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client)));
+                UserModel user = db.Users.Where(o => o.telephone == Request.Form["telephone"].ToString()).Include(o => o.town_).Include(o => o.role_).First();
+                if (user.password != new_password)
+                {
+                    user.password = new_password;
+                    db.Update(user);
+                    db.SaveChanges();
+                }
+                HttpContext.Session.Set("user", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(user)));
 
                 var claims = new[] {
                     new Claim(ClaimTypes.MobilePhone, Request.Form["telephone"].ToString()),
-                    new Claim(ClaimTypes.Name, client.name),
+                    new Claim(ClaimTypes.Name, user.name),
                     new Claim(ClaimTypes.Role, "User"),
-                    new Claim(ClaimTypes.Surname, client.surname),
-                    new Claim("Town", client.town_.name),
-                    new Claim("Sex", client.sex),
-                    new Claim(ClaimTypes.DateOfBirth, client.birthday.ToString()),
+                    new Claim(ClaimTypes.Surname, user.surname),
+                    new Claim(ClaimTypes.Email, user.email),
+                    new Claim("Town", user.town_.name),
+                    new Claim(ClaimTypes.Gender, user.sex),
+                    new Claim(ClaimTypes.DateOfBirth, user.birthday.ToString())
                 };
                 
-                if (client.email != null)
+                if (user.email != null)
                 {
-                    Claim claim = new Claim(ClaimTypes.Email, client.email);
+                    Claim claim = new Claim(ClaimTypes.Email, user.email);
                     claims.Append(claim);
                 }
 
-                if (client.role_.name == "sitter")
+                if (user.role_.name == "sitter")
                 {
                     claims[2] = new Claim(ClaimTypes.Role, "Sitter");
                 }
-                else if (client.role_.name == "admin")
+                else if (user.role_.name == "admin")
                 {
                     claims[2] = new Claim(ClaimTypes.Role, "Admin");
                 }
 
+                if (user.image == null)
+                {
+                    FileStream fileStream = System.IO.File.Open("wwwroot/images/standard-profile-image.jpg", FileMode.Open);
+                    IFormFile image = new FormFile(fileStream, 0, fileStream.Length, "base-image", "base-image");
+                    user.image = ImageToByteString(image);
+                    db.Update(user);
+                    db.SaveChanges();
+                }
+
                 var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
                 var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-                this.HttpContext.Session.Set("user", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client)));
+                this.HttpContext.Session.Set("user", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(user)));
                 this.HttpContext.SignInAsync(claimsPrincipal);
                 this.HttpContext.Session.CommitAsync();
                 return Redirect("/");
@@ -149,13 +196,16 @@ namespace Project_site.Controllers
                     return View(user_data);
                 }
 
-                UserModel user = new UserModel();
+                UserModel user = new();
                 user.id = db.Users.Count() + 1;
                 user.town_ = db.Towns.Where(o => o.name == Request.Form["town"].ToString()).First();
                 user.name = Request.Form["name"];
                 user.surname = Request.Form["surname"];
                 user.password = GetHash(Request.Form["password"].ToString());
                 user.email = Request.Form["email"];
+                user.telephone = Request.Form["telephone"];
+                user.role_ = db.Roles.FirstOrDefault(o => o.name == "client");
+                user.birthday = DateOnly.Parse(Request.Form["birthday"].ToString());
 
                 if (Request.Form["radioM"] == "on")
                 {
@@ -165,10 +215,11 @@ namespace Project_site.Controllers
                 {
                     user.sex = "ж";
                 }
+                if (Request.Form.Files["Image"] != null)
+                {
+                    user.image = ImageToByteString(Request.Form.Files["Image"]);
+                }
 
-                user.telephone = Request.Form["telephone"];
-                user.role_ = db.Roles.FirstOrDefault(o => o.name == "client");
-                user.birthday = DateOnly.Parse(Request.Form["birthday"].ToString());
                 db.Users.Add(user);
                 db.SaveChanges();
 
@@ -235,7 +286,6 @@ namespace Project_site.Controllers
                 smtpClient.EnableSsl = true;
                 smtpClient.Timeout = 10000;
                 smtpClient.Credentials = new NetworkCredential("vov.efimov2015@yandex.ru", "yzieyshcplrghusx", "smtp.yandex.ru");
-                //smtpClient.Credentials = new NetworkCredential("dm92LmVmaW1vdjIwMTVAeWFuZGV4LnJ1", "eXppZXlzaGNwbHJnaHVzeA==");
                 try
                 {
                     smtpClient.Send(message);
@@ -258,28 +308,6 @@ namespace Project_site.Controllers
             return Redirect("/");
         }
 
-        //Вывод страницы с информацией о себе
-        [HttpGet]
-        [Authorize]
-        public IActionResult Profile()
-        {
-            try
-            {
-                ViewData["role"] = User.FindFirstValue(ClaimTypes.Role);
-                if (db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)) != null)
-                {
-                    SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
-                    ViewData["status"] = sitter.status;
-                    ViewData["rating"] = (float) db.Orders.Where(o => o.Sitter_ == sitter && o.Feedback_ != null).Average(o => o.Feedback_.Rating);
-                }
-                return View(User);
-            }
-            catch
-            {
-                return StatusCode(504);
-            }
-        }
-
         //Переход на страницу с возможностью измнения информации о себе
         [HttpGet]
         [Authorize]
@@ -290,8 +318,9 @@ namespace Project_site.Controllers
                 ViewData["towns"] = db.Towns.ToList();
                 if (db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)) != null)
                 {
-                    ViewData["status"] = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+                    ViewData["status"] = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).status;
                 }
+                UserModel user = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
                 return View(user);
             }
             catch
@@ -306,10 +335,9 @@ namespace Project_site.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(UserModel? new_user)
         {
-            UserModel? user = new();
-            user = db.Users.Include(o => o.town_).FirstOrDefault(o => o.id == user.id);
-            SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
             ViewData["towns"] = db.Towns.ToList();
+            UserModel? user = new();
+            user = db.Users.Include(o => o.town_).FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
 
             if (!new_user.name.ToString().All(char.IsLetter) ||
                 !new_user.surname.ToString().All(char.IsLetter))
@@ -320,51 +348,31 @@ namespace Project_site.Controllers
             if (!db.Towns.Any(o => o.name == Request.Form["town"].ToString()))
             {
                 ModelState.AddModelError("town_", "Такого города не существует");
-                new_user.town_ = new Town { name = Request.Form["town"].ToString()};
                 return View(new_user);
             }
             if (db.Users.Any(o => o.telephone == new_user.telephone.ToString()) && new_user.telephone != user.telephone)
             {
                 ModelState.AddModelError("telephone", "Пользователь с таким номером телефона уже зарергистрирован");
+                return View(new_user);
             }
+
+            SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == user.telephone);
 
             if (Request.Form["radioM"] == "on")
             {
-                new_user.sex = "м";
+                user.sex = "м";
             }
             else
             {
-                new_user.sex = "ж";
+                user.sex = "ж";
             }
-
-            if (user.name != new_user.name)
-            {
-                user.name = new_user.name;
-            }
-            if (user.surname != new_user.surname)
-            {
-                user.surname = new_user.surname;
-            }
-            if (user.town_.name != Request.Form["town"])
-            {
-                user.town_ = db.Towns.FirstOrDefault(o => o.name == Request.Form["town"].ToString());
-            }
-            if (user.sex != new_user.sex)
-            {
-                user.sex = new_user.sex;
-            }
-            if (user.birthday != new_user.birthday)
-            {
-                user.birthday = new_user.birthday;
-            }
-            if (user.telephone != new_user.telephone)
-            {
-                user.telephone = new_user.telephone;
-            }
-            if (user.email != new_user.email)
-            {
-                user.email = new_user.email;
-            }
+            user.name = new_user.name;
+            user.surname = new_user.surname;
+            user.town_ = db.Towns.FirstOrDefault(o => o.name == Request.Form["town"].ToString());
+            user.sex = new_user.sex;
+            user.birthday = new_user.birthday;
+            user.telephone = new_user.telephone;
+            user.email = new_user.email;
             if (sitter != null)
             {
                 sitter.status = Request.Form["status"];
@@ -375,7 +383,7 @@ namespace Project_site.Controllers
             db.SaveChanges();
             this.HttpContext.Session.Remove("user");
             this.HttpContext.Session.Set("user", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(user)));
-            return RedirectToAction("Profile");
+            return RedirectToAction("Index");
         }
 
         //Открытие формы для подачи заявки на ситтера
