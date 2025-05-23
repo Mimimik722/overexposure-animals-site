@@ -14,8 +14,8 @@
                     <label class="form-label m-0">Имя:</label>
                 </div>
                 <div class="col-4">
-                    <input class="form-control m-0" type="name" asp-for=name/>
-                    <span class="text-danger" asp-validation-for=name></span>
+                    <input class="form-control m-0" type="name" asp-for=Name/>
+                    <span class="text-danger" asp-validation-for=Name></span>
                 </div>
             </div>
             <div class="row mb-3">
@@ -30,7 +30,7 @@
                                 <option value="@breed.name"></option>
                                 }
                     </datalist>
-                    <span class="text-danger" asp-validation-for=breed_></span>
+                    <span class="text-danger" asp-validation-for=Breed_></span>
                 </div>
             </div>
             <div class="row mb-3">
@@ -51,8 +51,8 @@
                     <label class="form-label">Возраст:</label>
                 </div>
                 <div class="col-auto d-flex align-items-center">
-                    <input class="form-control m-0" type="age" asp-for=age/>
-                    <span class="text-danger" asp-validation-for=age></span>
+                    <input class="form-control m-0" type="age" asp-for=Age/>
+                    <span class="text-danger" asp-validation-for=Age></span>
                 </div>
             </div>
             <div class="row mb-3">
@@ -60,8 +60,8 @@
                     <label class="form-label m-0">Вес:</label>
                 </div>
                 <div class="col-auto d-flex align-items-center">
-                    <input class="form-control m-0" asp-for=weight/>
-                    <span class="text-danger" asp-validation-for=weight></span>
+                    <input class="form-control m-0" asp-for=Weight/>
+                    <span class="text-danger" asp-validation-for=Weight></span>
                 </div>
             </div>
             <div class="row mb-3">
@@ -69,7 +69,7 @@
                     <label class="form-label m-0">Особенности:</label>
                 </div>
                 <div class="col-auto d-flex align-items-center">
-                    <input class="form-control m-0" asp-for=features/>
+                    <input class="form-control m-0" asp-for=Features/>
                 </div>
             </div>
             <div class="text-center">

@@ -68,7 +68,7 @@
 						</div>
 					</div>
 				</div>
-				<input asp-route="pet" value="@Model.Pet_.id" name="pet_id" hidden />
+				<input asp-route="pet" value="@Model.Pet_.Id" name="pet_id" hidden />
 				<div class="col-auto">
 					<input class="btn btn-success" type="submit" value="Применить"/>
 				</div>
@@ -105,7 +105,7 @@
 				<td>@sitter.experience</td>
 				<td>
 					<a class="btn btn-primary" asp-controller="Sitters" asp-action="Profile" asp-route-sitter="@sitter.id">Подробнее</a>
-					<a class="btn btn-success" asp-action="Create" asp-route-sitter="@sitter.id" asp-route-pet="@Model.Pet_.id">Выбрать</a>
+					<a class="btn btn-success" asp-action="Create" asp-route-sitter="@sitter.id" asp-route-pet="@Model.Pet_.Id">Выбрать</a>
 				</td>
 			</tr>
 		}
@@ -119,12 +119,12 @@
 			</div>
 			<div class="row mb-3">
 			    <div class="col-auto d-flex align-items-center">
-			        <label class="form-label m-0">Ситтер: @Model.Sitter_.user_.name @Model.Sitter_.user_.surname</label>
+			        <label class="form-label m-0">Ситтер: @Model.Sitter_.User_.Name @Model.Sitter_.User_.Surname</label>
 			    </div>
 			</div>
 			<div class="row mb-3">
 			    <div class="col-auto d-flex align-items-center">
-			        <label class="form-label col-auto m-0">Животное: @Model.Pet_.name</label>
+			        <label class="form-label col-auto m-0">Животное: @Model.Pet_.Name</label>
 			    </div>
 			</div>
 			<div class="row mb-3">

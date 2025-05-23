@@ -1,29 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Newtonsoft.Json;
 using Project_site.Models;
-using System.Linq;
 using System.Security.Claims;
 
 namespace Project_site.Controllers
 {
     public class OrdersController : Controller
     {
-		public ApplicationContext db;
-		string telephone;
-		public OrdersController()
-		{
-			try
-			{
-				db = new();
-			}
-			catch 
-			{
-				StatusCode(504);
-			}
-		}
+		readonly ApplicationContext db = ApplicationContext.GetInstance();
 
 		//Список текущих заказов
 		[HttpGet]
@@ -32,20 +17,18 @@ namespace Project_site.Controllers
         {
 			try
 			{
-				SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+				SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
 				ICollection<OrderModel> orders = [];
 				ICollection<string> statuses = [];
-				orders = db.Orders.Where(o => o.Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone) || o.Sitter_ == sitter)
-					//&& db.OrdersHistory.FirstOrDefault(p => p.order_.Id == o.Id).action != "В ожидании принятия")
-					.Include(o => o.Sitter_.user_)
+				orders = [.. db.Orders.Where(o => o.Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone) || o.Sitter_ == sitter)
+					.Include(o => o.Sitter_.User_)
 					.Include(o => o.Client_)
 					.Include(o => o.Pet_)
-					.Include(o => o.Order_Type_)
-					.Include(o => o.Feedback_)
-					.ToArray();
+                    .Include(o => o.Order_Type_)
+					.Include(o => o.Feedback_)];
 				foreach (var order in orders)
 				{
-					statuses.Add(db.OrdersHistory.Where(o => o.order_.Id == order.Id).OrderByDescending(o => o.timestamp).FirstOrDefault().action);
+					statuses.Add(db.OrdersHistory.Where(o => o.Order_.Id == order.Id).OrderByDescending(o => o.Timestamp).First().Action);
 				}
 				ViewData["Statuses"] = statuses;
 				return View(orders);
@@ -65,16 +48,16 @@ namespace Project_site.Controllers
             {
 				OrderModel order = new();
 
-				if (pet == -1 || db.Pets.FirstOrDefault(o => o.id == pet).client_.telephone != User.FindFirstValue(ClaimTypes.MobilePhone))
+				if (pet == -1 || db.Pets.Include(o => o.Client_).FirstOrDefault(o => o.Id == pet).Client_.Telephone != User.FindFirstValue(ClaimTypes.MobilePhone))
 				{
-					ViewData["pets"] = db.Pets.Where(o => o.client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Include(o => o.breed_);
+					ViewData["pets"] = db.Pets.Where(o => o.Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Include(o => o.Breed_);
 					return View(order);
 				}
 				
-				order.Pet_ = db.Pets.Where(o => o.id == pet).Include(o => o.breed_).First();
-				TempData["Pet"] = order.Pet_.id;
+				order.Pet_ = db.Pets.Where(o => o.Id == pet).Include(o => o.Breed_).First();
+				TempData["Pet"] = order.Pet_.Id;
 				
-				if (sitter == -1 || db.Sitters.FirstOrDefault(o => o.id == sitter).user_.town_.name != User.FindFirstValue("Town"))
+				if (sitter == -1 || db.Sitters.Include(o => o.User_.Town_).FirstOrDefault(o => o.Id == sitter).User_.Town_.Name != User.FindFirstValue("Town"))
 				{
 					ICollection<Requirement> requirements = [];
 					if (TempData["filter"] != null)
@@ -84,12 +67,12 @@ namespace Project_site.Controllers
 					}
 					else
 					{
-						requirements = db.Requirements.Include(o => o.Sitter_).Where(o => o.Sitter_.user_.town_.name == User.FindFirstValue("Town")
-						& order.Pet_.weight >= o.weight_from & order.Pet_.weight <= o.weight_to
-						& order.Pet_.age >= o.age_from & order.Pet_.age <= o.age_to
-						& payment_from <= o.Sitter_.payment & payment_to >= o.Sitter_.payment
-						& o.Sitter_.status == "Свободен"
-						& o.Sitter_.is_verificated == 1).Include(o => o.Sitter_.user_).ToList();
+						requirements = [.. db.Requirements.Include(o => o.Sitter_).Where(o => o.Sitter_.User_.Town_.Name == User.FindFirstValue("Town")
+						& order.Pet_.Weight >= o.Weight_from & order.Pet_.Weight <= o.Weight_to
+						& order.Pet_.Age >= o.Age_from & order.Pet_.Age <= o.Age_to
+						& payment_from <= o.Sitter_.Payment & payment_to >= o.Sitter_.Payment
+						& o.Sitter_.Status == "Свободен"
+						& o.Sitter_.Is_verificated == 1).Include(o => o.Sitter_.User_)];
 					}
 					ICollection<SitterModel> sitters = [];
 					ICollection<float> ratings = [];
@@ -107,8 +90,8 @@ namespace Project_site.Controllers
 					return View(order);
 				}
 
-				order.Sitter_ = db.Sitters.Where(o => o.id == sitter).Include(o => o.user_).First();
-				TempData["Sitter"] = order.Sitter_.id;
+				order.Sitter_ = db.Sitters.Where(o => o.Id == sitter).Include(o => o.User_).First();
+				TempData["Sitter"] = order.Sitter_.Id;
 
 				ViewData["order_types"] = db.Order_types.ToArray();
 				return View(order);
@@ -139,16 +122,18 @@ namespace Project_site.Controllers
 					return View(order);
 				}
 
-				order.Sitter_ = db.Sitters.FirstOrDefault(s => s.id == (int)TempData["Sitter"]);
-				order.Pet_ = db.Pets.FirstOrDefault(p => p.id == (int)TempData["Pet"]);
-				order.Client_ = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+				order.Sitter_ = db.Sitters.FirstOrDefault(s => s.Id == (int)TempData["Sitter"]);
+				order.Pet_ = db.Pets.FirstOrDefault(p => p.Id == (int)TempData["Pet"]);
+				order.Client_ = db.Users.FirstOrDefault(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
 				order.Id = db.Orders.Count() + 1;
 				order.Order_Type_ = db.Order_types.FirstOrDefault(o => o.Name == Request.Form["Order_type_name"].ToString());
-				OrdersHistory ordersHistory = new();
-				ordersHistory.order_ = order;
-				ordersHistory.timestamp = DateTime.Now;
-				ordersHistory.action = "В ожидании принятия";
-				db.Orders.Add(order);
+                OrdersHistory ordersHistory = new()
+                {
+                    Order_ = order,
+                    Timestamp = DateTime.Now,
+                    Action = "В ожидании принятия"
+                };
+                db.Orders.Add(order);
 				db.OrdersHistory.Add(ordersHistory);
 				db.SaveChanges();
 				return RedirectToAction("Index", "Home");
@@ -166,20 +151,18 @@ namespace Project_site.Controllers
         {
 			try
 			{
-				SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
-				//db.OrdersHistory.GroupBy(o => o.order_).Select(g => new { order = g.Key, count = g.Count() }).Where(o => o.order.Sitter_ == sitter && o.count == 1);
-				ICollection<OrderModel> orders = db.Orders.Where(o => o.Sitter_ == sitter)
+				SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+				ICollection<OrderModel> orders = [.. db.Orders.Where(o => o.Sitter_ == sitter)
 					.Include(o => o.Pet_)
 					.Include(o => o.Order_Type_)
 					.Include(o => o.Client_)
 					.Join(
-						db.OrdersHistory.GroupBy(o => o.order_).Select(g => new { order = g.Key, count = g.Count() }), 
+						db.OrdersHistory.GroupBy(o => o.Order_).Select(g => new { order = g.Key, count = g.Count() }), 
 						orders => orders.Id, 
 						ordersHistory => ordersHistory.order.Id, 
 						(orders, ordersHistory) => new {Orders = orders, OrdersHistory = ordersHistory})
 					.Where(o => o.OrdersHistory.count == 1)
-					.Select(o => o.Orders)
-					.ToArray();
+					.Select(o => o.Orders)];
 				return View(orders);
 			}
 			catch
@@ -195,14 +178,15 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
-					&& db.OrdersHistory.Where(o => o.order_.Id == order).Count() == 1)
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					&& db.OrdersHistory.Where(o => o.Order_.Id == order).Count() == 1)
 				{
-					OrdersHistory ordersHistory = new();
-					ordersHistory.order_ = db.Orders.FirstOrDefault(o => o.Id == order);
-					ordersHistory.timestamp = DateTime.Now;
-					ordersHistory.action = "Отменён";
-					db.OrdersHistory.Add(ordersHistory);
+                    OrdersHistory ordersHistory = new(){
+                        Order_ = db.Orders.FirstOrDefault(o => o.Id == order),
+                        Timestamp = DateTime.Now,
+                        Action = "Отменён"
+                    };
+                    db.OrdersHistory.Add(ordersHistory);
 					db.SaveChanges();
 					return RedirectToAction("New");
 				}
@@ -224,14 +208,15 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
-					&& db.OrdersHistory.Where(o => o.order_.Id == order).Count() == 1)
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					&& db.OrdersHistory.Where(o => o.Order_.Id == order).Count() == 1)
 				{
-					OrdersHistory ordersHistory = new();
-					ordersHistory.order_ = db.Orders.FirstOrDefault(o => o.Id == order);
-					ordersHistory.timestamp = DateTime.Now;
-					ordersHistory.action = "Выполняется";
-					db.OrdersHistory.Add(ordersHistory);
+                    OrdersHistory ordersHistory = new(){
+                        Order_ = db.Orders.FirstOrDefault(o => o.Id == order),
+                        Timestamp = DateTime.Now,
+                        Action = "Выполняется"
+                    };
+                    db.OrdersHistory.Add(ordersHistory);
 					db.SaveChanges();
 					return RedirectToAction("New");
 				}
@@ -254,14 +239,15 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
-					&& db.OrdersHistory.Where(o => o.order_.Id == order).Any(o => o.action != "Выполнено"))
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					&& db.OrdersHistory.Where(o => o.Order_.Id == order).Any(o => o.Action != "Выполнено"))
 				{
-					OrdersHistory ordersHistory = new();
-					ordersHistory.order_ = db.Orders.FirstOrDefault(o => o.Id == order);
-					ordersHistory.timestamp = DateTime.Now;
-					ordersHistory.action = "Выполнен";
-					db.OrdersHistory.Add(ordersHistory);
+                    OrdersHistory ordersHistory = new(){
+                        Order_ = db.Orders.FirstOrDefault(o => o.Id == order),
+                        Timestamp = DateTime.Now,
+                        Action = "Выполнен"
+                    };
+                    db.OrdersHistory.Add(ordersHistory);
 					db.SaveChanges();
 					return RedirectToAction("Index");
 				}
@@ -282,9 +268,9 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
-					&& db.OrdersHistory.Where(o => o.order_.Id == order).Count() > 1
-					&& db.OrdersHistory.Where(o => o.order_.Id == order).Any(o => o.action == "Отменён"))
+				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					&& db.OrdersHistory.Where(o => o.Order_.Id == order).Count() > 1
+					&& db.OrdersHistory.Where(o => o.Order_.Id == order).Any(o => o.Action == "Отменён"))
 				{
 					TempData["order_id"] = order;
 					OrdersHistory orderHistory = new();
@@ -305,15 +291,15 @@ namespace Project_site.Controllers
         [Authorize(Roles = "Sitter")]
         public IActionResult NewAction(OrdersHistory ordersHistory)
         {
-			if (ordersHistory.action == "")
+			if (ordersHistory.Action == "")
 			{
-				ModelState.AddModelError("action", "Поле не может быть пустым");
+				ModelState.AddModelError("Action", "Поле не может быть пустым");
 				return View(ordersHistory);
 			}
 			try
 			{
-				ordersHistory.order_ = db.Orders.FirstOrDefault(o => o.Id == int.Parse(TempData["order_id"].ToString()));
-				ordersHistory.timestamp = DateTime.Now;
+				ordersHistory.Order_ = db.Orders.FirstOrDefault(o => o.Id == int.Parse(TempData["order_id"].ToString()));
+				ordersHistory.Timestamp = DateTime.Now;
 				db.OrdersHistory.Add(ordersHistory);
 				db.SaveChanges();
 			}
@@ -330,10 +316,10 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				if (db.Orders.Include(o => o.Sitter_.user_).FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone).ToString()
-					|| db.Orders.Include(o => o.Client_).FirstOrDefault(o => o.Id == order).Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone).ToString())
+				if (db.Orders.Include(o => o.Sitter_.User_).FirstOrDefault(o => o.Id == order).Sitter_.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone).ToString()
+					|| db.Orders.Include(o => o.Client_).FirstOrDefault(o => o.Id == order).Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone).ToString())
 				{
-					ICollection <OrdersHistory> orderHistory = db.OrdersHistory.Where(o => o.order_.Id == order).OrderBy(o => o.timestamp).ToArray();
+					ICollection <OrdersHistory> orderHistory = [.. db.OrdersHistory.Where(o => o.Order_.Id == order).OrderBy(o => o.Timestamp)];
 					return View(orderHistory);
 				}
 				else
@@ -354,10 +340,13 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				if (db.Orders.FirstOrDefault(o => o.Id == order).Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
+				if (db.Orders.Include(o => o.Client_).FirstOrDefault(o => o.Id == order).Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)||
+                    db.Orders.Include(o => o.Sitter_.User_).FirstOrDefault(o => o.Id == order).Sitter_.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
 				{
-					TempData["order_id"] = order;
-					return View();
+					Feedback feedback = db.Orders.Include(o => o.Feedback_).FirstOrDefault(o => o.Id == order).Feedback_;
+					feedback ??= new();
+                    TempData["order_id"] = order;
+					return View(feedback);
 				}
 				else
 				{
@@ -378,7 +367,11 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				OrderModel? order = db.Orders.Include(o => o.Sitter_).Include(o => o.Pet_).Include(o => o.Client_).Include(o => o.Order_Type_).FirstOrDefault(o => o.Id == (int)TempData["order_id"]);
+				OrderModel? order = db.Orders.Include(o => o.Sitter_)
+					.Include(o => o.Pet_)
+					.Include(o => o.Client_)
+					.Include(o => o.Order_Type_)
+					.FirstOrDefault(o => o.Id == (int)TempData["order_id"]);
 				feedback.Rating = int.Parse(Request.Form["ratings"]);
 				order.Feedback_ = feedback;
 				db.Feedbacks.Add(feedback);
@@ -398,13 +391,13 @@ namespace Project_site.Controllers
 		{
 			try
 			{
-				if (db.Orders.FirstOrDefault(o => o.Id == order).Sitter_.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
-					|| db.Orders.FirstOrDefault(o => o.Id == order).Client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
+				if (db.Orders.Include(o => o.Sitter_.User_).FirstOrDefault(o => o.Id == order).Sitter_.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)
+					|| db.Orders.Include(o => o.Client_).FirstOrDefault(o => o.Id == order).Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
 				{
 					try
 					{
 						OrderModel? orderM = db.Orders.Find(order);
-						Coordinate coordinate = db.Coordinates.Where(o => o.Order_ == orderM).OrderBy(o => o.timestamp).Last();
+						Coordinate coordinate = db.Coordinates.Where(o => o.Order_ == orderM).OrderBy(o => o.Timestamp).Last();
 						coordinate.Order_ = null;
 						return View(coordinate);
 					}

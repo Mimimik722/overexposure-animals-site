@@ -1,6 +1,5 @@
-﻿.chat-list {
+﻿.chatlist {
     max-height: 100vh;
-    overflow-y: auto;
 }
 
 .user {
@@ -82,13 +81,19 @@
     flex-direction: column;
 }
 
-.chat-ui li .text span {
-    font-size: 12px;
+.chat-ui li .text small {
+    font-size: 14px;
+    padding-left: 10px;
 }
 
 li.right {
     justify-content: end;
     text-align: right;
+    padding-right: 5px;
+}
+
+li.left{
+    padding-left: 10px;
 }
 
 .chatbox {

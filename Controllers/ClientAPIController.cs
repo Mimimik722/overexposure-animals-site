@@ -14,6 +14,8 @@ namespace Project_site.Controllers
     [ApiController]
     public class ClientAPIController : ControllerBase
     {
+        ApplicationContext db = ApplicationContext.GetInstance();
+
         private string GetHash(string input)
         {
             var md5 = MD5.Create();
@@ -26,7 +28,6 @@ namespace Project_site.Controllers
         {
             try
             {
-                ApplicationContext db = new ApplicationContext();
                 UserModel client = db.Users.Find(id);
                 return Results.Json(client);
             }
@@ -43,39 +44,38 @@ namespace Project_site.Controllers
             var request = JsonConvert.DeserializeObject<UserModel>(json.ToString());
             try
             {
-                ApplicationContext db = new ApplicationContext();
-
-                if (!request.name.ToString().All(char.IsLetter) ||
-                    !request.surname.ToString().All(char.IsLetter))
+                if (!request.Name.ToString().All(char.IsLetter) ||
+                    !request.Surname.ToString().All(char.IsLetter))
                 {
                     Response.WriteAsync("Имя или Фамилия не должны содержать спец. символы или цифры");
                     return;
                 }
 
-                if (!db.Towns.Any(o => o.name == request.town_.name.ToString()))
+                if (!db.Towns.Any(o => o.Name == request.Town_.Name.ToString()))
                 {
                     Response.WriteAsJsonAsync("Указанного города не существует");
                     return;
                 }
 
-                if (db.Users.Any(o => o.telephone == request.telephone.ToString()))
+                if (db.Users.Any(o => o.Telephone == request.Telephone.ToString()))
                 {
                     Response.WriteAsJsonAsync("Пользователь с таким номером телефона уже зарергистрирован");
                     return;
                 }
 
-                UserModel client = new UserModel();
-
-                client.id = db.Users.Count() + 1;
-                client.town_ = db.Towns.Where(o => o.name == request.town_.name).First();
-                client.name = request.name.ToString();
-                client.surname = request.surname.ToString();
-                client.password = GetHash(request.password.ToString());
-                client.email = request.email.ToString();
-
-                if (request.sex.ToString() == "м" || request.sex.ToString() == "ж")
+                UserModel client = new UserModel
                 {
-                    client.sex = request.sex.ToString();
+                    Id = db.Users.Count() + 1,
+                    Town_ = db.Towns.Where(o => o.Name == request.Town_.Name).First(),
+                    Name = request.Name.ToString(),
+                    Surname = request.Surname.ToString(),
+                    Password = GetHash(request.Password.ToString()),
+                    Email = request.Email.ToString()
+                };
+
+                if (request.Sex.ToString() == "м" || request.Sex.ToString() == "ж")
+                {
+                    client.Sex = request.Sex.ToString();
                 }
                 else
                 {
@@ -83,8 +83,8 @@ namespace Project_site.Controllers
                     return;
                 }
 
-                client.telephone = request.telephone.ToString();
-                client.birthday = DateOnly.Parse(request.birthday.ToString());
+                client.Telephone = request.Telephone.ToString();
+                client.Birthday = DateOnly.Parse(request.Birthday.ToString());
                 db.Users.Add(client);
                 db.SaveChanges();
                 Response.WriteAsJsonAsync(json);

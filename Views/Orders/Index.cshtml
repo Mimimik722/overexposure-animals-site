@@ -37,12 +37,12 @@
             {   
                 <tr class="align-middle">
                     <td>@count</td>
-                    <td>@order.Sitter_.user_.name @order.Sitter_.user_.surname</td>
+                    <td>@order.Sitter_.User_.Name @order.Sitter_.User_.Surname</td>
                     @if (Context.User.IsInRole("Sitter"))
                     {
-                        <td>@order.Client_.name @order.Client_.surname</td>
+                        <td>@order.Client_.Name @order.Client_.Surname</td>
                     }
-                    <td>@order.Pet_.name</td>
+                    <td>@order.Pet_.Name</td>
                     <td>@order.Order_Type_.Name</td>
                     <td>@order.Date_start</td>
                     <td>@order.Date_end</td>
@@ -60,13 +60,13 @@
                             {
                                 if (ViewBag.Statuses[count - 1] == "Выполнен")
                                 {
-                                    <a class="btn btn-primary" asp-action="Feedback" asp-route-order="@order.Id">Выставить оценку</a>
+                                    <a class="btn btn-primary" asp-action="Feedback" asp-route-order="@order.Id">Оставить отзыв</a>
                                 }
                                 if (ViewBag.Statuses[count - 1] == "Выполняется" && order.Order_Type_.Name == "Прогулка")
                                 {
                                     <a class="btn btn-primary" asp-action="Map" asp-route-order="@order.Id">Посмотреть положение</a>
                                 }
-                                <a class="btn btn-primary" asp-controller="Home" asp-action="Chat" asp-route-user=@int.Parse(order.Sitter_.user_.telephone)>Чат</a>
+                                <a class="btn btn-primary" asp-controller="Home" asp-action="Chat" asp-route-user=@long.Parse(order.Sitter_.User_.Telephone)>Чат</a>
                             }
                             else
                             {
@@ -82,7 +82,11 @@
                                 {
                                     <a class="btn btn-primary" asp-action="NewAction" asp-route-order="@order.Id">Новое действие</a>
                                 }
-                                <a class="btn btn-primary" asp-controller="Home" asp-action="Chat" asp-route-user=@int.Parse(order.Client_.telephone)>Чат</a>
+                                else
+                                {
+                                    <a class="btn btn-primary" asp-action="Feedback" asp-route-order="@order.Id">Посмотреть отзыв</a>
+                                }
+                                <a class="btn btn-primary" asp-controller="Home" asp-action="Chat" asp-route-user=@long.Parse(order.Client_.Telephone)>Чат</a>
                             }
                         }
                         <a class="btn btn-primary" asp-action="Actions" asp-route-order="@order.Id">История заказа</a>

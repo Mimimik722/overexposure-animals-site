@@ -8,13 +8,13 @@
 <div class="row justify-content-center">
     <div class="col-4">
         <form class="form-control" method="post">
-            <div class="h4 text-center mb-4">Изменение данных для @Model.name</div>
+            <div class="h4 text-center mb-4">Изменение данных для @Model.Name</div>
             <div class="row mb-3">
                 <div class="col-4 d-flex align-items-center">
                     <label class="form-label m-0">Имя:</label>
                 </div>
                 <div class="col-auto">
-                    <input class="form-control m-0" type="name" asp-for=name/>
+                    <input class="form-control m-0" type="name" asp-for=Name/>
                 </div>
             </div>
             <div class="row mb-3">
@@ -22,14 +22,14 @@
                     <label class="form-label col-auto m-0">Порода:</label>
                 </div>
                 <div class="col-auto">
-                    <input class="form-control m-0" list="breedlistOptions" type="list" name="breed" value="@Model.breed_.name" required>
+                    <input class="form-control m-0" list="breedlistOptions" type="list" name="breed" value="@Model.Breed_.Name" required>
                     <datalist id="townlistOptions">
                         @foreach (var breed in @ViewBag.Breeds)
                         {
                             <option value="@breed.name"></option>
                         }
                     </datalist>
-                    <span class="text-danger" asp-validation-for=breed_></span>
+                    <span class="text-danger" asp-validation-for=Breed_></span>
                 </div>
             </div>
             <div class="row mb-3">
@@ -37,7 +37,7 @@
                     <label class="form-label m-0">Пол:</label>
                 </div>
                 <div class="form-check form-check-inline col-auto ms-4 ps-3">
-                    @if (Model.sex == "м")
+                    @if (Model.Sex == "м")
                     {
                         <input class="form-check-input" type="radio" name="radioM" id="radio1" checked>
                     }
@@ -48,7 +48,7 @@
                     <label class="form-check-label" for="radio1">М</label>
                 </div> 
                 <div class="form-check form-check-inline col-auto">
-                    @if (Model.sex == "ж")
+                    @if (Model.Sex == "ж")
                     {
                         <input class="form-check-input" type="radio" name="radioW" id="radio2" checked>
                     }
@@ -64,8 +64,8 @@
                     <label class="form-label">Возраст:</label>
                 </div>
                 <div class="col-auto d-flex align-items-center">
-                    <input class="form-control m-0" type="name" asp-for=age/>
-                    <span class="text-danger" asp-validation-for=age></span>
+                    <input class="form-control m-0" type="name" asp-for=Age/>
+                    <span class="text-danger" asp-validation-for=Age></span>
                 </div>
             </div>
             <div class="row mb-3">
@@ -73,8 +73,8 @@
                     <label class="form-label m-0">Вес:</label>
                 </div>
                 <div class="col-auto d-flex align-items-center">
-                    <input class="form-control m-0" type="name" asp-for=weight/>
-                    <span class="text-danger" asp-validation-for=weight></span>
+                    <input class="form-control m-0" type="name" asp-for=Weight/>
+                    <span class="text-danger" asp-validation-for=Weight></span>
                 </div>
             </div>
             <div class="row mb-3">
@@ -82,7 +82,7 @@
                     <label class="form-label m-0">Особенности:</label>
                 </div>
                 <div class="col-auto d-flex align-items-center">
-                    <input class="form-control m-0" type="name" asp-for=features/>
+                    <input class="form-control m-0" type="name" asp-for=Features/>
                 </div>
             </div>
             <div class="text-center">

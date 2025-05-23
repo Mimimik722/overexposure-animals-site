@@ -6,16 +6,16 @@
 {
     foreach (var chat in Model)
     {
-        if (chat.sender_.id.ToString() == loginUserId)
+        if (chat.Sender_.Id.ToString() == loginUserId)
         {
-            //sender is loggged in user then show message to right side
+            //Если отправитель - мы, то все наши сообщения отображаются справа
             <li class="right">
                 <div class="text">
                     <div class="user">
-                        <i class="fa fa-user-circle-o" aria-hidden="true"></i> @chat.sender_.name
+                        <i class="fa fa-user-circle-o" aria-hidden="true"></i> @chat.Sender_.Name
                     </div>
+                    <small>@chat.Message</small>
                 </div>
-                <small>@chat.message</small>
             </li>
         }
         else
@@ -23,10 +23,10 @@
             <li class="left">
                 <div class="text">
                     <div class="user">
-                        <i class="fa fa-user-circle-o" aria-hidden="true"></i> @chat.sender_.name
+                        <i class="fa fa-user-circle-o" aria-hidden="true"></i> @chat.Sender_.Name
                     </div>
+                    <small>@chat.Message</small>
                 </div>
-                <small>@chat.message</small>
             </li>
         }
     }

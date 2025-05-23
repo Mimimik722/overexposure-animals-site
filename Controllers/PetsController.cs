@@ -4,9 +4,7 @@ using Newtonsoft.Json;
 using Project_site.Models;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 
 namespace Project_site.Controllers
@@ -14,18 +12,7 @@ namespace Project_site.Controllers
     [Authorize]
     public class PetsController : Controller
     {
-        public ApplicationContext db;
-        public PetsController()
-        {
-            try
-            {
-                db = new();
-            }
-            catch
-            {
-                StatusCode(504);
-            }
-        }
+        readonly ApplicationContext db = ApplicationContext.GetInstance();
 
         //Получение информации о своих питомцах
         [HttpGet]
@@ -33,8 +20,7 @@ namespace Project_site.Controllers
         {
             try
             {
-                int client_id = JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user")).id;
-                ICollection<PetModel> pets = db.Pets.Where(o => o.client_.id == client_id && o.is_deleted != 1).Include(c => c.breed_).ToArray();
+                ICollection<PetModel> pets = [.. db.Pets.Where(o => o.Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone) && o.Is_deleted != 1).Include(c => c.Breed_)];
                 return View(pets);
             }
             catch
@@ -50,7 +36,7 @@ namespace Project_site.Controllers
         {
             try
             {
-                ViewBag.Breeds = db.Breeds.ToList();
+                ViewBag.Breeds = db.Breeds.ToArray();
             }
             catch
             {
@@ -66,41 +52,41 @@ namespace Project_site.Controllers
         {
             try
             {
-                if (!pet.name.ToString().All(char.IsLetter) ||
-                    !pet.name.ToString().All(char.IsLetter))
+                if (!pet.Name.ToString().All(char.IsLetter) ||
+                    !pet.Name.ToString().All(char.IsLetter))
                 {
-                    ModelState.AddModelError("name", "Имя животного не должно содержать спец. символы или цифры");
+                    ModelState.AddModelError("Name", "Имя животного не должно содержать спец. символы или цифры");
                     return View(pet);
                 }
-                if (!db.Breeds.Any(o => o.name == Request.Form["breed"].ToString()))
+                if (!db.Breeds.Any(o => o.Name == Request.Form["breed"].ToString()))
                 {
-                    ModelState.AddModelError("breed", "Такой породы не существует");
+                    ModelState.AddModelError("Breed", "Такой породы не существует");
                     return View(pet);
                 }
-                if (pet.age <= 0)
+                if (pet.Age <= 0)
                 {
-                    ModelState.AddModelError("age", "Возраст не может быть равен 0 или меньше");
+                    ModelState.AddModelError("Age", "Возраст не может быть равен 0 или меньше");
                     return View(pet);
                 }
-                if (pet.weight <= 0)
+                if (pet.Weight <= 0)
                 {
-                    ModelState.AddModelError("weight", "Вес не может быть равен 0 или меньше");
+                    ModelState.AddModelError("Weight", "Вес не может быть равен 0 или меньше");
                     return View(pet);
                 }
 
-                pet.id = db.Pets.Count() + 1;
+                pet.Id = db.Pets.Count() + 1;
                 if (Request.Form["radioM"] == "on")
                 {
-                    pet.sex = "м";
+                    pet.Sex = "м";
                 }
                 else
                 {
-                    pet.sex = "ж";
+                    pet.Sex = "ж";
                 }
                 
-                pet.breed_ = db.Breeds.FirstOrDefault(o => o.name == Request.Form["breed"].ToString());
-                pet.client_ = db.Users.Find(JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user")).id); ;
-                pet.is_deleted = 0;
+                pet.Breed_ = db.Breeds.FirstOrDefault(o => o.Name == Request.Form["breed"].ToString());
+                pet.Client_ = db.Users.Find(JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user")).Id); ;
+                pet.Is_deleted = 0;
 
                 db.Pets.Add(pet);
                 db.SaveChanges();
@@ -117,12 +103,12 @@ namespace Project_site.Controllers
         [HttpGet]
         public IActionResult Edit(int pet)
         {
-            if (db.Pets.FirstOrDefault(o => o.id == pet).client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
+            if (db.Pets.FirstOrDefault(o => o.Id == pet).Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
             {
                 try
                 {
                     ViewData["Breeds"] = db.Breeds.ToList();
-                    PetModel? petM = db.Pets.FirstOrDefault(o => o.id == pet);
+                    PetModel? petM = db.Pets.FirstOrDefault(o => o.Id == pet);
                     TempData["pet"] = pet;
                     return View(petM);
                 }
@@ -144,44 +130,44 @@ namespace Project_site.Controllers
         {
             try
             {
-                if (!pet.name.ToString().All(char.IsLetter) ||
-                    !pet.name.ToString().All(char.IsLetter))
+                if (!pet.Name.ToString().All(char.IsLetter) ||
+                    !pet.Name.ToString().All(char.IsLetter))
                 {
-                    ModelState.AddModelError("name", "Имя животного не должно содержать спец. символы или цифры");
+                    ModelState.AddModelError("Name", "Имя животного не должно содержать спец. символы или цифры");
                     return View(pet);
                 }
                 
-                if (!db.Breeds.Any(o => o.name == Request.Form["breed"].ToString()))
+                if (!db.Breeds.Any(o => o.Name == Request.Form["breed"].ToString()))
                 {
-                    ModelState.AddModelError("breed", "Такой породы не существует");
+                    ModelState.AddModelError("Breed", "Такой породы не существует");
                     return View(pet);
                 }
                 
-                if (pet.age <= 0)
+                if (pet.Age <= 0)
                 {
-                    ModelState.AddModelError("age", "Возраст не может быть равен 0 или меньше");
+                    ModelState.AddModelError("Age", "Возраст не может быть равен 0 или меньше");
                     return View(pet);
                 }
                 
-                if (pet.weight <= 0)
+                if (pet.Weight <= 0)
                 {
-                    ModelState.AddModelError("weight", "Вес не может быть равен 0 или меньше");
+                    ModelState.AddModelError("Weight", "Вес не может быть равен 0 или меньше");
                     return View(pet);
                 }
 
-                PetModel old_pet = db.Pets.Where(o => o.id == (int) TempData["pet"]).Include(o => o.breed_).Include(o => o.client_).First();
-                old_pet.breed_ = db.Breeds.First(o => o.name == Request.Form["breed"].ToString());
-                old_pet.age = pet.age;
-                old_pet.weight = pet.weight;
-                old_pet.name = pet.name;
-                old_pet.features = pet.features;
+                PetModel old_pet = db.Pets.Where(o => o.Id == (int) TempData["pet"]).Include(o => o.Breed_).Include(o => o.Client_).First();
+                old_pet.Breed_ = db.Breeds.First(o => o.Name == Request.Form["breed"].ToString());
+                old_pet.Age = pet.Age;
+                old_pet.Weight = pet.Weight;
+                old_pet.Name = pet.Name;
+                old_pet.Features = pet.Features;
                 if (Request.Form["radioM"] == "on")
                 {
-                    old_pet.sex = "м";
+                    old_pet.Sex = "м";
                 }
                 else
                 {
-                    old_pet.sex = "ж";
+                    old_pet.Sex = "ж";
                 }
 
                 db.Pets.Update(old_pet);
@@ -199,12 +185,12 @@ namespace Project_site.Controllers
         //Удаление животного
         public IActionResult Delete(int pet)
         {
-            if (db.Pets.FirstOrDefault(o => o.id == pet).client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
+            if (db.Pets.FirstOrDefault(o => o.Id == pet).Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
             {
                 try
                 {
-                    PetModel petM = db.Pets.First(o => o.id == pet);
-                    petM.is_deleted = 1;
+                    PetModel petM = db.Pets.First(o => o.Id == pet);
+                    petM.Is_deleted = 1;
                     db.Pets.Update(petM);
                     db.SaveChanges();
                     return RedirectToAction("Index");
@@ -224,12 +210,12 @@ namespace Project_site.Controllers
         [HttpGet]
 		public IActionResult Details(int pet)
 		{
-            if (db.Pets.FirstOrDefault(o => o.id == pet).client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
+            if (db.Pets.FirstOrDefault(o => o.Id == pet).Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
             {
                 try
                 {
                     ViewData["Breeds"] = db.Breeds.ToList();
-                    PetModel? petM = db.Pets.FirstOrDefault(o => o.id == pet);
+                    PetModel? petM = db.Pets.FirstOrDefault(o => o.Id == pet);
                     return View(pet);
                 }
                 catch

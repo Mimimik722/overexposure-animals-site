@@ -4,7 +4,7 @@
     var count = 0;
 }
 <div class="col-auto">
-    <a class="btn btn-primary text-light" asp-controller="Home">Назад</a>
+    <a class="btn btn-primary text-light" asp-controller="Home" asp-action="Index">Назад</a>
 </div>
 <div class="text-center h4 mb-3">Добавление ситтера</div>
 @if (ViewBag.Id == null)
@@ -27,18 +27,18 @@
                 <tr class="align-middle">
                     @{
                         DateTime zeroTime = new DateTime(1, 1, 1);
-                        TimeSpan span = DateTime.Now - user.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
+                        TimeSpan span = DateTime.Now - user.Birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
                         var years = (zeroTime + span).Year - 1;
                     }
                     <td>@count</td>
-                    <td>@user.name</td>
-                    <td>@user.surname</td>
-                    <td>@user.town_.name</td>
-                    <td>@user.telephone</td>
+                    <td>@user.Name</td>
+                    <td>@user.Surname</td>
+                    <td>@user.Town_.Name</td>
+                    <td>@user.Telephone</td>
                     <td>@years</td>
                     <td>
-                        <a class="btn btn-primary" asp-controller="User" asp-action="Profile" asp-route-user="@user.id">Подробнее</a>
-                        <a class="btn btn-success" asp-action="Add" asp-route-user="@user.id">Добавить</a>
+                        <a class="btn btn-primary" asp-controller="User" asp-action="Profile" asp-route-user="@user.Id">Подробнее</a>
+                        <a class="btn btn-success" asp-action="Add" asp-route-user="@user.Id">Добавить</a>
                     </td>
                 </tr>
             }

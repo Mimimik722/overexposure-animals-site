@@ -27,20 +27,20 @@
             <tr class="align-middle">
                 @{
                     DateTime zeroTime = new DateTime(1, 1, 1);
-                    TimeSpan span = DateTime.Now - sitter.user_.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
+                    TimeSpan span = DateTime.Now - sitter.User_.Birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
                     var years = (zeroTime + span).Year - 1;
                 }
                 <td>@count</td>
-                <td>@sitter.user_.name</td>
-                <td>@sitter.user_.surname</td>
-                <td>@sitter.user_.town_.name</td>
-                <td>@sitter.user_.telephone</td>
+                <td>@sitter.User_.Name</td>
+                <td>@sitter.User_.Surname</td>
+                <td>@sitter.User_.Town_.Name</td>
+                <td>@sitter.User_.Telephone</td>
                 <td>@years</td>
-                <td>@sitter.payment</td>
-                <td>@sitter.experience</td>
+                <td>@sitter.Payment</td>
+                <td>@sitter.Experience</td>
                 <td>
-                    <a class="btn btn-primary" asp-action="Approve" asp-route-sitter="@sitter.id">Одобрить</a>
-                    <a class="btn btn-danger" asp-action="Remove" asp-route-sitter="@sitter.id">Отклонить</a>
+                    <a class="btn btn-primary" asp-action="Approve" asp-route-sitter="@sitter.Id">Одобрить</a>
+                    <a class="btn btn-danger" asp-action="Remove" asp-route-sitter="@sitter.Id">Отклонить</a>
                 </td>
             </tr>
         }

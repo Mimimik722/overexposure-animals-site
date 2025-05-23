@@ -10,23 +10,17 @@ using System.Net.Mail;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Project_site;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Project_site.Controllers
 {
     public class UserController : Controller
     {
-        ApplicationContext db;
-        public UserController()
-        {
-            db = new();
-        }
+        readonly ApplicationContext db = ApplicationContext.GetInstance();
+
         //Получение хэша для пароля
-        private string GetHash(string input)
+        private static string GetHash(string input)
         {
-            var md5 = MD5.Create();
-            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+            var hash = MD5.HashData(Encoding.UTF8.GetBytes(input));
             return Convert.ToBase64String(hash);
         }
 
@@ -41,7 +35,7 @@ namespace Project_site.Controllers
         [Authorize]
         public IActionResult ProfileImage()
         {
-            byte[] bytes = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).image;
+            byte[] bytes = db.Users.FirstOrDefault(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Image;
             return File(bytes, "image/jpg");
         }
 
@@ -50,10 +44,10 @@ namespace Project_site.Controllers
             try
             {
                 ViewData["role"] = User.FindFirstValue(ClaimTypes.Role);
-                if (db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)) != null)
+                if (db.Sitters.FirstOrDefault(o => o.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)) != null)
                 {
-                    SitterModel sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
-                    ViewData["status"] = sitter.status;
+                    SitterModel sitter = db.Sitters.FirstOrDefault(o => o.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+                    ViewData["status"] = sitter.Status;
                     ViewData["rating"] = (float)db.Orders.Where(o => o.Sitter_ == sitter && o.Feedback_ != null).Average(o => o.Feedback_.Rating);
                 }
                 return View(User);
@@ -81,19 +75,19 @@ namespace Project_site.Controllers
             {
                 string old_password = GetHash(Request.Form["password"]),
                     new_password = enc.GetHash(Request.Form["password"].ToString(), double.Parse(Request.Form["telephone"]));
-                if (!db.Users.Any(o => o.telephone == Request.Form["telephone"].ToString()) ||
-                    !db.Users.Any(o => o.password == old_password
-                                || o.password == new_password)
+                if (!db.Users.Any(o => o.Telephone == Request.Form["telephone"].ToString()) ||
+                    !db.Users.Any(o => o.Password == old_password
+                                || o.Password == new_password)
                     )
                 {
-                    ModelState.AddModelError("telephone", "Неверный телефон или пароль");
+                    ModelState.AddModelError("Telephone", "Неверный телефон или пароль");
                     return View(data);
                 }
 
-                UserModel user = db.Users.Where(o => o.telephone == Request.Form["telephone"].ToString()).Include(o => o.town_).Include(o => o.role_).First();
-                if (user.password != new_password)
+                UserModel user = db.Users.Where(o => o.Telephone == Request.Form["telephone"].ToString()).Include(o => o.Town_).Include(o => o.Role_).First();
+                if (user.Password != new_password)
                 {
-                    user.password = new_password;
+                    user.Password = new_password;
                     db.Update(user);
                     db.SaveChanges();
                 }
@@ -101,35 +95,35 @@ namespace Project_site.Controllers
 
                 var claims = new[] {
                     new Claim(ClaimTypes.MobilePhone, Request.Form["telephone"].ToString()),
-                    new Claim(ClaimTypes.Name, user.name),
+                    new Claim(ClaimTypes.Name, user.Name),
                     new Claim(ClaimTypes.Role, "User"),
-                    new Claim(ClaimTypes.Surname, user.surname),
-                    new Claim(ClaimTypes.Email, user.email),
-                    new Claim("Town", user.town_.name),
-                    new Claim(ClaimTypes.Gender, user.sex),
-                    new Claim(ClaimTypes.DateOfBirth, user.birthday.ToString())
+                    new Claim(ClaimTypes.Surname, user.Surname),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim("Town", user.Town_.Name),
+                    new Claim(ClaimTypes.Gender, user.Sex),
+                    new Claim(ClaimTypes.DateOfBirth, user.Birthday.ToString())
                 };
                 
-                if (user.email != null)
+                if (user.Email != null)
                 {
-                    Claim claim = new Claim(ClaimTypes.Email, user.email);
-                    claims.Append(claim);
+                    Claim claim = new(ClaimTypes.Email, user.Email);
+                    _ = claims.Append(claim);
                 }
 
-                if (user.role_.name == "sitter")
+                if (user.Role_.Name == "sitter")
                 {
                     claims[2] = new Claim(ClaimTypes.Role, "Sitter");
                 }
-                else if (user.role_.name == "admin")
+                else if (user.Role_.Name == "admin")
                 {
                     claims[2] = new Claim(ClaimTypes.Role, "Admin");
                 }
 
-                if (user.image == null)
+                if (user.Image == null)
                 {
                     FileStream fileStream = System.IO.File.Open("wwwroot/images/standard-profile-image.jpg", FileMode.Open);
                     IFormFile image = new FormFile(fileStream, 0, fileStream.Length, "base-image", "base-image");
-                    user.image = ImageToByteString(image);
+                    user.Image = ImageToByteString(image);
                     db.Update(user);
                     db.SaveChanges();
                 }
@@ -174,50 +168,51 @@ namespace Project_site.Controllers
                 if (!Request.Form["name"].ToString().All(char.IsLetter) ||
                     !Request.Form["surname"].ToString().All(char.IsLetter))
                 {
-                    ModelState.AddModelError("name", "Имя или Фамилия не должны содержать спец. символы или цифры");
+                    ModelState.AddModelError("Name", "Имя или Фамилия не должны содержать спец. символы или цифры");
                     return View(user_data);
                 }
 
-                if (!db.Towns.Any(o => o.name == Request.Form["town"].ToString()))
+                if (!db.Towns.Any(o => o.Name == Request.Form["town"].ToString()))
                 {
-                    ModelState.AddModelError("town_", "Такого города не существует");
+                    ModelState.AddModelError("Town_", "Такого города не существует");
                     return View(user_data);
                 }
 
-                if (db.Users.Any(o => o.telephone == Request.Form["telephone"].ToString()))
+                if (db.Users.Any(o => o.Telephone == Request.Form["telephone"].ToString()))
                 {
-                    ModelState.AddModelError("telephone", "Пользователь с таким номером телефона уже зарергистрирован");
+                    ModelState.AddModelError("Telephone", "Пользователь с таким номером телефона уже зарергистрирован");
                     return View(user_data);
                 }
 
                 if (Request.Form["password"] != Request.Form["password_repeat"])
                 {
-                    ModelState.AddModelError("password", "Пароли не совпадают");
+                    ModelState.AddModelError("Password", "Пароли не совпадают");
                     return View(user_data);
                 }
 
-                UserModel user = new();
-                user.id = db.Users.Count() + 1;
-                user.town_ = db.Towns.Where(o => o.name == Request.Form["town"].ToString()).First();
-                user.name = Request.Form["name"];
-                user.surname = Request.Form["surname"];
-                user.password = GetHash(Request.Form["password"].ToString());
-                user.email = Request.Form["email"];
-                user.telephone = Request.Form["telephone"];
-                user.role_ = db.Roles.FirstOrDefault(o => o.name == "client");
-                user.birthday = DateOnly.Parse(Request.Form["birthday"].ToString());
+                UserModel user = new(){
+                    Id = db.Users.Count() + 1,
+                    Town_ = db.Towns.Where(o => o.Name == Request.Form["town"].ToString()).First(),
+                    Name = Request.Form["name"],
+                    Surname = Request.Form["surname"],
+                    Password = GetHash(Request.Form["password"].ToString()),
+                    Email = Request.Form["email"],
+                    Telephone = Request.Form["telephone"],
+                    Role_ = db.Roles.FirstOrDefault(o => o.Name == "client"),
+                    Birthday = DateOnly.Parse(Request.Form["birthday"].ToString())
+                };
 
                 if (Request.Form["radioM"] == "on")
                 {
-                    user.sex = "м";
+                    user.Sex = "м";
                 }
                 else
                 {
-                    user.sex = "ж";
+                    user.Sex = "ж";
                 }
                 if (Request.Form.Files["Image"] != null)
                 {
-                    user.image = ImageToByteString(Request.Form.Files["Image"]);
+                    user.Image = ImageToByteString(Request.Form.Files["Image"]);
                 }
 
                 db.Users.Add(user);
@@ -241,12 +236,8 @@ namespace Project_site.Controllers
             UserModel? user = new();
             if (!string.IsNullOrEmpty(key))
             {
-                user = db.Users.FirstOrDefault(x => x.password == key);
-                if (user == null)
-                {
-                    user = new();
-                    user.password = "0";
-                }
+                user = db.Users.FirstOrDefault(x => x.Password == key);
+                user ??= new(){ Password = "0" };
             }
             return View(user);
         }
@@ -260,8 +251,8 @@ namespace Project_site.Controllers
                 {
                     try
                     {
-                        user = db.Users.FirstOrDefault(o => o.password == user.password);
-                        user.password = GetHash(Request.Form["password"]);
+                        user = db.Users.FirstOrDefault(o => o.Password == user.Password);
+                        user.Password = GetHash(Request.Form["password"]);
                         db.Users.Update(user);
                         db.SaveChanges();
                         return RedirectToAction("Login");
@@ -272,20 +263,22 @@ namespace Project_site.Controllers
                         return View(user);
                     }
                 }
-                ModelState.AddModelError("password", "Пароли не совпадают");
+                ModelState.AddModelError("Password", "Пароли не совпадают");
                 return View(user);
             }
             else
             {
-                string? password = db.Users.Where(o => o.email == user.email).First().password;
-                MailMessage message = new("vov.efimov2015@yandex.ru", user.email); 
-                message.Subject = "Няня Гуляня: Восстановление пароля";
-                message.Body = "Ссылка для восстановления пароля: localhost:5043/User/Password_reset?id=" + password + "\nДанное сообщение отправлено автоматически, посьба на него не отвечать.";
+                string? password = db.Users.Where(o => o.Email == user.Email).First().Password;
+                MailMessage message = new("vov.efimov2015@yandex.ru", user.Email){
+                    Subject = "Няня Гуляня: Восстановление пароля",
+                    Body = "Ссылка для восстановления пароля: localhost:5050/User/Password_reset?id=" + password + "\nДанное сообщение отправлено автоматически, посьба на него не отвечать."
+                };
 
-                SmtpClient smtpClient = new("smtp.yandex.ru", 465);
-                smtpClient.EnableSsl = true;
-                smtpClient.Timeout = 10000;
-                smtpClient.Credentials = new NetworkCredential("vov.efimov2015@yandex.ru", "yzieyshcplrghusx", "smtp.yandex.ru");
+                SmtpClient smtpClient = new("smtp.yandex.ru", 465){
+                    EnableSsl = true,
+                    Timeout = 10000,
+                    Credentials = new NetworkCredential("vov.efimov2015@yandex.ru", "yzieyshcplrghusx", "smtp.yandex.ru")
+                };
                 try
                 {
                     smtpClient.Send(message);
@@ -316,11 +309,11 @@ namespace Project_site.Controllers
             try
             {
                 ViewData["towns"] = db.Towns.ToList();
-                if (db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)) != null)
+                if (db.Sitters.FirstOrDefault(o => o.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)) != null)
                 {
-                    ViewData["status"] = db.Sitters.FirstOrDefault(o => o.user_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).status;
+                    ViewData["status"] = db.Sitters.FirstOrDefault(o => o.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Status;
                 }
-                UserModel user = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+                UserModel user = db.Users.FirstOrDefault(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
                 return View(user);
             }
             catch
@@ -337,45 +330,45 @@ namespace Project_site.Controllers
         {
             ViewData["towns"] = db.Towns.ToList();
             UserModel? user = new();
-            user = db.Users.Include(o => o.town_).FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+            user = db.Users.Include(o => o.Town_).FirstOrDefault(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
 
-            if (!new_user.name.ToString().All(char.IsLetter) ||
-                !new_user.surname.ToString().All(char.IsLetter))
+            if (!new_user.Name.ToString().All(char.IsLetter) ||
+                !new_user.Surname.ToString().All(char.IsLetter))
             {
-                ModelState.AddModelError("name", "Имя или Фамилия не должны содержать спец. символы или цифры");
+                ModelState.AddModelError("Name", "Имя или Фамилия не должны содержать спец. символы или цифры");
                 return View(new_user);
             }
-            if (!db.Towns.Any(o => o.name == Request.Form["town"].ToString()))
+            if (!db.Towns.Any(o => o.Name == Request.Form["town"].ToString()))
             {
-                ModelState.AddModelError("town_", "Такого города не существует");
+                ModelState.AddModelError("Town_", "Такого города не существует");
                 return View(new_user);
             }
-            if (db.Users.Any(o => o.telephone == new_user.telephone.ToString()) && new_user.telephone != user.telephone)
+            if (db.Users.Any(o => o.Telephone == new_user.Telephone.ToString()) && new_user.Telephone != user.Telephone)
             {
-                ModelState.AddModelError("telephone", "Пользователь с таким номером телефона уже зарергистрирован");
+                ModelState.AddModelError("Telephone", "Пользователь с таким номером телефона уже зарергистрирован");
                 return View(new_user);
             }
 
-            SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.user_.telephone == user.telephone);
+            SitterModel? sitter = db.Sitters.FirstOrDefault(o => o.User_.Telephone == user.Telephone);
 
             if (Request.Form["radioM"] == "on")
             {
-                user.sex = "м";
+                user.Sex = "м";
             }
             else
             {
-                user.sex = "ж";
+                user.Sex = "ж";
             }
-            user.name = new_user.name;
-            user.surname = new_user.surname;
-            user.town_ = db.Towns.FirstOrDefault(o => o.name == Request.Form["town"].ToString());
-            user.sex = new_user.sex;
-            user.birthday = new_user.birthday;
-            user.telephone = new_user.telephone;
-            user.email = new_user.email;
+            user.Name = new_user.Name;
+            user.Surname = new_user.Surname;
+            user.Town_ = db.Towns.FirstOrDefault(o => o.Name == Request.Form["town"].ToString());
+            user.Sex = new_user.Sex;
+            user.Birthday = new_user.Birthday;
+            user.Telephone = new_user.Telephone;
+            user.Email = new_user.Email;
             if (sitter != null)
             {
-                sitter.status = Request.Form["status"];
+                sitter.Status = Request.Form["status"];
                 db.Sitters.Update(sitter);
             }
 
@@ -401,40 +394,48 @@ namespace Project_site.Controllers
         {
             try
             {
-                UserModel user = db.Users.Where(o => o.telephone == HttpContext.User.FindFirstValue(ClaimTypes.MobilePhone)).Include(o => o.town_).First();
+                UserModel user = db.Users.Where(o => o.Telephone == HttpContext.User.FindFirstValue(ClaimTypes.MobilePhone)).Include(o => o.Town_).First();
                 
-                if (db.Sitters.Any(o => o.user_ == user))
+                if (db.Sitters.Any(o => o.User_ == user))
                 {
-                    ModelState.AddModelError("payment", "Заявка уже подана");
+                    ModelState.AddModelError("Payment", "Заявка уже подана");
                     return View();
                 }
                 if (payment <= 0)
                 {
-                    ModelState.AddModelError("payment", "Плата за заказа не может быть равна 0 или меньше");
+                    ModelState.AddModelError("Payment", "Плата за заказа не может быть равна 0 или меньше");
                     return View();
                 }
                 if (experience < 0)
                 {
-                    ModelState.AddModelError("experience", "Опыт работы не может быть меньше 0");
+                    ModelState.AddModelError("Experience", "Опыт работы не может быть меньше 0");
                     return View();
                 }
                 if (int.Parse(Request.Form["age_from"]) < 0 || int.Parse(Request.Form["age_to"]) < 0
                     || float.Parse(Request.Form["weight_from"]) < 0 || float.Parse(Request.Form["weight_to"]) < 0)
                 {
-                    ModelState.AddModelError("is_verificated", "Параметры требований не должны быть отрицательными");
+                    ModelState.AddModelError("Is_verificated", "Параметры требований не должны быть отрицательными");
                     return View();
                 }
                 if (int.Parse(Request.Form["age_from"]) > int.Parse(Request.Form["age_to"]) || float.Parse(Request.Form["weight_from"]) > float.Parse(Request.Form["weight_to"]))
                 {
-                    ModelState.AddModelError("is_verificated", "Начальное значение для ограничения не может быть больше конченого значения");
+                    ModelState.AddModelError("Is_verificated", "Начальное значение для ограничения не может быть больше конченого значения");
                     return View();
                 }
 
-                SitterModel sitter = new SitterModel {id = db.Sitters.Count() + 1,  user_ = user, payment = payment, experience = experience };
+                SitterModel sitter = new(){
+                    Id = db.Sitters.Count() + 1,
+                    User_ = user,
+                    Payment = payment,
+                    Experience = experience
+                };
                 db.Sitters.Add(sitter);
-                Requirement requirement = new Requirement { Sitter_ = sitter, 
-                    age_from = int.Parse(Request.Form["age_from"]), age_to = int.Parse(Request.Form["age_to"]), 
-                    weight_from = float.Parse(Request.Form["weight_from"]), weight_to = float.Parse(Request.Form["weight_to"])};
+                Requirement requirement = new(){ Sitter_ = sitter, 
+                    Age_from = int.Parse(Request.Form["age_from"]),
+                    Age_to = int.Parse(Request.Form["age_to"]), 
+                    Weight_from = float.Parse(Request.Form["weight_from"]),
+                    Weight_to = float.Parse(Request.Form["weight_to"])
+                };
                 db.Requirements.Add(requirement);
                 db.SaveChanges();
                 

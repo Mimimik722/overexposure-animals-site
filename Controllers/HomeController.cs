@@ -9,28 +9,13 @@ namespace Project_site.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        public ApplicationContext db;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-            try
-            {
-                db = new();
-            }
-            catch
-            {
-                StatusCode(504);
-            }
-        }
-
+        readonly ApplicationContext db = ApplicationContext.GetInstance();
+        
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetString("user") != null)
+            if (User.Identity.IsAuthenticated)
             {
-                ApplicationContext db = new();
-                ViewBag.pets = db.Pets.Where(o => o.client_.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Include(o => o.breed_);
+                ViewBag.pets = db.Pets.Where(o => o.Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Include(o => o.Breed_);
             }
             return View();
         }
@@ -47,19 +32,28 @@ namespace Project_site.Controllers
         }
 
         [Authorize]
-        public IActionResult Chat(int phone)
+        public IActionResult Chat(long user)
         {
-            if (User.FindFirstValue(ClaimTypes.MobilePhone) != phone.ToString()) 
+            if (User.FindFirstValue(ClaimTypes.MobilePhone) != user.ToString()) 
             {
-            UserChatModel userChat = new UserChatModel();
+                UserChatModel userChat = new();
+                
+                int sId = db.Users.FirstOrDefault(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Id;
+                string? name = User.Identity.Name;
 
-            int senderId = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).id;
-            string? name = User.Identity.Name;
+                userChat.LoggedInUser = new UserModel { Id = sId, Name = name };
 
-            userChat.LoggedInUser = new UserModel { id = senderId, name = name };
-
-            userChat.Receiver = db.Users.FirstOrDefault(o => o.telephone == phone.ToString());
-            return View(userChat);
+                userChat.Receiver = db.Users.FirstOrDefault(o => o.Telephone == user.ToString());
+                int rId = userChat.Receiver.Id;
+                if (sId > rId)
+                {
+                    userChat.ChatId = ((sId + rId) * (sId + rId + 1) / 2 + rId).ToString();
+                }
+                else
+                {
+                    userChat.ChatId = ((rId + sId) * (rId + sId + 1) / 2 + sId).ToString();
+                }
+                return View(userChat);
             }
             else
             {
@@ -71,11 +65,15 @@ namespace Project_site.Controllers
         public ActionResult GetChatConversion(int receiverId)
         {
             UserModel user;
-            user = db.Users.FirstOrDefault(o => o.telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
-            int loginUserId = user.id;
-            var chatHistories = db.UserChatHistory.Include("sender_")
-                                .Include("receiver_").Where(a => (a.receiver_ == user && a.sender_.id == receiverId)
-                               || (a.receiver_.id == receiverId && a.sender_ == user)).OrderByDescending(a => a.created_at).ToList();
+            user = db.Users.FirstOrDefault(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+            int loginUserId = user.Id;
+            var chatHistories = db.UserChatHistory
+                .Include(o => o.Sender_)
+                .Include(o => o.Receiver_)
+                .Where(a => (a.Receiver_ == user && a.Sender_.Id == receiverId)||
+                    (a.Receiver_.Id == receiverId && a.Sender_ == user))
+                .OrderBy(a => a.Created_at)
+                .ToList();
             ViewData["loginUserId"] = loginUserId;
             return PartialView("_ChatConversion", chatHistories);
         }

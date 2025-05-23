@@ -12,12 +12,11 @@
             <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
             <div class="chat-window" id="chat-window">
                 <div class="chat-header">
-                    <h4>Общение с <span id="chat-user">@Model.Receiver.name</span></h4>
+                    <h4>Общение с <span id="chat-user">@Model.Receiver.Name</span></h4>
                 </div>
-                <div class="chat-body">
-                    <ul class="chat-ui" data-userid="" id="chatlist">
-
-                    </ul>
+                <div class="chat-body chat-ui" id="chatlist">
+@*                     <ul class="chat-ui" data-userid="" id="chatlist">
+                    </ul> *@
                 </div>
                 <div class="chat-footer">
                     <input type="text" class="form-control" id="textmessage" placeholder="Напишите сообщение...">
@@ -27,7 +26,6 @@
         </div>
     </div>
 </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="~/js/microsoft/signalr/dist/browser/signalr.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
@@ -51,20 +49,7 @@
         setTimeout(function () { document.getElementById("divloader").style.display = "none"; }, 30000);
     }
 </script>
-<script>
-/*
-    $(document).ready(function () {
-        $(".user").click(function () {
-            var userId = $(this).data("user-id");
-            var userName = $(this).text();
-            $("#chat-user").text(userName);
-            $("#chatlist").attr("data-userid", userId);
-            $("#chatlist").empty();
-        });
-    });
-*/
-
-    var senderChatId = "@Model.LoggedInUser.id";
+<script>  
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/ChatHub")
         .configureLogging(signalR.LogLevel.Information)
@@ -74,27 +59,31 @@
         try {
             await connection.start();
             console.log("SignalR Connected.");
-            await connection.invoke("SetUserChatGroup", senderChatId); 
+            await connection.invoke("SetUserChatGroup", "@Model.ChatId"); 
         }
         catch (err) {
             console.log(err);
             setTimeout(start, 5000);
         }
-        LoadUserChatList(@Model.Receiver.id);
+        LoadUserChatList(@Model.Receiver.Id);
     };
 
-    /*
-    connection.on("ReceiveMessage", async (senderId, senderName, reciverId, message) => {
-        var messageBuilder = "<li class='left'><div class='text'><div class='user'>" + GetUserNameWithIcon(senderName) + "</div><small>" + message + "</small>" + "</li>"
-        $("#chatlist").append(messageBuilder);
-        //Showing notifcation to user if get any message
-        var notification = "You have received a message from user " + senderName;
-        toastr.success(notification);
-    });
-    */
+    function scroll() {
+        const scroll = document.getElementById('chatlist')
+        scroll.scrollTop = scroll.scrollHeight;
+    }
 
     connection.onclose(async () => {
         await start();
+    });
+
+    connection.on("ReceiveMessage", function (senderName, message) {
+        try{
+            var messageBuilder = "<li class='left'><div class='text'><div class='user'>" + GetUserNameWithIcon(senderName) + "</div><small>" + message + "</small>" + "</li>"
+            $("#chatlist").append(messageBuilder);
+        } catch (err) {
+            console.error(err);
+        }
     });
 
     start();
@@ -103,12 +92,13 @@
         try {
             var message = $("#textmessage").val();
             if (message) {
-                var receiverId = @Model.Receiver.id;
-                var senderName = '@Model.LoggedInUser.name';
-                await connection.invoke("SendMessageToUserGroup", @Model.LoggedInUser.id, senderName, receiverId, message);
+                var receiverId = @Model.Receiver.Id;
+                var senderName = '@Model.LoggedInUser.Name';
+                await connection.invoke("SendMessageToUserGroup", "@Model.ChatId", @Model.LoggedInUser.Id, senderName, receiverId, message);
                 var messageBuilder = "<li class='right'><div class='text'><div class='user'>" + GetUserNameWithIcon(senderName) + "</div><small>" + message + "</small>" + "</li>"
                 $("#chatlist").append(messageBuilder);
                 $("#textmessage").val("");
+                scroll();
             }
             else {
                 toastr.error("Пожалуйста, введите сообщение!");
@@ -118,7 +108,7 @@
         }
     }
 
-    //Function for getting username and icon when binding message to the chat list
+    //Получение иконки пользователя и его имени
     function GetUserNameWithIcon(userName) {
         return '<i class="fa fa-user-circle-o" aria-hidden="true"></i>' + userName;
     }
@@ -127,10 +117,11 @@
     {
         Loader(true)
         $.ajax({
-            url: '/Orders/GetChatConversion?receiverId=' + receiverId,
+            url: '/Home/GetChatConversion?receiverId=' + receiverId,
             type: 'GET',
             success: function (result) {
                 $('#chatlist').html(result);
+                scroll();
                 Loader(false)
             },
             error: function (xhr, status, error) {

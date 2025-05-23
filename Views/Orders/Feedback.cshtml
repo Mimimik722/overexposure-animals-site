@@ -7,27 +7,56 @@
 </div>
 <div class="text-center h4 mb-3">Отзыв о ситтере</div>
 <form method="post">
-	<div class="row mb-3">
-		<div class="col-auto">
-			<label class="form-label mb-2">Оценка:</label>
-			@for (int i = 1; i <= 10; i++)
-			{
-				<div class="form-check form-check-inline">
-				  <input class="form-check-input" type="radio" name="ratings" id="rating1" value="@i">
-				  <label class="form-check-label" for="rating1">@i</label>
-				</div>
-			}
+	@if (Context.User.IsInRole("User"))
+	{
+		<div class="row mb-3">
+			<div class="col-auto">
+				<label class="form-label mb-2">Оценка:</label>
+				@for (int i = 1; i <= 10; i++)
+				{
+					<div class="form-check form-check-inline">
+						@if (Model.Rating == i)
+						{
+							<input class="form-check-input" type="radio" name="ratings" id="rating1" value="@i" checked>
+						}
+						else
+						{
+							<input class="form-check-input" type="radio" name="ratings" id="rating1" value="@i">
+						}
+						<label class="form-check-label" for="rating1">@i</label>
+					</div>
+				}
+			</div>
 		</div>
-	</div>
-	<div class="row align-items-center mb-3">
-		<div class="col-auto">
-			<label class="form-label">Комментарий:</label>
+		<div class="row align-items-center mb-3">
+			<div class="col-auto">
+				<label class="form-label">Комментарий:</label>
+			</div>
+			<div class="col-3">
+				<textarea class="form-control" type="comment" asp-for=Comment></textarea>
+			</div>
 		</div>
-		<div class="col-3">
-			<textarea class="form-control" type="comment" asp-for=Comment></textarea>
+		<div class="text-center">
+			<input class="btn btn-success" type="submit" value="Отправить"/>
 		</div>
-	</div>
-	<div class="text-center">
-		<input class="btn btn-success" type="submit" value="Отправить"/>
-	</div>
+	}
+	else
+	{
+		<div class="row mb-3">
+			<div class="col-auto d-flex align-items-center">
+				<label class="form-label mb-2">Оценка:</label>
+			</div>
+			<div class="col-auto d-flex align-items-center">
+				<span class="form-label col m-0">@Model.Rating</span>
+			</div>
+		</div>
+		<div class="row mb-3">
+			<div class="col-auto d-flex align-items-center">
+				<label class="form-label mb-2">Комментарий:</label>
+			</div>
+			<div class="col-auto d-flex align-items-center">
+				<span class="form-label col m-0">@Model.Comment</span>
+			</div>
+		</div>
+	}
 </form>
