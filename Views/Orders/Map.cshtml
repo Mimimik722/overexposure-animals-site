@@ -1,159 +1,18 @@
 ﻿@model Coordinate
-@{
-    ViewData["Title"] = "Карта";
-    Layout = "";
-}
-@using Newtonsoft.Json
-@using Project_site.Models;
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Project_site.styles.css" asp-append-version="true" />
+@section Head {
     <script src="https://api-maps.yandex.ru/v3/?apikey=72a16dc2-0746-4e9e-9c1b-48811b8b6164&lang=ru_RU"></script>
     <script>var coordinates = '@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model))'</script>
     <meta http-equiv="refresh" content="10" />
-    <script asp-src-include="~/js/map.js"></script>
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Project_site</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Политика конфиденциальности</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav justify-contert-right">
-
-                        @if (Context.Session.GetString("user") is not null)
-                        {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarScrollingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Действия
-                                    </a>
-                                    <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
-                                    @if (Context.User.IsInRole("Admin"))
-                                    {
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="Sitters" asp-action="Index">
-                                                        Ситтеры
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="Sitters" asp-action="applications">
-                                                        Заявки
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="User" asp-action="Profile">
-                                                        Профиль
-                                                    </a>
-                                                </li>
-                                    }
-                                    @if (Context.User.IsInRole("Sitter"))
-                                    {
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">
-                                                        Текущие заказы
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="Orders" asp-action="New">
-                                                       Новые заказы
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="Orders" asp-action="Create">
-                                                        Новый заказ
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="User" asp-action="Profile">
-                                                        Профиль
-                                                    </a>
-                                                </li>
-                                    }
-                                    @if (Context.User.IsInRole("User"))
-                                    {
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="User" asp-action="Application">
-                                                        Подать заявку на ситтера
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="Pets" asp-action="Index">
-                                                        Животные
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">
-                                                        Мои заказы
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="Orders" asp-action="Create">
-                                                        Новый заказ
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="nav-link text-dark" asp-controller="User" asp-action="Profile">
-                                                        Профиль
-                                                    </a>
-                                                </li>
-                                    }
-                                    </ul>
-                                </li>
-                                <li class="nav-item d-flex align-items-center me-2 ms-3">
-                                    Добро пожаловать,
-                                @Context.User.Identity.Name
-                                </li>
-                                <li class="nav-item">
-                                    <a class="btn btn-danger text-light" asp-area="" asp-controller="User" asp-action="Logout">Выход</a>
-                                </li>
-                        }
-                        else
-                        {
-                                <li class="nav-item">
-                                    <a class="btn btn-link" asp-area="" asp-controller="User" asp-action="Registration">Регистрация</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="btn btn-primary text-light" asp-area="" asp-controller="User" asp-action="Login">Вход</a>
-                                </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-	        <div class="col-auto">
-	        	<a class="btn btn-primary text-light" asp-action="Index">Назад</a>
-	        </div>
-	        <div class="text-center h4 mb-3">Местоположение животного</div>
-            <div class="row align-items-center">
-	            <div class="col" id="map" style="width: 800px; height: 600px"></div>
-            </div>
-        </main>
-    </div>
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - Project_site - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-</body>
-</html>
+}
+@{
+    ViewData["Title"] = "Карта";
+}
+@using Newtonsoft.Json
+@using Project_site.Models;
+<div class="col-auto">
+    <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+</div>
+<div class="text-center h4 mb-3">Местоположение животного</div>
+<div class="row align-items-center">
+    <div class="col" id="map" style="width: 800px; height: 600px"></div>
+</div>

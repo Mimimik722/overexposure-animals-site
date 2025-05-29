@@ -2,66 +2,53 @@
 @{
     ViewData["Title"] = "Описание";
 }
-<div class="text-left">
-    <div class="row mb-3">
-        <div class="col-auto">
-            @if (Context.User.IsInRole("Sitter"))
-            {
-                <a class="btn btn-primary text-light" asp-controller="Orders" asp-action="New">Назад</a>
-            }
-            else
-            {
-                <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
-            }
-        </div>
-        <div class="h4 text-center">Описание для @Model.Name</div>
+<div class="row mb-3">
+    <div class="col-auto">
+        @if (Context.User.IsInRole("Sitter"))
+        {
+            <a class="btn btn-primary text-light" asp-controller="Orders" asp-action="New">Назад</a>
+        }
+        else
+        {
+            <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+        }
     </div>
-    <div class="row mb-3">
-        <div class="col-1 d-flex align-items-center">
-            <label class="form-label m-0">Имя:</label>
+    <div class="h4 text-center">Описание для @Model.Name</div>
+</div>
+<div class="row">
+    <div class="col-4">
+        <div class="row mb-3">
+            <div class="col d-flex align-items-center">
+                <label class="form-label m-0">Имя: @Model.Name</label>
+            </div>
         </div>
-        <div class="col-auto">
-            <span class="form-label col m-0">@Model.Name</span>
+        <div class="row mb-3">
+            <div class="col d-flex align-items-center">
+                <label class="form-label col-auto m-0">Порода: @Model.Breed_.Name</label>
+            </div>
         </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-1 d-flex align-items-center">
-            <label class="form-label col-auto m-0">Порода:</label>
+        <div class="row mb-3">
+            <div class="col d-flex align-items-center">
+                <label class="form-label m-0">Пол: @Model.Sex</label>
+            </div>
         </div>
-        <div class="col-auto">
-            <span class="form-label col m-0">@Model.Breed_.Name</span>
+        <div class="row align-itemns-center mb-3">
+            <div class="col">
+                <label class="form-label">Возраст: @Model.Age</label>
+            </div>
         </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-1 d-flex align-items-center">
-            <label class="form-label m-0">Пол:</label>
+        <div class="row mb-3">
+            <div class="col d-flex align-items-center">
+                <label class="form-label m-0">Вес: @Model.Weight</label>
+            </div>
         </div>
-        <div class="col-auto d-flex align-items-center">
-            <span class="form-label col m-0">@Model.Sex</span>
-        </div>
-    </div>
-    <div class="row align-itemns-center mb-3">
-        <div class="col-1">
-            <label class="form-label">Возраст:</label>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-            <span class="form-label col m-0">@Model.Age</span>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-1 d-flex align-items-center">
-            <label class="form-label m-0">Вес:</label>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-            <span class="form-label col m-0">@Model.Weight</span>
+        <div class="row mb-3">
+            <div class="col d-flex align-items-center">
+                <label class="form-label m-0">Особенности: @Model.Features</label>
+            </div>
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-1 d-flex align-items-center">
-            <label class="form-label m-0">Особенности:</label>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-            <span class="form-label col m-0">@Model.Features</span>
-        </div>
+    <div class="col">
+        <img src="/Pets/Image?pet=@Context.Request.Query.First().Value" class="profile-image image-fulid" alt="Изображение животного" />
     </div>
 </div>

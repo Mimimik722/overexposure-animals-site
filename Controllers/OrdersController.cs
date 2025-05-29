@@ -106,7 +106,7 @@ namespace Project_site.Controllers
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		[Authorize(Roles = "User, Sitter")]
-		public IActionResult Create(OrderModel order)
+		public async Task<IActionResult> Create(OrderModel order)
 		{
 			try
 			{
@@ -135,7 +135,7 @@ namespace Project_site.Controllers
                 };
                 db.Orders.Add(order);
 				db.OrdersHistory.Add(ordersHistory);
-				db.SaveChanges();
+				await db.SaveChangesAsync();
 				return RedirectToAction("Index", "Home");
 			}
 			catch

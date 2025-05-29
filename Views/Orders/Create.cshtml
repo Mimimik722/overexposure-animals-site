@@ -7,157 +7,186 @@
 	<a class="btn btn-primary text-light mb-3" asp-controller="Home" asp-action="Index">Назад</a>
 </div>
 <div class="h3 text-center mt-3 mb-3">Новый заказ</div>
-	@if (Model.Pet_ == null)
+@if (Model.Pet_ == null)
+{
+	foreach (var pet in ViewBag.Pets)
 	{
-		<div class="form-label col-form-label h4">Выберите животное:</div>
-		<table class="table table-bordered">
-			<tr>
-				<td>№</td>
-				<td>Имя</td>
-				<td>Порода</td>
-				<td>Пол</td>
-				<td>Возраст</td>
-				<td>Вес</td>
-				<td>Особенности</td>
-				<td>Действия</td>
-			</tr>
-		@foreach (var pet in ViewBag.pets)
-		{
-			count++;
-			<tr class="align-middle">
-				<td>@count</td>
-				<td>@pet.name</td>
-				<td>@pet.breed_.name</td>
-				<td>@pet.sex</td>
-				<td>@pet.age</td>
-				<td>@pet.weight</td>
-				<td>@pet.features</td>
-				<td>
-					<a class="btn btn-primary" asp-action="Create" asp-route-pet="@pet.id">Выбрать</a>
-				</td>
-			</tr>
-		}	
-		</table>
+		count++;
+		<div class="border border-4 rounded-3 mb-3">
+			<table class="table m-0">
+				<tbody>
+					<tr>
+						<td class="ps-3">
+							<image src="Pets/Image?pet=@count" class="img-fluid pet-image-sm"></image>
+						</td>
+						<td class="align-middle">
+							<div class="h5">Имя: @pet.Name</div>
+							<div class="h5">Пол: @pet.Sex</div>
+							<div class="h5">Возраст: @pet.Age</div>
+							<div class="h5">Особенности: @pet.Features</div>
+						</td>
+						<td class="align-middle ">
+							<div class="row align-self-center m-1">
+								<a class="btn btn-info" asp-action="Details" asp-route-pet="@pet.Id">Подробнее</a>
+							</div>
+							<div class="row align-self-center m-1">
+								<a class="btn btn-primary" asp-controller="Orders" asp-action="Create" asp-route-pet="@pet.Id">Выбрать</a>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	}
-	else if (Model.Sitter_ == null)
-	{
-		<div class="form-label col-form-label h4">Выберите ситтера:</div>
-		<form method="get">
-			<div class="row align-items-center mb-3">
-				<div class="col-auto">
-					<div class="row align-items-center mb-3">
-						<div class="col-2">Стоимость</div>
-						<div class="col-5">
-							<label class="form-label m-0">От:</label>
-							<input class="form-control" name="payment_from" />
-						</div>
-						<div class="col-5">
-							<label class="form-label m-0">До:</label>
-							<input class="form-control" name="payment_to" />
-						</div>
+}
+else if (Model.Sitter_ == null)
+{
+	<div class="form-label col-form-label h4">Выберите ситтера:</div>
+	<form method="get">
+		<div class="row align-items-center mb-3">
+			<div class="col-auto">
+				<div class="row align-items-center mb-3">
+					<div class="col-2">Стоимость</div>
+					<div class="col-5">
+						<label class="form-label m-0">От:</label>
+						<input class="form-control" name="payment_from" />
 					</div>
-					<div class="row align-items-center mb-3">
-						<div class="col-2 pe-1">Рейтинг</div>
-						<div class="col-5">
-							<label class="form-label m-0">От:</label>
-							<input class="form-control" name="rating_from" />
-						</div>
-						<div class="col-5">
-							<label class="form-label m-0">До:</label>
-							<input class="form-control" name="rating_to" />
-						</div>
+					<div class="col-5">
+						<label class="form-label m-0">До:</label>
+						<input class="form-control" name="payment_to" />
 					</div>
 				</div>
-				<input asp-route="pet" value="@Model.Pet_.Id" name="pet_id" hidden />
-				<div class="col-auto">
-					<input class="btn btn-success" type="submit" value="Применить"/>
+				<div class="row align-items-center mb-3">
+					<div class="col-2 pe-1">Рейтинг</div>
+					<div class="col-5">
+						<label class="form-label m-0">От:</label>
+						<input class="form-control" name="rating_from" />
+					</div>
+					<div class="col-5">
+						<label class="form-label m-0">До:</label>
+						<input class="form-control" name="rating_to" />
+					</div>
 				</div>
 			</div>
-		</form>
-		<table class="table table-bordered">
-			<tr>
-				<td>№</td>
-				<td>Рейтинг</td>
-				<td>Имя</td>
-				<td>Фамилия</td>
-				<td>Телефон</td>
-				<td>Возраст</td>
-				<td>З/п</td>
-				<td>Опыт работы</td>
-				<td>Действия</td>
-			</tr>
-		@foreach (var sitter in ViewBag.sitters)
-		{
-			count++;
-			<tr class="align-middle">
-			@{
-				DateTime zeroTime = new DateTime(1, 1, 1);
-				TimeSpan span = DateTime.Now - sitter.user_.birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
-				var years = (zeroTime + span).Year - 1;
-			}
-				<td>@count</td>
-				<td>@ViewBag.ratings[count - 1]</td>
-				<td>@sitter.user_.name</td>
-				<td>@sitter.user_.surname</td>
-				<td>@sitter.user_.telephone</td>
-				<td>@years</td>
-				<td>@sitter.payment</td>
-				<td>@sitter.experience</td>
-				<td>
-					<a class="btn btn-primary" asp-controller="Sitters" asp-action="Profile" asp-route-sitter="@sitter.id">Подробнее</a>
-					<a class="btn btn-success" asp-action="Create" asp-route-sitter="@sitter.id" asp-route-pet="@Model.Pet_.Id">Выбрать</a>
-				</td>
-			</tr>
+			<input asp-route="pet" value="@Model.Pet_.Id" name="pet_id" hidden />
+			<div class="col-auto">
+				<input class="btn btn-success" type="submit" value="Применить"/>
+			</div>
+		</div>
+	</form>
+	foreach (var sitter in ViewBag.sitters)
+	{
+		count++;
+		<div class="border border-4 rounded-3 mb-3">
+			<table class="table m-0">
+				<tbody>
+					<tr>
+						<td class="ps-3">
+							<image src="User/ProfileImage?user=@sitter.User_.Telephone" class="img-fluid pet-image-sm"></image>
+						</td>
+						<td class="align-middle">
+							<div class="h5">Имя, Фамилия: @sitter.User_.Surname @sitter.User_.Name</div>
+							<div class="h5">Рейтинг: @ViewBag.Ratings[count - 1]</div>
+							<div class="h5">Стоимость: @sitter.Payment</div>
+							<div class="h5">Опыт работы: @sitter.Experience</div>
+						</td>
+						<td class="align-middle ">
+							<div class="row align-self-center m-1">
+								<a class="btn btn-primary" asp-controller="Sitters" asp-action="Profile" asp-route-sitter="@sitter.Id">Подробнее</a>
+							</div>
+							<div class="row align-self-center m-1">
+								<a class="btn btn-success" asp-action="Create" asp-route-sitter="@sitter.Id" asp-route-pet="@Model.Pet_.Id">Выбрать</a>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	}
+	@* <table class="table table-bordered">
+		<tr>
+			<td>№</td>
+			<td>Рейтинг</td>
+			<td>Имя</td>
+			<td>Фамилия</td>
+			<td>Телефон</td>
+			<td>Возраст</td>
+			<td>З/п</td>
+			<td>Опыт работы</td>
+			<td>Действия</td>
+		</tr>
+	@foreach (var sitter in ViewBag.sitters)
+	{
+		count++;
+		<tr class="align-middle">
+		@{
+			DateTime zeroTime = new DateTime(1, 1, 1);
+			TimeSpan span = DateTime.Now - sitter.User_.Birthday.ToDateTime(TimeOnly.Parse("10:00 PM"));
+			var years = (zeroTime + span).Year - 1;
 		}
-		</table>
+			<td>@count</td>
+			<td>@ViewBag.Ratings[count - 1]</td>
+			<td>@sitter.User_.Name</td>
+			<td>@sitter.User_.Surname</td>
+			<td>@sitter.User_.Telephone</td>
+			<td>@years</td>
+			<td>@sitter.Payment</td>
+			<td>@sitter.Experience</td>
+			<td>
+				<a class="btn btn-primary" asp-controller="Sitters" asp-action="Profile" asp-route-sitter="@sitter.Id">Подробнее</a>
+				<a class="btn btn-success" asp-action="Create" asp-route-sitter="@sitter.Id" asp-route-pet="@Model.Pet_.Id">Выбрать</a>
+			</td>
+		</tr>
 	}
-	else
-	{
-		<form class="form-control" method="post">
-			<div class="row mb-3">
-				<div class="form-label col-form-label">Заполните дополнительные поля:</div>
-			</div>
-			<div class="row mb-3">
-			    <div class="col-auto d-flex align-items-center">
-			        <label class="form-label m-0">Ситтер: @Model.Sitter_.User_.Name @Model.Sitter_.User_.Surname</label>
-			    </div>
-			</div>
-			<div class="row mb-3">
-			    <div class="col-auto d-flex align-items-center">
-			        <label class="form-label col-auto m-0">Животное: @Model.Pet_.Name</label>
-			    </div>
-			</div>
-			<div class="row mb-3">
-			    <div class="col-auto d-flex align-items-center">
-			        <label class="form-label m-0">Тип заказа: </label>
-			    </div>
-			    <div class="form-check form-check-inline col-auto">
-			        <input name="Order_type_name" list="Order_types" />
-					<datalist id="Order_types">
-						@foreach (var order_type in ViewBag.order_types){
-							<option value="@order_type.Name"></option>
-						}
-					</datalist>
-			    </div> 
-			</div>
-			<div class="row align-itemns-center mb-3">
-			    <div class="col-auto">
-			        <label class="form-label">Дата начала: </label>
-			    </div>
-			    <div class="col-auto d-flex align-items-center">
-			        <input class="form-control" type="date" asp-for=Date_start value="@DateTime.Now"/>
-			        <span class="text-danger" asp-validation-for=Date_start></span>
-			    </div>
-			</div>
-			<div class="row align-itemns-center mb-3">
-			    <div class="col-auto">
-			        <label class="form-label">Дата окончания: </label>
-			    </div>
-			    <div class="col-auto d-flex align-items-center">
-			        <input class="form-control" type="date" asp-for=Date_end value="@DateTime.Now"/>
-			        <span class="text-danger" asp-validation-for=Date_end></span>
-			    </div>
-			</div>
-			<input class="btn btn-success" type="submit" value="Создать заказ"/>
-		</form>
-	}
+	</table> *@
+}
+else
+{
+	<form class="form-control" method="post">
+		<div class="row mb-3">
+			<div class="form-label col-form-label">Заполните дополнительные поля:</div>
+		</div>
+		<div class="row mb-3">
+		    <div class="col-auto d-flex align-items-center">
+		        <label class="form-label m-0">Ситтер: @Model.Sitter_.User_.Name @Model.Sitter_.User_.Surname</label>
+		    </div>
+		</div>
+		<div class="row mb-3">
+		    <div class="col-auto d-flex align-items-center">
+		        <label class="form-label col-auto m-0">Животное: @Model.Pet_.Name</label>
+		    </div>
+		</div>
+		<div class="row mb-3">
+		    <div class="col-auto d-flex align-items-center">
+		        <label class="form-label m-0">Тип заказа: </label>
+		    </div>
+		    <div class="form-check form-check-inline col-auto">
+		        <input name="Order_type_name" list="Order_types" />
+				<datalist id="Order_types">
+					@foreach (var order_type in ViewBag.order_types){
+						<option value="@order_type.Name"></option>
+					}
+				</datalist>
+		    </div> 
+		</div>
+		<div class="row align-itemns-center mb-3">
+		    <div class="col-auto">
+		        <label class="form-label">Дата начала: </label>
+		    </div>
+		    <div class="col-auto d-flex align-items-center">
+		        <input class="form-control" type="date" asp-for=Date_start value="@DateTime.Now"/>
+		        <span class="text-danger" asp-validation-for=Date_start></span>
+		    </div>
+		</div>
+		<div class="row align-itemns-center mb-3">
+		    <div class="col-auto">
+		        <label class="form-label">Дата окончания: </label>
+		    </div>
+		    <div class="col-auto d-flex align-items-center">
+		        <input class="form-control" type="date" asp-for=Date_end value="@DateTime.Now"/>
+		        <span class="text-danger" asp-validation-for=Date_end></span>
+		    </div>
+		</div>
+		<input class="btn btn-success" type="submit" value="Создать заказ"/>
+	</form>
+}

@@ -31,15 +31,12 @@ namespace Project_site
             return Convert.ToBase64String(hash);
         }
 
-        public string Encrypt(int s, int telephone)
+        //Перевод изображения в байты
+        public byte[] ImageToByteString(IFormFile image)
         {
-            var telephone_s = telephone.ToString();
-            return "";
-        }
-
-        public int Decrypt(string s)
-        {
-            return 0;
+            var memoryStream = new MemoryStream();
+            image.CopyTo(memoryStream);
+            return memoryStream.ToArray();
         }
     }
 }

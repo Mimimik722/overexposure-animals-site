@@ -1,4 +1,4 @@
-﻿@model PetModel;
+﻿@model Project_site.Models.PetModel;
 @{
     ViewData["Title"] = "Изменение";
 }
@@ -6,19 +6,19 @@
     <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
 </div>
 <div class="row justify-content-center">
-    <div class="col-4">
-        <form class="form-control" method="post">
+    <div class="col-auto pt-3">
+        <form id="edit" class="form-control" asp-controller="Pets" asp-action="Edit" method="Post" enctype="multipart/form-data">
             <div class="h4 text-center mb-4">Изменение данных для @Model.Name</div>
-            <div class="row mb-3">
-                <div class="col-4 d-flex align-items-center">
+            <div class="row justify-content-start mb-3">
+                <div class="col-auto align-items-center d-flex">
                     <label class="form-label m-0">Имя:</label>
                 </div>
                 <div class="col-auto">
                     <input class="form-control m-0" type="name" asp-for=Name/>
                 </div>
             </div>
-            <div class="row mb-3">
-                <div class="col-4 d-flex align-items-center">
+            <div class="row justify-content-start mb-3">
+                <div class="col-auto align-items-center d-flex">
                     <label class="form-label col-auto m-0">Порода:</label>
                 </div>
                 <div class="col-auto">
@@ -26,14 +26,14 @@
                     <datalist id="townlistOptions">
                         @foreach (var breed in @ViewBag.Breeds)
                         {
-                            <option value="@breed.name"></option>
+                            <option value="@breed.Name"></option>
                         }
                     </datalist>
                     <span class="text-danger" asp-validation-for=Breed_></span>
                 </div>
             </div>
-            <div class="row mb-3">
-                <div class="col-4 d-flex align-items-center">
+            <div class="row justify-content-start mb-3">
+                <div class="col-auto d-flex align-items-center">
                     <label class="form-label m-0">Пол:</label>
                 </div>
                 <div class="form-check form-check-inline col-auto ms-4 ps-3">
@@ -59,30 +59,38 @@
                     <label class="form-check-label" for="radio2">Ж</label>
                 </div>
             </div>
-            <div class="row align-itemns-center mb-3">
-                <div class="col-4">
+            <div class="row justify-content-start mb-3">
+                <div class="col-auto align-items-center">
                     <label class="form-label">Возраст:</label>
                 </div>
-                <div class="col-auto d-flex align-items-center">
-                    <input class="form-control m-0" type="name" asp-for=Age/>
+                <div class="col-auto d-flex">
+                    <input class="form-control m-0" type="age" asp-for=Age/>
                     <span class="text-danger" asp-validation-for=Age></span>
                 </div>
             </div>
-            <div class="row mb-3">
-                <div class="col-4 d-flex align-items-center">
+            <div class="row justify-content-start mb-3">
+                <div class="col-auto align-items-center d-flex">
                     <label class="form-label m-0">Вес:</label>
                 </div>
-                <div class="col-auto d-flex align-items-center">
-                    <input class="form-control m-0" type="name" asp-for=Weight/>
+                <div class="col-auto d-flex">
+                    <input class="form-control m-0" type="weight" asp-for=Weight/>
                     <span class="text-danger" asp-validation-for=Weight></span>
                 </div>
             </div>
-            <div class="row mb-3">
-                <div class="col-4 d-flex align-items-center">
+            <div class="row justify-content-start mb-3">
+                <div class="col-auto align-items-center d-flex">
                     <label class="form-label m-0">Особенности:</label>
                 </div>
-                <div class="col-auto d-flex align-items-center">
-                    <input class="form-control m-0" type="name" asp-for=Features/>
+                <div class="col-auto d-flex">
+                    <input class="form-control m-0" type="features" asp-for=Features/>
+                </div>
+            </div>
+            <div class="row justify-content-start mb-3">
+                <div class="col-auto align-items-center d-flex">
+                    <label class="form-label m-0">Фото:</label>
+                </div>
+                <div class="col-auto d-flex">
+                    <input class="form-control m-0" type="file" name="Image"/>
                 </div>
             </div>
             <div class="text-center">

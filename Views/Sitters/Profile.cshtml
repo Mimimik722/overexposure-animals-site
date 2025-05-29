@@ -4,98 +4,104 @@
     ViewData["Title"] = "Инфомрация о ситтере";
 }
 
-<div class="text-center">
-    <div class="row mb-3">
-        <div class="col-auto">
-            @if (Context.User.IsInRole("User"))
-            {
-                <a class="btn btn-primary text-light" asp-controller="Orders" asp-action="Create">Назад</a>
-            }
-            else
-            {
-                <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
-            }
-        </div>
-        <div class="h4 mb-3">Данные пользователя: @Model.User_.Name @Model.User_.Surname</div>
+<div class="row mb-3">
+    <div class="col-auto">
+        @if (Context.User.IsInRole("User"))
+        {
+            <a class="btn btn-primary text-light" asp-controller="Orders" asp-action="Create">Назад</a>
+        }
+        else
+        {
+            <a class="btn btn-primary text-light" asp-action="Index">Назад</a>
+        }
     </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label m-0">Имя:</label>
+    <div class="h4 mb-3">Данные пользователя: @Model.User_.Name @Model.User_.Surname</div>
+</div>
+<div class="row">
+    <div class="col-4">
+        <div class="row mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label m-0">Имя:</label>
+            </div>
+            <div class="col-auto">
+                <span class="form-label col m-0">@Model.User_.Name</span>
+            </div>
         </div>
-        <div class="col-auto">
-            <span class="form-label col m-0">@Model.User_.Name</span>
+        <div class="row mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label col-auto m-0">Фамилия:</label>
+            </div>
+            <div class="col-auto">
+                <span class="form-label col m-0">@Model.User_.Surname</span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label m-0">Рейтинг:</label>
+            </div>
+            <div class="col-auto d-flex align-items-center">
+                <span class="form-label col m-0">@ViewBag.rating</span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label m-0">Город:</label>
+            </div>
+            <div class="col-auto d-flex align-items-center">
+                <span class="form-label col m-0">@Model.User_.Town_.Name</span>
+            </div>
+        </div>
+        <div class="row align-itemns-center mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label">Пол:</label>
+            </div>
+            <div class="col-auto d-flex align-items-center">
+                <span class="form-label col m-0">@Model.User_.Sex</span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label m-0">Дата рождения:</label>
+            </div>
+            <div class="col-auto d-flex align-items-center">
+                <span class="form-label col m-0">@Model.User_.Birthday</span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label m-0">Телефон:</label>
+            </div>
+            <div class="col-auto d-flex align-items-center">
+                <span class="form-label col m-0">@Model.User_.Telephone</span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label m-0">E-mail:</label>
+            </div>
+            <div class="col-auto">
+                <span class="form-label col m-0">@Model.User_.Email</span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label m-0">Стоимость заказа:</label>
+            </div>
+            <div class="col-auto">
+                <span class="form-label col m-0">@Model.Payment</span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-2 d-flex align-items-center">
+                <label class="form-label m-0">Опыт работы:</label>
+            </div>
+            <div class="col-auto">
+                <span class="form-label col m-0">@Model.Experience</span>
+            </div>
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label col-auto m-0">Фамилия:</label>
-        </div>
-        <div class="col-auto">
-            <span class="form-label col m-0">@Model.User_.Surname</span>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label m-0">Рейтинг:</label>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-            <span class="form-label col m-0">@ViewBag.rating</span>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label m-0">Город:</label>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-            <span class="form-label col m-0">@Model.User_.Town_.Name</span>
-        </div>
-    </div>
-    <div class="row align-itemns-center mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label">Пол:</label>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-            <span class="form-label col m-0">@Model.User_.Sex</span>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label m-0">Дата рождения:</label>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-            <span class="form-label col m-0">@Model.User_.Birthday</span>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label m-0">Телефон:</label>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-            <span class="form-label col m-0">@Model.User_.Telephone</span>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label m-0">E-mail:</label>
-        </div>
-        <div class="col-auto">
-            <span class="form-label col m-0">@Model.User_.Email</span>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label m-0">Стоимость заказа:</label>
-        </div>
-        <div class="col-auto">
-            <span class="form-label col m-0">@Model.Payment</span>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-2 d-flex align-items-center">
-            <label class="form-label m-0">Опыт работы:</label>
-        </div>
-        <div class="col-auto">
-            <span class="form-label col m-0">@Model.Experience</span>
-        </div>
+    <div class="col">
+        <img src="/User/ProfileImage?user=@Model.User_.Telephone" class="profile-image image-fulid" alt="Изображение профиля" />
     </div>
 </div>
+

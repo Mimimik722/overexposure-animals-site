@@ -12,36 +12,38 @@
     </div>
 </div>
 <div class="text-center h4 mb-3">Домашние животные</div>
-<table class="table table-bordered">
-    <tr>
-        <td>№</td>
-        <td>Имя</td>
-        <td>Порода</td>
-        <td>Пол</td>
-        <td>Возраст</td>
-        <td>Вес</td>
-        <td>Особенности</td>
-        <td>Действия</td>
-    </tr>
-    @if (Model != null)
+@if (Model != null)
+{
+    foreach (var pet in Model)
     {
-        foreach (var pet in Model)
-        {
-            count++;
-            <tr class="align-middle">
-                <td>@count</td>
-                <td>@pet.Name</td>
-                <td>@pet.Breed_.Name</td>
-                <td>@pet.Sex</td>
-                <td>@pet.Age</td>
-                <td>@pet.Weight</td>
-                <td>@pet.Features</td>
-                <td>
-                    <a class="btn btn-info" asp-action="Details" asp-route-pet="@pet.Id">Подробнее</a>
-                    <a class="btn btn-primary" asp-action="Edit" asp-route-pet="@pet.Id">Изменить</a>
-                    <a class="btn btn-danger" asp-action="Delete" asp-route-pet="@pet.Id">Удалить</a>
-                </td>
-            </tr>
-        }
+        count++;
+        <div class="border border-4 rounded-3 mb-3">
+            <table class="table m-0">
+                <tbody>
+                    <tr>
+                        <td class="ps-3">
+                            <image src="Pets/Image?pet=@count" class="img-fluid pet-image-sm "></image>
+                        </td>
+                        <td class="align-middle">
+                            <div class="h5">Имя: @pet.Name</div>
+                            <div class="h5">Пол: @pet.Sex</div>
+                            <div class="h5">Возраст: @pet.Age</div>
+                            <div class="h5">Особенности: @pet.Features</div>
+                        </td>
+                        <td class="align-middle ">
+                            <div class="row align-self-center m-1">
+                                <a class="btn btn-info" asp-action="Details" asp-route-pet="@pet.Id">Подробнее</a>
+                            </div>
+                                    <div class="row align-self-center m-1">
+                                <a class="btn btn-primary" asp-action="Edit" asp-route-pet="@pet.Id">Изменить</a>
+                            </div>
+                                    <div class="row align-self-center m-1">
+                                <a class="btn btn-danger" asp-action="Delete" asp-route-pet="@pet.Id">Удалить</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     }
-</table>
+}

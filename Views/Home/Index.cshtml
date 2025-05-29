@@ -5,7 +5,42 @@
 <div class="text-center">
     <h1 class="display-4">Pet-master</h1>
     <p>Заботимся о вашем питомце пока вы заняты</p>
-    @if (ViewBag.pets is not null)
+    @if (ViewBag.Pets != null)
+    {
+        int count = 0;
+        <div class="h3 text-center mt-3 mb-3">Новый заказ</div>
+        <div class="form-label col-form-label h4">Выберите животное:</div>
+        foreach (var pet in ViewBag.Pets)
+        {
+            count++;
+            <div class="border border-4 rounded-3 mb-3">
+                <table class="table m-0">
+                    <tbody>
+                        <tr>
+                            <td class="ps-3">
+                                <image src="Pets/Image?pet=@count" class="img-fluid pet-image-sm "></image>
+                            </td>
+                            <td class="">
+                                <div class="h5">Имя: @pet.Name</div>
+                                <div class="h5">Пол: @pet.Sex</div>
+                                <div class="h5">Возраст: @pet.Age</div>
+                                <div class="h5">Особенности: @pet.Features</div>
+                            </td>
+                            <td class="align-middle ">
+                                <div class="row align-self-center m-1">
+                                    <a class="btn btn-info" asp-controller="Pets" asp-action="Details" asp-route-pet="@pet.Id">Подробнее</a>
+                                </div>
+                                <div class="row align-self-center m-1">
+                                    <a class="btn btn-primary" asp-controller="Orders" asp-action="Create" asp-route-pet="@pet.Id">Выбрать</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+   @*  @if (ViewBag.pets != null)
 	{
         int count = 1;
         <div class="h3 text-center mt-3 mb-3">Новый заказ</div>
@@ -38,7 +73,7 @@
                 </tr>
 	    	}
         </table>
-    }
+    } *@
     else
     {
         <div class="h4 text-center mt-3 mb-3">К сожалению, доступных животных нет. Войдите и добавьте своего питомца, чтобы сделать заказ.</div>

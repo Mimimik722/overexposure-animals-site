@@ -13,7 +13,7 @@ async function initMap() {
         document.getElementById('map'),
         {
             location: {
-                center: [coords.longitude, coords.latitude],
+                center: [coords.Longitude, coords.Latitude],
                 zoom: 18
             }
         }
@@ -23,7 +23,7 @@ async function initMap() {
 
     const marker = new YMapDefaultMarker(
         {
-            coordinates: [coords.longitude, coords.latitude],
+            coordinates: [coords.Longitude, coords.Latitude],
             title: "Ваш питомец"
         }
     );

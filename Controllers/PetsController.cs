@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace Project_site.Controllers
 {
@@ -52,6 +53,8 @@ namespace Project_site.Controllers
         {
             try
             {
+                Encryption enc = new();
+
                 if (!pet.Name.ToString().All(char.IsLetter) ||
                     !pet.Name.ToString().All(char.IsLetter))
                 {
@@ -84,6 +87,10 @@ namespace Project_site.Controllers
                     pet.Sex = "ж";
                 }
                 
+                if (Request.Form.Files["Image"] != null)
+                {
+                    pet.Image = enc.ImageToByteString(Request.Form.Files["Image"]);
+                }
                 pet.Breed_ = db.Breeds.FirstOrDefault(o => o.Name == Request.Form["breed"].ToString());
                 pet.Client_ = db.Users.Find(JsonConvert.DeserializeObject<UserModel>(HttpContext.Session.GetString("user")).Id); ;
                 pet.Is_deleted = 0;
@@ -125,11 +132,11 @@ namespace Project_site.Controllers
 
         //Изменение данных о животном
         [HttpPost]
-        [AutoValidateAntiforgeryToken]
         public IActionResult Edit(PetModel pet)
         {
             try
             {
+                Encryption enc = new();
                 if (!pet.Name.ToString().All(char.IsLetter) ||
                     !pet.Name.ToString().All(char.IsLetter))
                 {
@@ -168,6 +175,10 @@ namespace Project_site.Controllers
                 else
                 {
                     old_pet.Sex = "ж";
+                }
+                if (Request.Form.Files != null)
+                {
+                    old_pet.Image = enc.ImageToByteString(Request.Form.Files.First());
                 }
 
                 db.Pets.Update(old_pet);
@@ -210,13 +221,13 @@ namespace Project_site.Controllers
         [HttpGet]
 		public IActionResult Details(int pet)
 		{
-            if (db.Pets.FirstOrDefault(o => o.Id == pet).Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
+            if (db.Pets.Include(o => o.Client_).FirstOrDefault(o => o.Id == pet).Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone))
             {
                 try
                 {
                     ViewData["Breeds"] = db.Breeds.ToList();
                     PetModel? petM = db.Pets.FirstOrDefault(o => o.Id == pet);
-                    return View(pet);
+                    return View(petM);
                 }
                 catch
                 {
@@ -228,5 +239,33 @@ namespace Project_site.Controllers
                 return RedirectToAction("Index");
             }
 		}
+
+        [HttpGet]
+        public async Task<IActionResult> Image(int pet)
+        {
+            try
+            {
+                Encryption enc = new();
+                FileStream fileStream = System.IO.File.OpenRead("wwwroot/images/paw.jpg");
+                byte[] ImageBytes = new byte[int.Parse(fileStream.Length.ToString())];
+                await fileStream.ReadAsync(ImageBytes, 0, int.Parse(fileStream.Length.ToString()));
+                fileStream.Close();
+                
+                ICollection<PetModel> pets = [.. db.Pets.Where(o => o.Client_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone))];
+                if (pet < 1 || pets.Count > pet || pets.ElementAt(pet - 1).Image == null)
+                {
+                    return File(ImageBytes, "image/jpg");
+                }
+                else
+                {
+                    ImageBytes = pets.ElementAt(pet - 1).Image;
+                    return File(ImageBytes, "image/jpg");
+                }
+            }
+            catch
+            {
+                return StatusCode(504);
+            }
+        }
 	}
 }

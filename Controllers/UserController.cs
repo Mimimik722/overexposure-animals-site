@@ -24,18 +24,18 @@ namespace Project_site.Controllers
             return Convert.ToBase64String(hash);
         }
 
-        //Перевод изображения в байты
-        public byte[] ImageToByteString(IFormFile image)
-        {
-            var memoryStream = new MemoryStream();
-            image.CopyTo(memoryStream);
-            return memoryStream.ToArray();
-        }
-
         [Authorize]
-        public IActionResult ProfileImage()
+        public async Task<IActionResult> ProfileImage(string? user)
         {
-            byte[] bytes = db.Users.FirstOrDefault(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Image;
+            byte[] bytes;
+            if (user == null)
+            {
+                bytes = (await db.Users.FirstOrDefaultAsync(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone))).Image;
+            }
+            else
+            {
+                bytes = (await db.Users.FirstOrDefaultAsync(o => o.Telephone == user)).Image;
+			}
             return File(bytes, "image/jpg");
         }
 
@@ -45,7 +45,7 @@ namespace Project_site.Controllers
             {
                 ViewData["role"] = User.FindFirstValue(ClaimTypes.Role);
                 if (db.Sitters.FirstOrDefault(o => o.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)) != null)
-                {
+                {           
                     SitterModel sitter = db.Sitters.FirstOrDefault(o => o.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
                     ViewData["status"] = sitter.Status;
                     ViewData["rating"] = (float)db.Orders.Where(o => o.Sitter_ == sitter && o.Feedback_ != null).Average(o => o.Feedback_.Rating);
@@ -74,8 +74,8 @@ namespace Project_site.Controllers
             try
             {
                 string old_password = GetHash(Request.Form["password"]),
-                    new_password = enc.GetHash(Request.Form["password"].ToString(), double.Parse(Request.Form["telephone"]));
-                if (!db.Users.Any(o => o.Telephone == Request.Form["telephone"].ToString()) ||
+                    new_password = enc.GetHash(Request.Form["password"].ToString(), double.Parse(data.Telephone));
+                if (!db.Users.Any(o => o.Telephone == data.Telephone.ToString()) ||
                     !db.Users.Any(o => o.Password == old_password
                                 || o.Password == new_password)
                     )
@@ -84,7 +84,11 @@ namespace Project_site.Controllers
                     return View(data);
                 }
 
-                UserModel user = db.Users.Where(o => o.Telephone == Request.Form["telephone"].ToString()).Include(o => o.Town_).Include(o => o.Role_).First();
+                UserModel user = db.Users
+                    .Where(o => o.Telephone == data.Telephone.ToString())
+                    .Include(o => o.Town_)
+                    .Include(o => o.Role_)
+                    .First();
                 if (user.Password != new_password)
                 {
                     user.Password = new_password;
@@ -94,7 +98,7 @@ namespace Project_site.Controllers
                 HttpContext.Session.Set("user", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(user)));
 
                 var claims = new[] {
-                    new Claim(ClaimTypes.MobilePhone, Request.Form["telephone"].ToString()),
+                    new Claim(ClaimTypes.MobilePhone, data.Telephone.ToString()),
                     new Claim(ClaimTypes.Name, user.Name),
                     new Claim(ClaimTypes.Role, "User"),
                     new Claim(ClaimTypes.Surname, user.Surname),
@@ -123,7 +127,8 @@ namespace Project_site.Controllers
                 {
                     FileStream fileStream = System.IO.File.Open("wwwroot/images/standard-profile-image.jpg", FileMode.Open);
                     IFormFile image = new FormFile(fileStream, 0, fileStream.Length, "base-image", "base-image");
-                    user.Image = ImageToByteString(image);
+                    fileStream.Close();
+                    user.Image = enc.ImageToByteString(image);
                     db.Update(user);
                     db.SaveChanges();
                 }
@@ -164,6 +169,7 @@ namespace Project_site.Controllers
             try
             {
                 ViewData["towns"] = db.Towns.ToList();
+                Encryption enc = new();
 
                 if (!Request.Form["name"].ToString().All(char.IsLetter) ||
                     !Request.Form["surname"].ToString().All(char.IsLetter))
@@ -212,7 +218,7 @@ namespace Project_site.Controllers
                 }
                 if (Request.Form.Files["Image"] != null)
                 {
-                    user.Image = ImageToByteString(Request.Form.Files["Image"]);
+                    user.Image = enc.ImageToByteString(Request.Form.Files["Image"]);
                 }
 
                 db.Users.Add(user);
@@ -313,7 +319,7 @@ namespace Project_site.Controllers
                 {
                     ViewData["status"] = db.Sitters.FirstOrDefault(o => o.User_.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone)).Status;
                 }
-                UserModel user = db.Users.FirstOrDefault(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
+                UserModel user = db.Users.Include(o => o.Town_).FirstOrDefault(o => o.Telephone == User.FindFirstValue(ClaimTypes.MobilePhone));
                 return View(user);
             }
             catch
@@ -366,6 +372,13 @@ namespace Project_site.Controllers
             user.Birthday = new_user.Birthday;
             user.Telephone = new_user.Telephone;
             user.Email = new_user.Email;
+
+            User.AddUpdateClaim(ClaimTypes.Name, new_user.Name);
+            User.AddUpdateClaim(ClaimTypes.Surname, new_user.Surname);
+            User.AddUpdateClaim(ClaimTypes.Gender, new_user.Sex);
+            User.AddUpdateClaim(ClaimTypes.DateOfBirth, new_user.Birthday);
+            User.AddUpdateClaim(ClaimTypes.MobilePhone, new_user.Telephone);
+            User.AddUpdateClaim(ClaimTypes.Email, new_user.Email);
             if (sitter != null)
             {
                 sitter.Status = Request.Form["status"];
@@ -374,8 +387,6 @@ namespace Project_site.Controllers
 
             db.Users.Update(user);
             db.SaveChanges();
-            this.HttpContext.Session.Remove("user");
-            this.HttpContext.Session.Set("user", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(user)));
             return RedirectToAction("Index");
         }
 

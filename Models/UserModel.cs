@@ -2,7 +2,7 @@
 
 namespace Project_site.Models
 {
-    [Bind(include: "town_, name, surname, sex, birthday, telephone, email, image")]
+    [Bind(include: "Town_, Name, Surname, Sex, Birthday, Telephone, Email, Image")]
     public class UserModel
     {
         public int Id { get; set; } = 0;
